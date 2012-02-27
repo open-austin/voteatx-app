@@ -1,0 +1,11 @@
+#!/usr/bin/env - ruby
+
+require "#{File.dirname($0)}/../lib/findit"
+
+# Fix to lat/long of my house.
+current_latitude = 30.367534
+current_longitude = -97.734225
+
+result = FindIt.nearby(current_latitude, current_longitude)
+require "pp"
+pp result
