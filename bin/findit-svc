@@ -15,6 +15,10 @@ get '/findit.js' do
   send_file "pub/findit.js"
 end
 
+get '/about.html' do
+  send_file "pub/about.html"
+end
+
 get '/nearby/:lat,:lng' do |lat, lng|
   result = FindIt.nearby(lat, lng)
   content_type :json

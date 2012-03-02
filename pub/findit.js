@@ -1,111 +1,208 @@
 
-var FindIt = {
-    
-    svc_endpoint : null,
-      
-    event_handler : null,
-    
-    map_id : null,
-      
-    app_status : null,
-      
-    position : null,
-    
-    map : null,
-    
-    info_windows : null,
+function inherit(m) {
+  var o = function() {};
+  o.prototype = m;  
+  return new o();
+}
 
-    // Changes the "app_status" value, and invokes the status change callback handler.
-    set_app_status : function(new_status) {
-      // alert("geolocation status = " + new_status);
-      this.app_status = new_status;
-      if (this.event_handler !== null) {
-        this.event_handler({type : this.app_status, position : this.position});
+
+function FindIt(opts) {
+  r = inherit(FindIt.methods);
+
+  if (! opts.map_id) throw "required parameter \"map_id\" not defined";
+  r.dom_map_elem = document.getElementById(opts.map_id);
+  if (! r.dom_map_elem) throw "cannot locate element id \"" + opts.map_id + "\" in page";
+  r.event_handler = opts.event_handler;
+  r.svc_endpoint = opts.svc_endpoint || document.URL;
+  
+  r.map = null;
+  r.marker_me = null;
+  r.feature_markers = [];
+  r.info_windows = [];
+  r.position = null;
+  r.address = null;
+  
+  r.marker_images = {
+    
+    'blue_dot' : new google.maps.MarkerImage(
+        "http://maps.google.com/mapfiles/ms/micons/blue-dot.png",
+        new google.maps.Size(32, 32), // size
+        new google.maps.Point(0,0), // origin
+        new google.maps.Point(16, 32) // anchor
+      ),
+    
+    'red_dot' : new google.maps.MarkerImage(
+        "http://maps.google.com/mapfiles/ms/micons/red-dot.png",
+        new google.maps.Size(32, 32), // size
+        new google.maps.Point(0,0), // origin
+        new google.maps.Point(16, 32) // anchor
+      ),
+    
+    'shadow' : new google.maps.MarkerImage(
+        "http://maps.google.com/mapfiles/ms/micons/msmarker.shadow.png",
+        new google.maps.Size(59, 32), // size
+        new google.maps.Point(0,0), // origin
+        new google.maps.Point(16, 32) // anchor
+    ),
+      
+  };
+  
+  return r;
+}
+
+
+FindIt.methods = {    
+
+    // Invoke the event handler callback.
+    send_event : function(event_type, args) {
+      // alert("sending event = " + event);
+      if (this.event_handler) {
+        this.event_handler(event_type, args);
       }
     },
     
-    // Begin the FindIt application.
-    //
-    // This top half attempts automatic geolocation.
-    // If geolocation is successful, then "createFeatureMap" will be invoked to create the map.
-    start : function (opts) {
-      this.svc_endpoint = opts.svc_endpoint || document.URL;
-      this.event_handler = opts.handler;
-      this.map_id = opts.map_id;
+    
+    // Attempt automatic geolocation, and create map at that position.
+    start : function () {
       
-      this.app_status = null;
-      this.position = null;
-      this.map = null;
-      this.info_windows = [];
-      
-      if (navigator.geolocation) {
-        this.set_app_status("GEOLOCATION_RUNNING");
-        navigator.geolocation.getCurrentPosition(this.geolocationCallbackSuccess, this.geolocationCallbackFail, {
-          enableHighAccuracy : true,
-          maximumAge : 300000, // 300 sec = 5 min
-          timeout : 10000 // 10 sec
-        });
-        return true;
-      } else {
-        this.set_app_status("GEOLOCATION_UNSUPPORTED");
+      if (! navigator.geolocation) {
+        this.send_event("GEOLOCATION_UNSUPPORTED", {});
         return false;
       }
+      
+      var that = this;
+      
+      var successCallBack = function(loc) {
+        that.send_event("GEOLOCATION_SUCCEEDED", {});
+        that.displayMapAtLocation(new google.maps.LatLng(loc.coords.latitude, loc.coords.longitude));
+      };
+      
+      var failCallBack = function(error) {
+        that.send_event("GEOLOCATION_FAILED", {'error' : error});
+      };
+      
+      var opts = {
+        enableHighAccuracy : true,
+        maximumAge : 300000, // 300 sec = 5 min
+        timeout : 10000 // 10 sec
+      };
+      
+      this.send_event("GEOLOCATION_RUNNING", {});
+      navigator.geolocation.getCurrentPosition(successCallBack, failCallBack, opts);
+      
+      return true;
     },
     
-    geolocationCallbackSuccess : function(pos) {
-      FindIt.set_app_status("GEOLOCATION_SUCCEEDED");
-      FindIt.createFeatureMap(pos);
+    
+    displayMapAtLocation : function(loc, address) {
+    	
+      if (this.map) {
+    	  this.map.panTo(loc);
+      } else {    	
+        this.map = new google.maps.Map(this.dom_map_elem, {
+          zoom: 13,
+          center: loc,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+      }
+      
+      if (this.marker_me) {
+    	  this.marker_me.setPosition(loc);    	  
+      } else {
+    	  this.marker_me = this.placeMe(loc);
+      }
+
+      if (address) {
+    	this.send_event("ADDRESS_GOOD", {'address' : address});
+      } else {
+    	this.findAddress(loc);
+      }
+      
+      this.searchNearby(loc);
     },
     
-    geolocationCallbackFail : function () {
-      FindIt.set_app_status("GEOLOCATION_FAILED");
+    
+    placeMe : function(loc) {
+      
+      var that = this;
+
+      var marker = new google.maps.Marker({
+          map: this.map,
+          position: loc,
+          icon: this.marker_images.red_dot,
+          shadow: this.marker_images.shadow,
+          draggable: true,
+          title: "you are here"
+      }); 
+      
+      var dragCallBack = function(event) {
+        that.changeLocation(event.latLng);
+      };
+      
+      google.maps.event.addListener(marker, 'dragend', dragCallBack);
+      
+      this.makeInfoWindow(marker, "<p>You are here!</p><p><i>Drag this marker to explore the city.</i></p>");    
+      
+      return marker;
+    },
+
+    
+    // Attempt to geocode a given address, and if successful map that address.
+    displayMapAtAddress : function(address) { 
+      var that = this;
+      var geocodeDoneCallBack = function(results, status) {
+        if (status !== google.maps.GeocoderStatus.OK) {
+          that.send_event("ADDRESS_BAD", {'message' : "geocoder returned: " + status});
+        } else {
+          that.displayMapAtLocation(results[0].geometry.location, results[0].formatted_address);
+        }
+      };      
+      var g = new google.maps.Geocoder();
+      g.geocode({'address' : address}, geocodeDoneCallBack);      
+    },
+    
+
+    changeLocation : function(loc) {
+      this.findAddress(loc);
+      this.searchNearby(loc); 
     },
     
     
+    // Find address at a given LatLng position.
+    findAddress : function(loc) {
+      var that = this;
+      var revGeocodeDoneCallBack = function(results, status) {
+        if (status !== google.maps.GeocoderStatus.OK) {
+          that.send_event("ADDRESS_BAD", {'message' : "geocoder returned: " + status});
+        }
+	      that.send_event("ADDRESS_GOOD", {'address' : results[0].formatted_address});
+      };
+      var g = new google.maps.Geocoder();            
+      g.geocode({'location' : loc}, revGeocodeDoneCallBack);   
+    },
+    
+        
     // Locate features near a given position and display them on a map.
-    createFeatureMap : function(pos) {
+    searchNearby : function(loc) {      
+      this.send_event("FEATURES_SEARCHING", {});
       
-      this.set_app_status("FEATURES_SEARCHING");
+      this.removeFeatureMarkers();
       
-      this.position = pos;
-      
-      var data = "latitude=" + pos.coords.latitude + "&longitude=" + pos.coords.longitude;
+      var data = "latitude=" + loc.lat() + "&longitude=" + loc.lng();
       
       var req = new XMLHttpRequest();
       req.open("POST", this.svc_endpoint, false);
       req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
       req.send(data);  
       
-      var nearby = eval('(' + req.responseText + ')');      
-
-      this.set_app_status("FEATURES_MAPPING");
-      
-      var my_pos = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude)
-
-      var map_opts = {
-        zoom: 13,
-        center: my_pos,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-      }
-      
-      this.map = new google.maps.Map(document.getElementById(this.map_id), map_opts);
-      
-      var marker_me = new google.maps.Marker({
-          map: this.map,
-          position: my_pos,
-          icon: "http://www.google.com/mapfiles/ms/micons/red-dot.png",
-          // shadow: "http://www.google.com/mapfiles/ms/micons/msmarker.shadow.png",
-          title: "you are here"
-      });    
-
-      this.makeInfoWindow(marker_me, "You are here!");
+      var nearby = eval('(' + req.responseText + ')');
       
       this.placeFeatureOnMap(nearby.library, "library");      
       this.placeFeatureOnMap(nearby.post_office, "post office");
       this.placeFeatureOnMap(nearby.fire_station, "fire station");
       this.placeFeatureOnMap(nearby.moon_tower, "moon tower");
 
-      this.set_app_status("COMPLETE");
+      this.send_event("COMPLETE", {});
     },
     
     
@@ -119,13 +216,23 @@ var FindIt = {
       w.open(this.map, m);      
     },
     
+    removeFeatureMarkers : function() {
+      for (var i = 0 ; i < this.feature_markers.length ; ++i) {
+        this.feature_markers[i].setMap(null);
+      }
+      this.feature_markers = [];
+    },
+    
 
     // Create an information window that opens when a markere is clicked.
     makeInfoWindow : function(marker, content) {
+      var that = this;
       var infowindow = new google.maps.InfoWindow({content: content});
-      google.maps.event.addListener(marker, 'click', function() {
-        FindIt.activateInfoWindow(infowindow, marker);
-      });      
+      var m1 = marker;
+      var markerClickCallBack = function() {
+    		that.activateInfoWindow(infowindow, m1);
+    	};
+      google.maps.event.addListener(marker, 'click', markerClickCallBack);      
       this.info_windows.push(infowindow);
       return infowindow;
     },
@@ -139,17 +246,23 @@ var FindIt = {
       }
       title = title + feature.address;
       
+      // for info on marker icons, see:
+      // https://sites.google.com/site/gmapsdevelopment/
+      // http://duncan99.wordpress.com/2011/09/25/google-maps-api-adding-markers/
+      
+
+      
       marker = new google.maps.Marker({
         position: new google.maps.LatLng(feature.latitude, feature.longitude),
         map: this.map,
-        // for info on marker icons, see:
-        // https://sites.google.com/site/gmapsdevelopment/
-        icon: "http://www.google.com/mapfiles/ms/micons/blue-dot.png",
-        // shadow: "http://www.google.com/mapfiles/ms/micons/msmarker.shadow.png",
+        icon: this.marker_images.blue_dot,
+        shadow: this.marker_images.shadow,
         title: title,
-      });
+      });      
       
       infowindow = this.makeInfoWindow(marker, this.infoWindowContentForFeature(feature, descr.capitalizeWords()));
+      
+      this.feature_markers.push(marker);
       return marker;
     },
 
@@ -179,4 +292,8 @@ var FindIt = {
   
   String.prototype.capitalizeWords = function() {
     return this.split(/\s+/).map(function(w) {return w.capitalize();}).join(' ');
+  }
+  
+  String.prototype.escapeHTML = function() {
+	return this.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }

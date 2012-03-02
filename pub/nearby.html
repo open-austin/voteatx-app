@@ -1,74 +1,130 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>FindIt Nearby</title>
+<title>Find It Nearby</title>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 <style type="text/css">
-div.fields {margin-left: 2em; margin-bottom: 1em;}
-div.fields label {clear: left;}
-div.fields input {;}
-div#messages {;}
+body {margin: 0; padding: 0; font-size: 10pt; font-family: sans-serif;}
+div#messages {height: 1em; margin-bottom: 2px;}
+div#map_canvas {height: 480px; width: 100%; background: #ddd;}
+
+#controls {position: relative; width: 100%; height: 1.5em;}
+
+#about_link {
+  display: block;
+  position: absolute;  
+  top: 0;
+  right: 0;
+  margin-top: 4px;
+  margin-right: 4px;
+  padding-left: 4px;
+  padding-right: 4px;
+  color: #fff;
+  background: #999;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+#about_link:hover {
+  color: yellow;
+  background: #333;
+}
+
+#address_field {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 2px;
+  right: 5em;
+  border: solid black 1px;
+  /* color and font-style will be updated on first click */
+  color: #666;
+  font-style: italic;
+}
+
 </style>
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=&sensor=true"></script>
 <script type="text/javascript" src="findit.js"></script>
 <script type="text/javascript">
  
-  var findItEvent = function(event) {
-    switch (event.type) {
+  var findItEvent = function(event_type, args) {
+    // alert("got event type: " + event_type);
+    switch (event_type) {
     case "GEOLOCATION_RUNNING":
       $("#messages").html("<i>Stand by while I find your current location ... </i>");
       break;
     case "GEOLOCATION_UNSUPPORTED":
-      // $("#address_form").css("display", "block");
-      //$("#messages").html("<b>Sorry, your browser does not support automatic geolocation ... enter address manually.</b>");
-      $("#messages").html("<b>Sorry, your browser does not support automatic geolocation. Manual address entry not implemented yet.</b>");
+      $("#messages").html("<b>Sorry, your browser does not support automatic geolocation.</b>");
       break;
     case "GEOLOCATION_FAILED":
-      //$("#address_form").css("display", "block");
-      //$("#messages").html("<b>Automatic geolocation failed ... enter address manually.</b>");
-      $("#messages").html("<b>Sorry, automatic geolocation failed. Manual address entry not implemented yet.</b>");
+      $("#messages").html("<b>Automatic geolocation failed.</b> (" + args.error + ")");
       break;
     case "GEOLOCATION_SUCCEEDED":
-      $("#messages").html("<i>Geolocation complete. Searcing for nearby features ... </i>");
-      break;
-    case "FEATURES_SEARCHING":
-      // keep GEOLOCATION_SUCCEEDED message
-      break;
-    case "FEATURES_MAPPING":
-      $("#messages").html("<i>Feature search complete. Loading map ...</i>");
-      break;
-    case "COMPLETE":
       $("#messages").html("");
       break;
+    case "FEATURES_SEARCHING":
+      break;
+    case "COMPLETE":
+      break;
+    case "ADDRESS_GOOD":
+      $("#messages").html("<span style='color:blue'>" + args.address.escapeHTML() + "</span>");
+      break;
+    case "ADDRESS_BAD":
+        $("#messages").html("<span style='color:red'>Cannot locate address (" + args.message.escapeHTML() + ")</span>");
+        break;
     default:
-      throw "unknown event type: " + event.type;
+      throw "unknown event type: " + event_type;
     }
-  }
+  }  
+  
+  var findit = null;
 
+	function getWindowWidth() {
+		if (window.innerWidth) {
+			return window.innerWidth;
+		}
+		if (document.body.clientWidth) {
+			return document.body.clientWidth;
+		}
+		return 320;
+	}
+	
+	function getWindowHeight() {
+		if (window.innerHeight) {
+			return window.innerHeight;
+		}
+		if (document.body.clientHeight) {
+			return document.body.clientHeight;
+		}
+		return 480;
+	}
+	
+	function removePrompt(item) {
+		item.value = "";
+		item.style.color = "#000";
+		item.style.fontStyle = "normal";
+		item.onclick = null;
+	}
+
+	function startFindIt() {
+		$("body").css("width", getWindowWidth() - 2);
+		$("#map_canvas").css("height", getWindowHeight() - $("#messages").height() - $("#controls").height() - 4);
+
+		findit = new FindIt({
+			map_id : 'map_canvas',
+			event_handler : findItEvent
+		});
+		findit.start();
+	}
 </script>
 </head>
-<body onload="FindIt.start({map_id: 'map_canvas', handler: findItEvent})">
+<body onload="startFindIt()">
 <div id="messages"></div>
-<div id="map_canvas" style="width: 320px; height: 480px;"></div>
-
-<form id="address_form" method="post" style="display:none">
-  <div class="fields"">
-    <label for="address">Address:</label> <input type="text" name="address" size="40" /><br />
-  </div>
-  <div class="fields">
-    <input type="submit" name="Find Nearby" />
-  </div>
+<div id="map_canvas"></div>
+<form id="controls" action="#" onsubmit="findit.displayMapAtAddress(this.address_field.value); return false;">
+<a id="about_link" href="about.html">ABOUT</a>
+<input type="text" id="address_field" value="enter an address here" onclick="removePrompt(this)" />
 </form>
-
-<form id="latlng_form" method="post" style="display:none">
-  <div class="fields">
-    <label for="latitude">Latitude:</label> <input type="text" name="latitude" size="12" /><br />
-    <label for="longitude">Longitude:</label> <input type="text" name="longitude" size="12" /><br />
-  </div>
-  <div class="fields">
-    <input type="submit" name="Find Nearby" />
-  </div>
-</form>
-
 </body>
 </html>

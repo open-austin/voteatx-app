@@ -48,5 +48,13 @@ application developed by the general public, using city data.
    showing your current location in the center, and markers for each of the closest features.
 
 
+=== To Do List
+
+1. Move data out of Fusion Tables to local storage.
+2. Support passenger deployment.
+3. Add clickable links to the info windows.
+4. Catch requests for locations far outside Austin.
+5. MOOOOORE DATASETS.
+
 Chip Rosenthal
 chip@unicom.com   
