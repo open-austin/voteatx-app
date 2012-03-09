@@ -13,7 +13,7 @@ function FindIt(opts) {
   r.dom_map_elem = document.getElementById(opts.map_id);
   if (! r.dom_map_elem) throw "cannot locate element id \"" + opts.map_id + "\" in page";
   r.event_handler = opts.event_handler;
-  r.svc_endpoint = opts.svc_endpoint || document.URL;
+  r.svc_endpoint = opts.svc_endpoint || (document.URL + "svc/nearby");
   
   r.map = null;
   r.marker_me = null;
@@ -21,6 +21,13 @@ function FindIt(opts) {
   r.info_windows = [];
   r.position = null;
   r.address = null;
+  
+  r.recognized_features = [
+   {type: "LIBRARY", title: "library"},
+   {type: "POST_OFFICE", title: "post office"},
+   {type: "FIRE_STATION", title: "fire station"},
+   {type: "MOON_TOWER", title: "moon tower"},
+  ];                
   
   r.marker_images = {
     
@@ -113,9 +120,9 @@ FindIt.methods = {
       }
 
       if (address) {
-    	this.send_event("ADDRESS_GOOD", {'address' : address});
+        this.send_event("ADDRESS_GOOD", {'address' : address});
       } else {
-    	this.findAddress(loc);
+        this.findAddress(loc);
       }
       
       this.searchNearby(loc);
@@ -141,7 +148,7 @@ FindIt.methods = {
       
       google.maps.event.addListener(marker, 'dragend', dragCallBack);
       
-      this.makeInfoWindow(marker, "<p>You are here!</p><p><i>Drag this marker to explore the city.</i></p>");    
+      this.makeInfoWindow(marker, "<b>You are here</b><br /><i>Drag this marker to explore the city.</i>");    
       
       return marker;
     },
@@ -197,11 +204,14 @@ FindIt.methods = {
       
       var nearby = eval('(' + req.responseText + ')');
       
-      this.placeFeatureOnMap(nearby.library, "library");      
-      this.placeFeatureOnMap(nearby.post_office, "post office");
-      this.placeFeatureOnMap(nearby.fire_station, "fire station");
-      this.placeFeatureOnMap(nearby.moon_tower, "moon tower");
-
+      for (var i = 0 ; i < this.recognized_features.length ; ++i ) {
+        var type = this.recognized_features[i].type;
+        var title = this.recognized_features[i].title;
+        if (nearby[type]) {
+          this.placeFeatureOnMap(nearby[type], title);
+        }        
+      }
+      
       this.send_event("COMPLETE", {});
     },
     
@@ -269,14 +279,19 @@ FindIt.methods = {
     
     // Build info window content for a feature.
     infoWindowContentForFeature : function(feature, descr) {
-      var content = "<p><b>Nearest " + descr + "</b></p>\n<p>";
+      var result = ["<b>Nearest " + descr.escapeHTML() + "</b>"];
       if (! isEmpty(feature.name)) {
-        content = content + feature.name + "<br />\n";
+        result.push(feature.name.escapeHTML());
       }
-      content = content + feature.address + "<br />\n" +
-        feature.distance.toFixed(1) + " mi away</p>\n" + 
-        "<p><i>clickable link goes here</i></p>";
-      return content;
+      result.push(feature.address.escapeHTML());
+      if (! isEmpty(feature.info)) {
+        result.push(feature.info.escapeHTML());
+      }
+      result.push(feature.distance.toFixed(1) + " mi away");
+      if (! isEmpty(feature.link)) {
+        result.push("<a href=\"" + feature.link.escapeHTML() + "\">more info ...</a>");
+      }
+      return result.join("<br />\n");
     }
   
   };

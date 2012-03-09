@@ -1,33 +1,34 @@
 #!/usr/bin/env -- ruby
 
-BASEDIR = "#{File.dirname($0)}/.."
 require 'rubygems'
-require "#{BASEDIR}/lib/findit"
 require 'sinatra'
 require 'uri'
 require 'json'
+require './lib/findit.rb'
 
-get '/nearby' do
-  send_file "pub/nearby.html"
+get '/' do
+  send_file "public/nearby.html"
 end
 
 get '/findit.js' do
-  send_file "pub/findit.js"
+  send_file "public/findit.js"
 end
 
 get '/about.html' do
-  send_file "pub/about.html"
+  send_file "public/about.html"
 end
 
-get '/nearby/:lat,:lng' do |lat, lng|
-  result = FindIt.nearby(lat, lng)
+get '/svc/nearby/:lat,:lng' do |lat, lng|
+  result = FindIt.nearby(lat.to_f, lng.to_f)
   content_type :json
   result.to_json
 end
 
-post '/nearby' do
-  a = URI.decode_www_form(request.body.string)
-  result = FindIt.nearby(a.assoc('latitude').last, a.assoc('longitude').last)
+post '/svc/nearby' do
+  a = URI.decode_www_form(request.body.read)
+  lat = a.assoc('latitude').last.to_f
+  lng = a.assoc('longitude').last.to_f
+  result = FindIt.nearby(lat, lng)
   content_type :json
   result.to_json
 end

@@ -1,163 +1,126 @@
-#!/usr/bin/env - ruby
-#
-# findit-nearby - Find nearby points of interest, proof of concept.
-#
-# This is very slow because it is querying against Google Fusion Tables. The data
-# should be moved local.
-#
-# Next step would be to convert this to a web service that accepts current lat/long,
-# and returns results in a JSON structure.
-#
-
 require 'rubygems'
-require 'uri'
-require 'rest-client'
-require 'csv'
+require 'dbi'
 
-class Float
-  # convert a value in degrees to radians
-  def to_radians
-    self * (Math::PI/180.0)
+#class Float
+#  # convert a value in degrees to radians
+#  def to_radians
+#    self * (Math::PI/180.0)
+#  end
+#end
+#
+#class Array
+#  def to_radians
+#    self.map {|x| x.to_radians}
+#  end
+#end
+
+class Coordinate
+  
+  attr_accessor :latitude_deg, :longitude_deg, :latitude_rad, :longitude_rad
+  
+  DEG_TO_RAD = Math::PI / 180.0
+  
+  def initialize(lat, lng, type)
+    case type
+    when :DEG
+      @latitude_deg = lat
+      @longitude_deg = lng
+      @latitude_rad = lat * DEG_TO_RAD
+      @longitude_rad =  lng * DEG_TO_RAD
+    when :RAD
+      @latitude_rad = lat
+      @longitude_rad = lng
+      @latitude_deg = lat / DEG_TO_RAD
+      @longitude_deg = lng / DEG_TO_RAD
+    else
+      raise "unknown coordinate type \"#{type}\""
+    end      
   end
+
+  EARTH_R = 3963.0 # Earth mean radius, in miles
+  
+  # Calculate distance (in miles) between two locations (lat/long in radians)
+  # Based on equitorial approximation formula at:
+  # http://www.movable-type.co.uk/scripts/latlong.html  
+  def distance(*args)
+    case args.length
+    when 1
+      p = args[0]
+    when 3
+      p = Coordinate.new(*args)
+    else
+      raise "arguments should either be a Coordinate object or (lat,lng,type) values"
+    end
+    x = (p.longitude_rad-self.longitude_rad) * Math.cos((self.latitude_rad+p.latitude_rad)/2);
+    y = (p.latitude_rad-self.latitude_rad);
+    Math.sqrt(x*x + y*y) * EARTH_R;
+  end  
+  
 end
+
 
 class FindIt
   
-  attr_reader :current_loc
+  DEFAULT_DATABASE = "facilities.db"
+  DEFAULT_TABLE = "facilities"
   
-  def initialize(latitude, longitude)
-    @current_loc = [latitude.to_f, longitude.to_f]
-  end  
+  attr_reader :database, :table, :loc, :dbh 
   
-  EARTH_R = 3963.0 # Earth mean radius, in miles
-  
-  # Calculate distance (in miles) between two locations (lat/long in degrees)
-  # Based on equitorial approximation formula at:
-  # http://www.movable-type.co.uk/scripts/latlong.html
-  def distance(p1, p2 = current_loc)
-    lat1 = p1[0].to_radians
-    lon1 = p1[1].to_radians
-    lat2 = p2[0].to_radians
-    lon2 = p2[1].to_radians
-    x = (lon2-lon1) * Math.cos((lat1+lat2)/2);
-    y = (lat2-lat1);
-    Math.sqrt(x*x + y*y) * EARTH_R;
+  def initialize(lat, lng, opts = {})
+    @loc = Coordinate.new(lat, lng, opts[:type] || :DEG)
+    @database = opts[:database] || DEFAULT_DATABASE
+    @table = opts[:table] || DEFAULT_TABLE
+    raise "database file \"#{@database}\" not found" unless File.exist?(@database)
+    @dbh = DBI.connect("DBI:SQLite3:#{@database}")
   end
   
-  # Submit a query to a Google Fusion Table which returns CSV text.
-  def query_google_fusion_table(table_id, where_clause = '', cols = '*')
-    sql = "SELECT #{cols} FROM #{table_id}"
-    sql += " WHERE  #{where_clause}" unless where_clause.empty?
-    url = "https://www.google.com/fusiontables/api/query?sql=" + URI.escape(sql)
-    RestClient.get url
-  end
   
-  # Some of the CoA datasets have lat/long encoded in an XML blob (ewwww...).
-  def parse_geometry(geo)
-    if geo.match(%r{<Point><coordinates>(.*),(.*)</coordinates></Point>})
-      [$2.to_f, $1.to_f]
-    else
-      nil
+  def closest_facility(factype, name = nil) 
+    
+    args = []
+      
+    sql = "SELECT * FROM #{@table} WHERE type LIKE ?"
+    args << factype
+    
+    if name
+      sql += " AND name LIKE ?"
+      args << name
     end
-  end
-  
-  # Find the closest entry in a Google Fusion Table dataset.
-  # 
-  # Usage: find_closest(response) {|row| extract_latitude_longitude_from_row(row)}
-  #
-  # Returns: {:location => [LAT,LNG], :distance => MILES, :row => ROW}
-  #
-  # The "row" is a CSV::Row datatype.
-  #
-  def find_closest(resp) 
-    closest = nil
-    CSV.parse(resp, :headers => true) do |row|
-      p = yield(row)
-      if p
-        d = distance(p)
-        if closest.nil? || d < closest[:distance]
-          closest = {
-            :location => p,
-            :distance => d,
-            :row => row
-          }
-        end      
-      end
+    
+    closest = nil  
+    @dbh.select_all(sql, *args) do |row|
+      d = @loc.distance(row['latitude_rad'], row['longitude_rad'], :RAD)
+      if closest.nil? || d < closest["distance"]
+        closest = row.to_h
+        closest["distance"] = d
+      end      
     end
-    raise "failed to find a location" if closest.nil?
-    closest
-  end
-  
-  # Remove excess whitespace, make naive attempt at capitalization.
-  def fixup_dirty_string(s)
-    s.split.map {|w| w.capitalize}.join(' ')
+    
+    closest.delete_if {|k, v| v.nil?} if closest  
+    return closest
   end
 
-  def closest_facility(factype)  
-    resp = query_google_fusion_table('3046433', "FACILITY='#{factype}'")
-    closest = find_closest(resp) do |row|
-      parse_geometry(row['geometry'])
-    end
-    {
-      :object_type => factype.downcase.gsub(/\s+/, '_'),
-      :name => fixup_dirty_string(closest[:row]['Name']),
-      :address => fixup_dirty_string(closest[:row]['ADDRESS']),
-      :latitude => closest[:location][0],
-      :longitude => closest[:location][1],
-      :distance => closest[:distance],
-      #:raw_data => closest[:row],
-     }
-  end
-  
-  def closest_post_office
-    closest_facility("POST OFFICE")
-  end
-  
-  def closest_library
-    closest_facility("LIBRARY")
-  end
-  
-  def closest_fire_station
-    resp = query_google_fusion_table('2987477')
-    closest = find_closest(resp) do |row|
-      [row['Latitude'].to_f, row['Longitude'].to_f]
-    end
-    {
-      :object_type => "fire_station",
-      :name => nil,
-      :address => fixup_dirty_string(closest[:row]['Address']),
-      :latitude => closest[:location][0],
-      :longitude => closest[:location][1],
-      :distance => closest[:distance],
-      #:raw_data => closest[:row],
-     }
-  end
-
-  def closest_moon_tower
-    resp = query_google_fusion_table('3046440', "BUILDING_N='MOONLIGHT TOWERS'")
-    closest = find_closest(resp) do |row|
-      parse_geometry(row['geometry'])
-    end
-    {
-      :object_type => "moon_tower",
-      :name => nil,
-      :address => fixup_dirty_string(closest[:row]['ADDRESS']),
-      :latitude => closest[:location][0],
-      :longitude => closest[:location][1],
-      :distance => closest[:distance],
-      #:raw_data => closest[:row],
-     }
-  end
   
   # Find collection of nearby objects.
   def nearby
-    result = {}
-    a = closest_post_office   ; result[a[:object_type]] = a
-    a = closest_post_office   ; result[a[:object_type]] = a
-    a = closest_library       ; result[a[:object_type]] = a
-    a = closest_fire_station  ; result[a[:object_type]] = a
-    a =  closest_moon_tower   ; result[a[:object_type]] = a
-    result
+    facilities = {}
+      
+    a = closest_facility("POST_OFFICE")
+    facilities[a["type"]] = a if a
+
+    a = closest_facility("LIBRARY")
+    facilities[a["type"]] = a if a
+
+    a = closest_facility("FIRE_STATION")
+    facilities[a["type"]] = a if a
+
+    a = closest_facility("HISTORICAL_LANDMARK", "Moonlight Towers")
+    if a
+      a.delete("name")
+      facilities["MOON_TOWER"] = a
+    end
+      
+    facilities
   end
   
   # Find collection of nearby objects for a given latitude/longitude.
