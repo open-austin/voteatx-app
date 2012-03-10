@@ -467,6 +467,14 @@ FindIt.methods = {
   function isEmpty(str) {
     return (!str || 0 === str.length);
   }
+  
+  function escapeHTML(str) {
+    if isEmpty(str) {
+      return "";
+    } else {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+  }
 
   String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
@@ -476,6 +484,3 @@ FindIt.methods = {
     return this.split(/\s+/).map(function(w) {return w.capitalize();}).join(' ');
   }
   
-  String.prototype.escapeHTML = function() {
-	return this.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
