@@ -469,7 +469,7 @@ FindIt.methods = {
   }
   
   function escapeHTML(str) {
-    if isEmpty(str) {
+    if (isEmpty(str)) {
       return "";
     } else {
       return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -482,5 +482,9 @@ FindIt.methods = {
   
   String.prototype.capitalizeWords = function() {
     return this.split(/\s+/).map(function(w) {return w.capitalize();}).join(' ');
+  }
+  
+  String.prototype.escapeHTML = function() {
+    return escapeHTML(this);
   }
   
