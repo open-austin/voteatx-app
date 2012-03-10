@@ -5,13 +5,19 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 <style type="text/css">
-body {margin: 0; padding: 0; font-size: 10pt; font-family: sans-serif;}
+
+body {font-size: 10pt; margin: 0; padding: 2px; font-family: sans-serif;}
+
 div#messages {height: 1em; margin-bottom: 2px;}
+div#messages .error {color: red; font-weight: bold;}
+div#messages .notice {color: blue;}
+div#messages .info {color: #333; font-style: italic;}
+
 div#map_canvas {height: 480px; width: 100%; background: #ddd;}
 
-#controls {position: relative; width: 100%; height: 1.5em;}
+form#controls {position: relative; width: 100%; height: 1.5em;}
 
-#about_link {
+a#about_link {
   display: block;
   position: absolute;  
   top: 0;
@@ -26,12 +32,12 @@ div#map_canvas {height: 480px; width: 100%; background: #ddd;}
   text-decoration: none;
 }
 
-#about_link:hover {
+a#about_link:hover {
   color: yellow;
   background: #333;
 }
 
-#address_field {
+input#address_field {
   display: block;
   position: absolute;
   top: 0;
@@ -46,78 +52,59 @@ div#map_canvas {height: 480px; width: 100%; background: #ddd;}
 </style>
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=&sensor=true"></script>
-<script type="text/javascript" src="findit.js"></script>
+<script type="text/javascript" src="findit.js?v=2012031001"></script>
 <script type="text/javascript">
- 
-  var findItEvent = function(event_type, args) {
-    // alert("got event type: " + event_type);
+
+  function displayEventMessage(type, message) {
+    $("#messages").html("<span class=\"" + type + "\">" + message + "</span>");
+  }
+
+  function findItEventCallBack(event_type, args) {        
     switch (event_type) {
     case "GEOLOCATION_RUNNING":
-      $("#messages").html("<i>Stand by while I find your current location ... </i>");
+      displayEventMessage("info", "Stand by while I find your current location ...");
       break;
     case "GEOLOCATION_UNSUPPORTED":
-      $("#messages").html("<b>Sorry, your browser does not support automatic geolocation.</b>");
+      displayEventMessage("error", "Sorry, your browser does not support automatic geolocation. (Enter an address at bottom.");
       break;
     case "GEOLOCATION_FAILED":
-      $("#messages").html("<b>Automatic geolocation failed.</b> (" + args.error + ")");
+      displayEventMessage("error", "Automatic geolocation failed: " + args.error.escapeHTML() + "(Enter an address at bottom.)");
       break;
     case "GEOLOCATION_SUCCEEDED":
-      $("#messages").html("");
+      displayEventMessage("", "");
       break;
-    case "FEATURES_SEARCHING":
+    case "ADDRESS_GOOD":
+      displayEventMessage("notice", args.address.escapeHTML());
+      break;
+    case "ADDRESS_BAD":
+      displayEventMessage("error", "Cannot locate specified address: " + args.error.escapeHTML());
       break;
     case "COMPLETE":
       break;
-    case "ADDRESS_GOOD":
-      $("#messages").html("<span style='color:blue'>" + args.address.escapeHTML() + "</span>");
-      break;
-    case "ADDRESS_BAD":
-        $("#messages").html("<span style='color:red'>Cannot locate address (" + args.message.escapeHTML() + ")</span>");
-        break;
     default:
       throw "unknown event type: " + event_type;
     }
   }  
   
+  function removePrompt(item) {
+    item.value = "";
+    item.style.color = "#000";
+    item.style.fontStyle = "normal";
+    item.onclick = null;
+  }  
+  
   var findit = null;
+  
+  function startFindIt() {
+  
+    /* adjust dimensions to exactly fit the display */
+    $("body").css("width", $(window).width() - 6);
+    $("#map_canvas").css("height", $(window).height() - $("#messages").height() - $("#controls").height() - 8);
+  
+    findit = new FindIt("map_canvas", {event_handler : findItEventCallBack});
+    findit.start();
+  }
 
-	function getWindowWidth() {
-		if (window.innerWidth) {
-			return window.innerWidth;
-		}
-		if (document.body.clientWidth) {
-			return document.body.clientWidth;
-		}
-		return 320;
-	}
-	
-	function getWindowHeight() {
-		if (window.innerHeight) {
-			return window.innerHeight;
-		}
-		if (document.body.clientHeight) {
-			return document.body.clientHeight;
-		}
-		return 480;
-	}
-	
-	function removePrompt(item) {
-		item.value = "";
-		item.style.color = "#000";
-		item.style.fontStyle = "normal";
-		item.onclick = null;
-	}
-
-	function startFindIt() {
-		$("body").css("width", getWindowWidth() - 2);
-		$("#map_canvas").css("height", getWindowHeight() - $("#messages").height() - $("#controls").height() - 4);
-
-		findit = new FindIt({
-			map_id : 'map_canvas',
-			event_handler : findItEvent
-		});
-		findit.start();
-	}
 </script>
 </head>
 <body onload="startFindIt()">
