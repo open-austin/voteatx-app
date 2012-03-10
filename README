@@ -21,18 +21,18 @@ application developed by the general public, using city data.
 
    You must have Ruby 1.9 installed on your system. You also need the following gems:
 
-     * rest-client
+     * dbd-sqlite3
      * sinatra
 
    If you already have Ruby installed, you can be sure these gems are available by running:
 
-     $ gem install rest-client sinatra
+     $ gem install dbd-sqlite3 sinatra
 
 2. Start the Web Service
 
    Run:
 
-     $ ruby ~/workspace/findit/bin/findit-svc
+     $ ruby ./bin/findit-svc
      [2012-02-27 16:09:03] INFO  WEBrick 1.3.1
      [2012-02-27 16:09:03] INFO  ruby 1.9.2 (2011-07-09) [x86_64-linux]
      == Sinatra/1.3.2 has taken the stage on 4567 for development with backup from WEBrick
@@ -42,18 +42,23 @@ application developed by the general public, using city data.
 
 3. Run it.
 
-   Browse the URL:  http://localhost:4567/nearby
+   Browse the URL:  http://localhost:4567/
 
    That will run the "Find It Nearby" application. If all goes well, a map will be displayed,
    showing your current location in the center, and markers for each of the closest features.
 
+4. Deploy it.
+
+   If you have an Apache 2 server with Phusion Passenger (mod_passenger) installed, you
+   should be able to drop this application onto your website and run it. I run the
+   application in a virtual website, with DocumentRoot pointed to the "public" directory.
 
 === To Do List
 
-1. Move data out of Fusion Tables to local storage.
-2. Support passenger deployment.
-3. Add clickable links to the info windows.
-4. Catch requests for locations far outside Austin.
+1. Add additional info links to the info windows.
+2. Additional mapping options, e.g. "show more nearby post offices".
+3. Catch requests for locations far outside Austin.
+4. Document the database.
 5. MOOOOORE DATASETS.
 
 Chip Rosenthal

@@ -1,19 +1,6 @@
 require 'rubygems'
 require 'dbi'
 
-#class Float
-#  # convert a value in degrees to radians
-#  def to_radians
-#    self * (Math::PI/180.0)
-#  end
-#end
-#
-#class Array
-#  def to_radians
-#    self.map {|x| x.to_radians}
-#  end
-#end
-
 class Coordinate
   
   attr_accessor :latitude_deg, :longitude_deg, :latitude_rad, :longitude_rad

@@ -1,4 +1,7 @@
 
+/**
+ * Helper to define classes.
+ */
 function inherit(m) {
   var o = function() {};
   o.prototype = m;  
@@ -6,6 +9,18 @@ function inherit(m) {
 }
 
 
+/**
+ * Class to find and map features around Austin.
+ * 
+ * Options are:
+ *
+ * map_id -- Required. Id of the division in which the map will be placed.
+ *
+ * event_handler - Optional. Callback that is invoked as events are processed. XXX NEEDS MORE INFO
+ *
+ * svc_entpoint - Optional. URL of "Find It Nearby" web service endpoint. As distributed,
+ * this is calculated automatically, and should not need to be set.
+ */
 function FindIt(opts) {
   r = inherit(FindIt.methods);
 
@@ -13,7 +28,7 @@ function FindIt(opts) {
   r.dom_map_elem = document.getElementById(opts.map_id);
   if (! r.dom_map_elem) throw "cannot locate element id \"" + opts.map_id + "\" in page";
   r.event_handler = opts.event_handler;
-  r.svc_endpoint = opts.svc_endpoint || (document.URL + "svc/nearby");
+  r.svc_endpoint = opts.svc_endpoint || (document.URL.replace(/\/[^\/]*$/, "") + "/svc/nearby");
   
   r.map = null;
   r.marker_me = null;
