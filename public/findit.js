@@ -72,14 +72,14 @@ function FindIt(map_id, opts) {
    */  
   var marker_images = {		  
 
-		  'fire' : micon("http:///maps.google.com/mapfiles/kml/pal2/icon0.png", 32),
-		  'fire_shadow' : micon("http:///maps.google.com/mapfiles/kml/pal2/icon0s.png", 59),
+		  'fire' : micon("http://maps.google.com/mapfiles/kml/pal2/icon0.png", 32),
+		  'fire_shadow' : micon("http://maps.google.com/mapfiles/kml/pal2/icon0s.png", 59),
 		  'postoffice' : micon("http://maps.google.com/mapfiles/ms/micons/postoffice-us.png", 32),
 		  'postoffice_shadow' : micon("http://maps.google.com/mapfiles/ms/micons/postoffice-us.shadow.png", 59),
-		  'library' : micon("http:///maps.google.com/mapfiles/kml/pal3/icon56.png", 32),
-		  'library_shadow' : micon("http:///maps.google.com/mapfiles/kml/pal3/icon56s.png", 59),
-		  'feature' : micon("http:///maps.google.com/mapfiles/kml/pal3/icon40.png", 32),
-		  'feature_shadow' : micon("http:///maps.google.com/mapfiles/kml/pal3/icon40s.png", 59),
+		  'library' : micon("http://maps.google.com/mapfiles/kml/pal3/icon56.png", 32),
+		  'library_shadow' : micon("http://maps.google.com/mapfiles/kml/pal3/icon56s.png", 59),
+		  'feature' : micon("http://maps.google.com/mapfiles/kml/pal3/icon40.png", 32),
+		  'feature_shadow' : micon("http://maps.google.com/mapfiles/kml/pal3/icon40s.png", 59),
 		  
 		      
     'blue_dot' : new google.maps.MarkerImage(
