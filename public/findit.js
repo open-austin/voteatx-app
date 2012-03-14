@@ -53,6 +53,15 @@ function FindIt(map_id, opts) {
    * List of google.maps.InfoWindow instances for all the markers (both me and features).
    */
   r.info_windows = [];
+  
+  var micon = function(url, width) {
+	  return new google.maps.MarkerImage(
+			  url,
+			  new google.maps.Size(width, 32), // size
+			  new google.maps.Point(0,0), // origin
+			  new google.maps.Point(16, 32) // anchor
+	  );
+  };
 
   /**
    * Pre-built marker images that are used in the application.
@@ -61,8 +70,18 @@ function FindIt(map_id, opts) {
    * * https://sites.google.com/site/gmapsdevelopment/
    * * http://duncan99.wordpress.com/2011/09/25/google-maps-api-adding-markers/
    */  
-  var marker_images = {
-    
+  var marker_images = {		  
+
+		  'fire' : micon("http:///maps.google.com/mapfiles/kml/pal2/icon0.png", 32),
+		  'fire_shadow' : micon("http:///maps.google.com/mapfiles/kml/pal2/icon0s.png", 59),
+		  'postoffice' : micon("http://maps.google.com/mapfiles/ms/micons/postoffice-us.png", 32),
+		  'postoffice_shadow' : micon("http://maps.google.com/mapfiles/ms/micons/postoffice-us.shadow.png", 59),
+		  'library' : micon("http:///maps.google.com/mapfiles/kml/pal3/icon56.png", 32),
+		  'library_shadow' : micon("http:///maps.google.com/mapfiles/kml/pal3/icon56s.png", 59),
+		  'feature' : micon("http:///maps.google.com/mapfiles/kml/pal3/icon40.png", 32),
+		  'feature_shadow' : micon("http:///maps.google.com/mapfiles/kml/pal3/icon40s.png", 59),
+		  
+		      
     'blue_dot' : new google.maps.MarkerImage(
         "http://maps.google.com/mapfiles/ms/micons/blue-dot.png",
         new google.maps.Size(32, 32), // size
@@ -96,10 +115,10 @@ function FindIt(map_id, opts) {
    */
   r.recognized_features = {
    ME : {title: null, marker: marker_images.red_dot, marker_shadow: marker_images.shadow},
-   LIBRARY : {title: "library", marker: marker_images.blue_dot, marker_shadow: marker_images.shadow},
-   POST_OFFICE : {title: "post office", marker: marker_images.blue_dot, marker_shadow: marker_images.shadow},
-   FIRE_STATION : {title: "fire station", marker: marker_images.blue_dot, marker_shadow: marker_images.shadow},
-   MOON_TOWER : {title: "moon tower", marker: marker_images.blue_dot, marker_shadow: marker_images.shadow}
+   FIRE_STATION : {title: "fire station", marker: marker_images.fire, marker_shadow: marker_images.fire_shadow},
+   LIBRARY : {title: "library", marker: marker_images.library, marker_shadow: marker_images.library_shadow},
+   MOON_TOWER : {title: "moon tower", marker: marker_images.feature, marker_shadow: marker_images.feature_shadow},
+   POST_OFFICE : {title: "post office", marker: marker_images.postoffice, marker_shadow: marker_images.postoffice_shadow},
   };                
    
   
@@ -197,6 +216,8 @@ FindIt.methods = {
      */
     displayMapAtLocation : function(loc, address) {
     	
+      var that = this;
+    	
       if (this.map) {
     	  this.map.panTo(loc);
       } else {    	
@@ -205,6 +226,10 @@ FindIt.methods = {
           center: loc,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         });
+        var mapClickCallBack = function(event) {
+    	  that.changeLocation(event.latLng);
+    	};
+        google.maps.event.addListener(this.map, 'click', mapClickCallBack);
       }
       
       if (this.marker_me) {
@@ -278,7 +303,7 @@ FindIt.methods = {
       
       google.maps.event.addListener(marker, 'dragend', dragCallBack);
       
-      this.makeInfoWindow(marker, "<b>You are here</b><br /><i>Drag this marker to explore the city.</i>");    
+      this.makeInfoWindow(marker, "<b>You are here</b>");    
       
       return marker;
     },
@@ -293,6 +318,7 @@ FindIt.methods = {
      * marker to a different place.
      */
     changeLocation : function(loc) {
+      this.marker_me.setPosition(loc);
       this.findAddress(loc);
       this.searchNearby(loc); 
     },

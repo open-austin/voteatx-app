@@ -22,6 +22,21 @@ a#about_link {
   position: absolute;  
   top: 0;
   right: 0;
+  color: black;
+  font-size: 8pt;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+a#about_link:hover {
+  background: #e8e8e8;
+}
+
+a#zabout_link {
+  display: block;
+  position: absolute;  
+  top: 0;
+  right: 0;
   margin-top: 4px;
   margin-right: 4px;
   padding-left: 4px;
@@ -32,7 +47,7 @@ a#about_link {
   text-decoration: none;
 }
 
-a#about_link:hover {
+a#zabout_link:hover {
   color: yellow;
   background: #333;
 }
@@ -111,7 +126,7 @@ input#address_field {
 <div id="messages"></div>
 <div id="map_canvas"></div>
 <form id="controls" action="#" onsubmit="findit.displayMapAtAddress(this.address_field.value); return false;">
-<a id="about_link" href="about.html">ABOUT</a>
+<a id="about_link" href="about.html">About</a>
 <input type="text" id="address_field" value="enter an address here" onclick="removePrompt(this)" />
 </form>
 </body>
