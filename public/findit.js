@@ -63,55 +63,6 @@ function FindIt(map_id, opts) {
    */
   r.info_windows = [];
 
-  /**
-   * Convenience function to make a google.maps.MarkerImage from a map marker image.
-   */
-  var micon = function(url, width) {
-    return new google.maps.MarkerImage(url,
-      new google.maps.Size(width, 32),  // size
-      new google.maps.Point(0,0),       // origin
-      new google.maps.Point(16, 32)     // anchor
-    );
-  };
-
-  /**
-   * Pre-built marker images that are used in the application.
-   *
-   * For info on Google Maps marker icons, see:
-   * * https://sites.google.com/site/gmapsdevelopment/
-   * * http://duncan99.wordpress.com/2011/09/25/google-maps-api-adding-markers/
-   */
-  var marker_images = {
-    'fire' : micon("http://maps.google.com/mapfiles/kml/pal2/icon0.png", 32),
-    'fire_shadow' : micon("http://maps.google.com/mapfiles/kml/pal2/icon0s.png", 59),
-    'postoffice' : micon("http://maps.google.com/mapfiles/ms/micons/postoffice-us.png", 32),
-    'postoffice_shadow' : micon("http://maps.google.com/mapfiles/ms/micons/postoffice-us.shadow.png", 59),
-    'library' : micon("http://maps.google.com/mapfiles/kml/pal3/icon56.png", 32),
-    'library_shadow' : micon("http://maps.google.com/mapfiles/kml/pal3/icon56s.png", 59),
-    'feature' : micon("http://maps.google.com/mapfiles/kml/pal3/icon40.png", 32),
-    'feature_shadow' : micon("http://maps.google.com/mapfiles/kml/pal3/icon40s.png", 59),
-    'blue_dot' : micon("http://maps.google.com/mapfiles/ms/micons/blue-dot.png", 32),
-    'red_dot' : micon("http://maps.google.com/mapfiles/ms/micons/red-dot.png", 32),
-    'dot_shadow' : micon("http://maps.google.com/mapfiles/ms/micons/msmarker.shadow.png", 59),
-  };
-
-  /**
-   * Prebuilt google.maps.MarkerImage instances for placing markers on the map.
-   */
-  r.marker_images = marker_images;
-
-  /**
-   * The sorts of features that are returned by the "Find It Nearby" web service.
-   */
-  r.recognized_features = {
-   ME : {title: null, marker: marker_images.red_dot, marker_shadow: marker_images.dot_shadow},
-   FIRE_STATION : {title: "fire station", marker: marker_images.fire, marker_shadow: marker_images.fire_shadow},
-   LIBRARY : {title: "library", marker: marker_images.library, marker_shadow: marker_images.library_shadow},
-   MOON_TOWER : {title: "moon tower", marker: marker_images.feature, marker_shadow: marker_images.feature_shadow},
-   POST_OFFICE : {title: "post office", marker: marker_images.postoffice, marker_shadow: marker_images.postoffice_shadow},
-  };
-
-
   return r;
 }
 
@@ -270,19 +221,29 @@ FindIt.methods = {
    *
    * @param loc -- A google.maps.LatLng with my current location.
    *
-   * @returns A google.maps.Marker instance.
+   * @return A google.maps.Marker instance.
    */
   placeMe : function(loc) {
 
     var that = this;
 
-    var feature_info = this.recognized_features.ME;
+    var icon = new google.maps.MarkerImage("http://maps.google.com/mapfiles/ms/micons/red-dot.png",
+        new google.maps.Size(32, 32),  // size
+        new google.maps.Point(0,0),       // origin
+        new google.maps.Point(16, 32)     // anchor
+    );
+    
+    var shadow = new google.maps.MarkerImage("http://maps.google.com/mapfiles/ms/micons/msmarker.shadow.png",
+        new google.maps.Size(59, 32),  // size
+        new google.maps.Point(0,0),       // origin
+        new google.maps.Point(16, 32)     // anchor
+    );
 
     var marker = new google.maps.Marker({
         map: this.map,
-        position: loc,
-        icon: feature_info.marker,
-        shadow: feature_info.marker_shadow,
+        position: loc,        
+        icon: icon,
+        shadow: shadow,
         draggable: true,
         title: "You are here",
     });
@@ -355,7 +316,7 @@ FindIt.methods = {
     var nearby_features = eval('(' + req.responseText + ')');
 
     for (type in nearby_features) {
-      this.placeFeatureOnMap(this.recognized_features[type], nearby_features[type]);
+      this.placeFeatureOnMap(nearby_features[type]);
     }
 
     this.send_event("COMPLETE");
@@ -403,7 +364,7 @@ FindIt.methods = {
    * @param marker -- The marker to attach the new info window to.
    * @param content -- The HTML content to display in the window.
    *
-   * @returns A google.maps.InfoWindow
+   * @return A google.maps.InfoWindow
    *
    * The window will be created but not displayed. A callback
    * will be setup to call activateInfoWindow() when the
@@ -421,61 +382,71 @@ FindIt.methods = {
     this.info_windows.push(infowindow);
     return infowindow;
   },
+  
+  /**
+   * Create a MarkerImage instance for a map marker.
+   * 
+   * @param icon -- Information on the map marker.
+   * 
+   * @return A google.maps.MarkerImage
+   *
+   * The icon parameter is a structure with elements: url, width, height.
+   */
+  makeMarkerIcon : function(marker) {
+    return new google.maps.MarkerImage(marker.url,
+      new google.maps.Size(marker.width, marker.height),    // size
+      new google.maps.Point(0,0),                       // origin
+      new google.maps.Point(marker.width/2, marker.height)  // anchor
+    );
+  },
 
+  /**
+   * Create a MarkerImage instance for a map marker shadow.
+   * 
+   * @param shadow -- Information on the marker shadow.
+   * @param icon -- Information on the map marker.
+   * 
+   * @return A google.maps.MarkerImage, or null if shadow is null.
+   * 
+   * The shadow and icon parameters are structures with elements: url, width, height.
+   */
+  makeMarkerShadow : function(shadow, marker) {
+    if (shadow) {
+      return new google.maps.MarkerImage(shadow.url,
+          new google.maps.Size(shadow.width, shadow.height),// size
+          new google.maps.Point(0,0),                       // origin
+          new google.maps.Point(marker.width/2, marker.height)  // anchor
+      );      
+    } else {
+      return null;
+    }
+  },
 
   /**
    * Place a marker on the map for a given feature.
    *
-   * @param feature_info - An entry from "recognized_features" that describes this feature.
    * @param feature - Information on this feature, as provided by the "Find It Nearby" web service.
    *
    * @return A google.maps.Marker
    */
-  placeFeatureOnMap : function(feature_info, feature) {
-    var title =  "Nearest " + feature_info.title + ": ";
-    if (! isEmpty(feature.name)) {
-      title = title + feature.name + ", "
-    }
-    title = title + feature.address;
-
+  placeFeatureOnMap : function(feature) {    
+    
     marker = new google.maps.Marker({
-      position: new google.maps.LatLng(feature.latitude, feature.longitude),
       map: this.map,
-      icon: feature_info.marker,
-      shadow: feature_info.marker_shadow,
-      title: title,
+      position: new google.maps.LatLng(feature.latitude, feature.longitude),
+      icon: this.makeMarkerIcon(feature.marker),
+      shadow: this.makeMarkerShadow(feature.shadow, feature.marker),
+      title: feature.hint,
     });
-
-    infowindow = this.makeInfoWindow(marker, this.infoWindowContentForFeature(feature_info, feature));
+    
+    if (feature.info) {
+      this.makeInfoWindow(marker, feature.info);      
+    }
 
     this.feature_markers.push(marker);
     return marker;
   },
 
-
-  /**
-   *  Build info window content for a feature.
-   *
-   * @param feature_info - An entry from "recognized_features" that describes this feature.
-   * @param feature - Information on this feature, as provided by the "Find It Nearby" web service.
-   *
-   *  @return An HTML text string.
-   */
-  infoWindowContentForFeature : function(feature_info, feature) {
-    var result = ["<b>Nearest " + feature_info.title.capitalizeWords().escapeHTML() + "</b>"];
-    if (! isEmpty(feature.name)) {
-      result.push(feature.name.escapeHTML());
-    }
-    result.push(feature.address.escapeHTML());
-    if (! isEmpty(feature.info)) {
-      result.push(feature.info.escapeHTML());
-    }
-    result.push(feature.distance.toFixed(1) + " mi away");
-    if (! isEmpty(feature.link)) {
-      result.push("<a href=\"" + feature.link.escapeHTML() + "\">more info ...</a>");
-    }
-    return result.join("<br />\n");
-  }
 
 };
 

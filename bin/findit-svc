@@ -1,4 +1,4 @@
-#!/usr/bin/env -- ruby
+#!/usr/bin/env ruby
 
 BASEDIR = File.dirname(__FILE__) + "/.."
 
@@ -16,16 +16,16 @@ get "/" do
 end
 
 get "/svc/nearby/:lat,:lng" do |lat, lng|
-  result = FindIt.nearby(lat.to_f, lng.to_f)
+  features = FindIt.nearby(lat.to_f, lng.to_f)
   content_type :json
-  result.to_json
+  features.map{|f| f.to_h}.to_json
 end
 
 post "/svc/nearby" do
   a = URI.decode_www_form(request.body.read)
-  lat = a.assoc("latitude").last.to_f
-  lng = a.assoc("longitude").last.to_f
-  result = FindIt.nearby(lat, lng)
+  lat = (a.assoc("latitude") || []).last
+  lng = (a.assoc("longitude") || []).last
+  features = FindIt.nearby(lat.to_f, lng.to_f)
   content_type :json
-  result.to_json
+  features.map{|f| f.to_h}.to_json
 end

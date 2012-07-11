@@ -1,21 +1,26 @@
 Find It Nearby Service
 
-This is based on work started at the Code for America Hack-a-Thon in Austin, TX on Feb 25, 2012.
+This is based on work started at the Code for America Hack-a-Thon in
+Austin, TX on Feb 25, 2012.
 
-The "Find It Nearby" application attempts to determine your current location, and then finds a
-number of features closest to you.
+The "Find It Nearby" application attempts to determine your current
+location, and then finds a number of features closest to you.
 
-At this time, it looks for the following features:
+At this time, it locates the following features:
 
   * Fire Station
   * Post Office
   * Library
   * Moon Tower
+  * Voting Place
 
-The information for this service is published by the City of Austin. This is a demonstration of an
-application developed by the general public, using city data.
+The information for this service is published by the City of Austin. This
+is a demonstration of an application developed by the general public,
+using city data.
 
 === Installation Instructions
+
+<<< FOLLOWING INSTRUCTIONS ARE COMPLETELY WRONG FOR CURRENT RELEASE >>>
 
 1. Setup Ruby
 
