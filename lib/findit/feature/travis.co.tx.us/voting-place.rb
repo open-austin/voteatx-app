@@ -90,9 +90,9 @@ module FindIt
           end
           
           precinct = rec[:p_vtd].to_i
-          rec = DATASET[precinct]          
-          raise "cannot find voting place for precinct #{precinct}" unless rec                  
-
+          rec = DATASET[precinct] 
+          return nil unless rec
+                   
           new(rec[:location],
             :title => "Your voting place",
             :name => rec[:name],

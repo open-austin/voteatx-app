@@ -81,6 +81,8 @@ FindIt.methods = {
    *
    *  The "event_type" values used in this class are as follows:
    *
+   *  * START - A FindIt query has been initiated. No args.
+   *  
    *  * GEOLOCATION_RUNNING  - Device is attempting to acquire the current location.
    *    No args.
    *
@@ -97,6 +99,9 @@ FindIt.methods = {
    *
    *  * ADDRESS_BAD - Was not able to acquire a valid latitude/longitude for
    *    the given location. Args: {"error" : (error message)}
+   *    
+   *  * NO_FEATURES - No features were found, presumably because the current
+   *    location is outside the service area. No args.
    *
    *  * COMPLETE - Done. Nearby features have been located and placed on
    *    the map. No args.
@@ -118,7 +123,9 @@ FindIt.methods = {
    * once the process resolves.
    */
   start : function () {
-
+    
+    this.send_event("START");
+    
     if (! navigator.geolocation) {
       this.send_event("GEOLOCATION_UNSUPPORTED");
       return false;
@@ -269,6 +276,7 @@ FindIt.methods = {
    * marker to a different place.
    */
   changeLocation : function(loc) {
+    this.send_event("START");
     this.marker_me.setPosition(loc);
     this.findAddress(loc);
     this.searchNearby(loc);
@@ -314,6 +322,11 @@ FindIt.methods = {
     req.send(data);
 
     var nearby_features = eval('(' + req.responseText + ')');
+    
+    if (nearby_features.length == 0) {
+      this.send_event("NO_FEATURES");  
+      return;
+    }
 
     for (type in nearby_features) {
       this.placeFeatureOnMap(nearby_features[type]);

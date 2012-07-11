@@ -48,32 +48,49 @@ input#address_field {
 </style>
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=&sensor=true"></script>
-<script type="text/javascript" src="findit.js?v=2012031002"></script>
+<script type="text/javascript" src="findit.js?v=2012071001"></script>
 <script type="text/javascript">
 
+  var current_event_level = 0;
+  
+  var event_level = {
+    "info" : 1,
+    "notice" : 2,
+    "error" : 3,
+  }
+  
   function displayEventMessage(type, message) {
-    $("#messages").html("<span class=\"" + type + "\">" + message + "</span>");
+    l = event_level[type]
+    if (l != null && l >= current_event_level) {
+      current_event_level = l;
+      $("#messages").html("<span class=\"" + type + "\">" + message + "</span>");
+    }
   }
 
   function findItEventCallBack(event_type, args) {        
     switch (event_type) {
+    case "START":
+      current_event_level = 0;
     case "GEOLOCATION_RUNNING":
       displayEventMessage("info", "Stand by while I find your current location ...");
       break;
     case "GEOLOCATION_UNSUPPORTED":
-      displayEventMessage("error", "Sorry, your browser does not support automatic geolocation. (Enter an address at bottom.");
+      displayEventMessage("error", "Sorry ... your browser does not support automatic geolocation. (Enter an address at bottom.");
       break;
     case "GEOLOCATION_FAILED":
       displayEventMessage("error", "Automatic geolocation failed: " + escapeHTML(args.error) + "(Enter an address at bottom.)");
       break;
     case "GEOLOCATION_SUCCEEDED":
-      displayEventMessage("", "");
+      displayEventMessage("info", "");
       break;
     case "ADDRESS_GOOD":
       displayEventMessage("notice", escapeHTML(args.address));
       break;
     case "ADDRESS_BAD":
       displayEventMessage("error", "Cannot locate specified address: " + escapeHTML(args.error));
+      break;
+    case "NO_FEATURES":
+      displayEventMessage("error", "Sorry ... your location is outside the service area of this application.");
       break;
     case "COMPLETE":
       break;
