@@ -1,9 +1,11 @@
-require 'findit/mapmarker'
-require 'findit/feature/austin.ci.tx.us/base-facility'
+require 'findit'
+require 'findit/local/austin.ci.tx.us/feature/base-facility'
 
 module FindIt
   module Feature
-    module Austin_CI_TX_US
+    module Austin_CI_TX_US      
+
+      # Implementation of FindIt::Feature::Austin_CI_TX_US::BaseFacility to represent libraries in Austin, TX.
       class Library < FindIt::Feature::Austin_CI_TX_US::BaseFacility  
         
         def self.facility_title

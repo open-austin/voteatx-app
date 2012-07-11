@@ -4,7 +4,9 @@ require 'findit/mapmarker'
 
 module FindIt
   module Feature
-    module Austin_CI_TX_US
+    module Austin_CI_TX_US      
+
+      # Implementation of FindIt::BaseFeature to represent moon towers in Austin, TX.
       class MoonTower < FindIt::BaseFeature
         
         def self.type

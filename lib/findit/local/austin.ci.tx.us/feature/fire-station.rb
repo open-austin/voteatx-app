@@ -1,14 +1,14 @@
-require 'findit/base-feature'
-require 'findit/location'
-require 'findit/mapmarker'
+require 'findit'
 require 'csv'
 
 module FindIt
   module Feature
     module Austin_CI_TX_US
+      
+      # Implementation of FindIt::BaseFeature to represent fire stations in Austin, TX.
       class FireStation < FindIt::BaseFeature
         
-        DATAFILE = File.dirname(__FILE__) + "/data/Austin_Fire_Stations.csv"
+        DATAFILE = self.datafile(__FILE__, "fire-stations", "Austin_Fire_Stations.csv")
         
         def self.load_dataset
           

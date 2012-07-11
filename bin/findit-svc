@@ -3,11 +3,11 @@
 BASEDIR = File.dirname(__FILE__) + "/.."
 
 $:.insert(0, BASEDIR + "/lib")
-require "rubygems"
 require "sinatra"
 require "uri"
 require "json"
 require "findit"
+require "findit/local"
 
 set :public_folder, BASEDIR + "/public"
 
@@ -16,7 +16,7 @@ get "/" do
 end
 
 get "/svc/nearby/:lat,:lng" do |lat, lng|
-  features = FindIt.nearby(lat.to_f, lng.to_f)
+  features = FindIt::App::nearby(lat.to_f, lng.to_f)
   content_type :json
   features.map{|f| f.to_h}.to_json
 end
@@ -25,7 +25,7 @@ post "/svc/nearby" do
   a = URI.decode_www_form(request.body.read)
   lat = (a.assoc("latitude") || []).last
   lng = (a.assoc("longitude") || []).last
-  features = FindIt.nearby(lat.to_f, lng.to_f)
+  features = FindIt::App::nearby(lat.to_f, lng.to_f)
   content_type :json
   features.map{|f| f.to_h}.to_json
 end

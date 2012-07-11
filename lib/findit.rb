@@ -1,29 +1,28 @@
+require 'findit/base-app'
+require 'findit/base-feature'
 require 'findit/location'
+require 'findit/mapmarker'
 
-require 'findit/feature/austin.ci.tx.us/library'
-require 'findit/feature/austin.ci.tx.us/post-office'
-require 'findit/feature/austin.ci.tx.us/moon-tower'
-require 'findit/feature/austin.ci.tx.us/fire-station'
-require 'findit/feature/travis.co.tx.us/voting-place'
 
-require 'dbi'
-DB = DBI.connect("DBI:Pg:host=localhost;database=findit", "findit", "tRdhxlJiREbg")
-
-MAX_DISTANCE = 12
-
-module FindIt  
+class String
   
-  # Find collection of nearby features for a given latitude/longitude.
-  def self.nearby(lat, lng)    
-    origin = FindIt::Location.new(lat, lng, :DEG)        
-    features = []      
-    features << FindIt::Feature::Austin_CI_TX_US::Library.closest(origin)  
-    features << FindIt::Feature::Austin_CI_TX_US::PostOffice.closest(origin)
-    features << FindIt::Feature::Austin_CI_TX_US::FireStation.closest(origin)
-    features << FindIt::Feature::Austin_CI_TX_US::MoonTower.closest(origin) 
-    features << FindIt::Feature::Travis_CO_TX_US::VotingPlace.closest(origin)    
-    return features.reject {|f| f.nil? || f.distance > MAX_DISTANCE}
+  def capitalize_words
+    self.split.map{|w| w.capitalize}.join(" ")
+    end
+    
+  require 'cgi'
+  def html_safe
+    CGI::escape_html(self)
   end
   
 end
 
+
+class NilClass
+  
+  # So I can use foo.empty? safely on things expected to hold a String.  
+  def empty?
+    true
+  end
+  
+end

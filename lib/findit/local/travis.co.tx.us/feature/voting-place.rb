@@ -4,7 +4,9 @@ require 'findit/mapmarker'
 
 module FindIt
   module Feature
-    module Travis_CO_TX_US
+    module Travis_CO_TX_US      
+
+      # Implementation of FindIt::BaseFeature to represent voting places in Travis County, Texas.
       class VotingPlace < FindIt::BaseFeature        
 
         def self.type
@@ -28,8 +30,8 @@ module FindIt
         end 
         
 
-        DATAFILE = File.dirname(__FILE__) + "/data/Voting_Places.csv"
-          
+        DATAFILE = self.datafile(__FILE__, "voting-places", "Voting_Places.csv")
+        
         def self.load_dataset
           
           ds = {}
