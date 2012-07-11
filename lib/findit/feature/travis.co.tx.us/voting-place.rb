@@ -1,4 +1,6 @@
 require 'findit/base-feature'
+require 'findit/location'
+require 'findit/mapmarker'
 
 module FindIt
   module Feature
@@ -9,7 +11,7 @@ module FindIt
           :VOTING_PLACE
         end  
 
-        MARKER = FindIt::Feature::MapMarker.new(
+        MARKER = FindIt::MapMarker.new(
           "/mapicons/vote_icon.png",
           :height => 32, :width => 32).freeze
           
@@ -17,7 +19,7 @@ module FindIt
           MARKER
         end  
 
-        MARKER_SHADOW = FindIt::Feature::MapMarker.new(
+        MARKER_SHADOW = FindIt::MapMarker.new(
           "/mapicons/vote_icon_shadow.png",        
           :height => 32, :width => 59).freeze            
         
@@ -61,7 +63,7 @@ module FindIt
               :city => row["city"],
               :state => row["state"],
               :note => note,
-              :location => Location.new(lat, lng, :DEG),
+              :location => FindIt::Location.new(lat, lng, :DEG),
             }.freeze
            
           end

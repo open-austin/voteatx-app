@@ -1,4 +1,6 @@
 require 'findit/base-feature'
+require 'findit/location'
+require 'findit/mapmarker'
 require 'csv'
 
 module FindIt
@@ -35,7 +37,7 @@ module FindIt
               :city => m[1].capitalize_words,
               :state => m[2],
               :zip => m[3],
-              :location => Location.new(lat, lng, :DEG),
+              :location => FindIt::Location.new(lat, lng, :DEG),
             }
            
           end
@@ -49,7 +51,7 @@ module FindIt
           :FIRE_STATION
         end
         
-        MARKER = FindIt::Feature::MapMarker.new(
+        MARKER = FindIt::MapMarker.new(
           "http://maps.google.com/mapfiles/kml/pal2/icon0.png",
           :height => 32, :width => 32).freeze
           
@@ -57,7 +59,7 @@ module FindIt
           MARKER
         end  
         
-        MARKER_SHADOW = FindIt::Feature::MapMarker.new(
+        MARKER_SHADOW = FindIt::MapMarker.new(
           "http://maps.google.com/mapfiles/kml/pal2/icon0s.png",
           :height => 32, :width => 59).freeze                   
         

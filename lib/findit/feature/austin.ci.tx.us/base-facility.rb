@@ -1,4 +1,5 @@
 require 'findit/base-feature'
+require 'findit/location'
 
 module FindIt
   module Feature
@@ -10,8 +11,16 @@ module FindIt
       # The derived classes contain the code for the specific feature.
       #
       class BaseFacility < FindIt::BaseFeature
-                
-        def self.closest_facility(fac_title, fac_type, origin)
+        
+        def self.facility_title    
+          raise "abstract method \"self.facility_title\" must be overriden"
+        end   
+        
+        def self.facility_type
+          raise "abstract method \"self.facility_type\" must be overriden"
+        end    
+        
+        def self.closest(origin)
 
           sth = DB.execute(%q{SELECT *,
             ST_X(ST_Transform(the_geom, 4326)) AS longitude,
@@ -21,24 +30,25 @@ module FindIt
             WHERE facility = ?
             ORDER BY distance ASC
             LIMIT 1
-          }, origin.lng, origin.lat, fac_type)
+          }, origin.lng, origin.lat, self.facility_type)
           rec = sth.fetch
           sth.finish
 
           return nil unless rec  
           
-          new(Location.new(rec[:latitude], rec[:longitude], :DEG),
-            :title => fac_title,
+          new(FindIt::Location.new(rec[:latitude], rec[:longitude], :DEG),
+            :title => self.facility_title,
             :name => rec[:name].capitalize_words,
             :address => rec[:address].capitalize_words,
             :city => "Austin",
             :state => "TX",
             :origin => origin
           )
-        end
+          
+        end # self.closest
         
-        
-      end
-    end
-  end
-end
+      end # class BaseFacility      
+    end # module Austin_CI_TX_US
+  end # module Feature    
+end # module FindIt
+

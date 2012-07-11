@@ -1,4 +1,6 @@
 require 'findit/base-feature'
+require 'findit/location'
+require 'findit/mapmarker'
 
 module FindIt
   module Feature
@@ -9,7 +11,7 @@ module FindIt
           :MOON_TOWER
         end
         
-        MARKER = FindIt::Feature::MapMarker.new(
+        MARKER = FindIt::MapMarker.new(
           "http://maps.google.com/mapfiles/kml/pal3/icon40.png",
           :height => 32, :width => 32).freeze
           
@@ -17,7 +19,7 @@ module FindIt
           MARKER
         end  
         
-        MARKER_SHADOW = FindIt::Feature::MapMarker.new(
+        MARKER_SHADOW = FindIt::MapMarker.new(
           "http://maps.google.com/mapfiles/kml/pal3/icon40s.png",
           :height => 32, :width => 59).freeze                   
         
@@ -41,7 +43,7 @@ module FindIt
 
           return nil unless rec  
           
-          new(Location.new(rec[:latitude], rec[:longitude], :DEG),
+          new(FindIt::Location.new(rec[:latitude], rec[:longitude], :DEG),
             :title => "Closest moon tower",
             :address => rec[:address].capitalize_words,
             :city => "Austin",

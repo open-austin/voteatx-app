@@ -1,4 +1,4 @@
-require 'location'
+require 'findit/location'
 
 require 'findit/feature/austin.ci.tx.us/library'
 require 'findit/feature/austin.ci.tx.us/post-office'
@@ -15,7 +15,7 @@ module FindIt
   
   # Find collection of nearby features for a given latitude/longitude.
   def self.nearby(lat, lng)    
-    origin = Location.new(lat, lng, :DEG)        
+    origin = FindIt::Location.new(lat, lng, :DEG)        
     features = []      
     features << FindIt::Feature::Austin_CI_TX_US::Library.closest(origin)  
     features << FindIt::Feature::Austin_CI_TX_US::PostOffice.closest(origin)
