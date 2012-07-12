@@ -44,7 +44,7 @@ module FindIt
 
     
     # A FindIt::Location instance that provides the geographical
-    # location of this feature.
+    # location (latitude, longitude) of this feature.
     # This value is required and will always be defined.
     attr_reader :location
     
@@ -80,7 +80,7 @@ module FindIt
     # This value is optional and may be nil.
     attr_accessor :note
     
-    # A Float value containing the distance (in miles) from an
+    # A Float value containing the distance (in miles) from the
     # origin point to this feature.
     attr_reader :distance
     
@@ -91,7 +91,7 @@ module FindIt
     # Parameters:
     #
     # * location -- A FindIt::Location instance with the location 
-    # of this feature.
+    #   of this feature.
     #
     # * params -- Parameters to initialize feature attributes. See
     #   the description of the FindIt::BaseFeature attributes for
