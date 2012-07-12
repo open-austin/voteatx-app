@@ -6,8 +6,7 @@ $:.insert(0, BASEDIR + "/lib")
 require "sinatra"
 require "uri"
 require "json"
-require "findit"
-require "findit/local"
+require "findit/app"
 
 set :public_folder, BASEDIR + "/public"
 

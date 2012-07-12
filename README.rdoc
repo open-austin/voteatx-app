@@ -24,7 +24,6 @@ the value of public datasets. Wherever possible, I've tried to use
 public datasets that have been published by a local government and
 readily available (e.g. on a public data portal).
 
-== Author
-
-Chip Rosenthal
-chip@unicom.com
+Chip Rosenthal <br/>
+chip@unicom.com <br/>
+http://www.unicom.com

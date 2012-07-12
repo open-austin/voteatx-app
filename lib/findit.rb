@@ -1,7 +1,6 @@
-require 'findit/base-app'
 require 'findit/base-feature'
 require 'findit/location'
-require 'findit/mapmarker'
+require 'findit/map-marker'
 
 
 class String

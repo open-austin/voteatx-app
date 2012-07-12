@@ -1,6 +1,4 @@
-require 'findit/base-feature'
-require 'findit/location'
-require 'findit/mapmarker'
+require 'findit'
 
 module FindIt
   module Feature
