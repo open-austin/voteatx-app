@@ -1,8 +1,5 @@
 = Find It Nearby
 
-This is based on work started at the Code for America Hack-a-Thon in
-Austin, TX on Feb 25, 2012.
-
 The "Find It Nearby" application tries to determine your current
 location, and then finds a number of features closest to you. The
 implementation for Austin currently locates the following features:
@@ -13,19 +10,19 @@ implementation for Austin currently locates the following features:
 * Moon Tower
 * Voting Place
 
-You can view the application running at: http://nearby.webatx.us/
-
 The "Find It Nearby" package includes:
 
 * a mobile-friendly web application
 * a RESTful web service
 * tools for acquiring and processing specific public datasets
 
-This application was created as a "proof of concept" demonstration of
-the value of public datasets. Wherever possible, I've tried to use
-public datasets that have been published by a local government and
-readily available (e.g. on a public data portal).
+You can view the application running at: http://nearby.webatx.us/
 
-Chip Rosenthal <br/>
-chip@unicom.com <br/>
-http://www.unicom.com
+The source code is published at: https://github.com/chip-rosenthal/findit
+
+This application was created to demonstrate the value of open
+government data, and the sort of tools that can be build on
+public datasets. This is based on work from the Code for America
+sHack-a-Thon in Austin, TX on Feb 25, 2012.
+
+Chip Rosenthal | chip@unicom.com | http://www.unicom.com

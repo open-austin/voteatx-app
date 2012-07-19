@@ -1,7 +1,90 @@
 #!/usr/bin/env ruby
+#
+# == Name
+#
+# findit-svc - Find It Nearby web service
+#
+# == Synopsis
+#
+# findit-svc
+#
+# == Description
+#
+# The <i>findit-svc</i> utility implements a RESTful web service that
+# supports the "Find It Nearby" web application.
+#
+# When run directly, it starts an HTTP web server to respond queries.
+# This typically is used for test and debug. For production services,
+# this utility typically is run through a web server using the
+# Phusion Passenger (mod_rails) facility.
+#
+# Here is an example of interactive startup:
+#
+#    $ findit-svc 
+#    [2012-07-18 11:57:11] INFO  WEBrick 1.3.1
+#    [2012-07-18 11:57:11] INFO  ruby 1.9.2 (2011-07-09) [x86_64-linux]
+#    == Sinatra/1.3.2 has taken the stage on 4567 for development with backup from WEBrick
+#    [2012-07-18 11:57:11] INFO  WEBrick::HTTPServer#start: pid=2907 port=4567
+# 
+# In this example, the REST endpoint would be:
+#
+#	http://localhost:4567/svc
+#
+# == Operations
+#
+# * Operation: GET /svc/nearby/<i>lat</i>,<i>lng</i>
+#   * Request Data: None
+#   * Response Data: nearby features in application/json
+#
+# * POST /svc/nearby
+#   * Request Data:
+#     * Content-Type: application/x-www-form-urlencoded
+#     * Parameters: latitude, longitude
+#   * Response Data: nearby features in application/json
+#
+# Here is an example:
+#
+#   GET http://localhost:4567/svc/nearby/30.2665,-97.7440
+#
+#   [
+#     {
+#       "type":"LIBRARY",
+#       "title":"Closest library",
+#       "name":"Henry Faulk Main",
+#       "address":"800 Guadalupe",
+#       "city":"Austin",
+#       "state":"TX",
+#       "zip":null,
+#       "link":null,
+#       "note":null,
+#       "latitude":30.2713812577604,
+#       "longitude":-97.7458565825148,
+#       "distance":0.35537373070524003,
+#       "hint":"Closest library: Henry Faulk Main",
+#       "info":"&lt;div class=\"findit-feature-info\"&gt;\n&lt;b&gt;Closest Library&lt;/b&gt;&lt;br /&gt;\nHenry Faulk Main&lt;br /&gt;\n800 Guadalupe&lt;br /&gt;\nAustin, TX&lt;br /&gt;\n0.4 mi away\n&lt;/div&gt;",
+#       "marker":{
+#         "url":"http://maps.google.com/mapfiles/kml/pal3/icon56.png",
+#         "height":32,
+#         "width":32
+#       },
+#       "marker_shadow":{
+#         "url":"http://maps.google.com/mapfiles/kml/pal3/icon56s.png",
+#         "height":32,
+#         "width":59
+#       }
+#     },
+#     {
+#       "type":"POST_OFFICE",
+#       "title":"Closest post office",
+#         .
+#         .
+#         .
+#     },
+#   ]
+#
+#--
 
 BASEDIR = File.dirname(__FILE__) + "/.."
-
 $:.insert(0, BASEDIR + "/lib")
 require "sinatra"
 require "uri"

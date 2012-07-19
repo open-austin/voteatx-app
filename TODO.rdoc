@@ -4,16 +4,10 @@ Here are planned tasks for the "Find It Nearby" application.
 Please contact me if you have any feedback or are interested
 in working on any of these.
 
-* Move credentials and parameters out of lib/findit/app.rb to an
-  external configuration file.
-  
-* Create a mechanism so that supported features can be selected
-  or added through the external configuration file, rather than
-  editing lib/findit/app.rb.
+* Add Austin police stations. (That dataset has just been published.)
 
-* Better document the FindIt::Feature classes provided, so they
-  might serve as better examples for adding new features. 
-  
+* Generate documentation for findit-svc.
+
 * Document process for adding a new features (i.e. datasets).
 
 * Add support for "service region", to limit area from which

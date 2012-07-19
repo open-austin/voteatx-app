@@ -1,0 +1,16 @@
+SAVEFILE = "Austin_Fire_Stations.csv"
+DOWNLOAD_URL = "https://data.austintexas.gov/api/views/64cq-wf5u/rows.csv?accessType=DOWNLOAD"
+
+task :default => [SAVEFILE]
+  
+file SAVEFILE do |t|
+  sh("wget", "-O", t.name, DOWNLOAD_URL)
+end
+  
+task :clean do
+  # empty
+end
+  
+task :clobber => [:clean] do
+  sh("rm", "-f", SAVEFILE)
+end
