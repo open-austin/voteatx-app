@@ -4,7 +4,7 @@ module FindIt
   # A graphic icon to be placed on the map as a marker.
   #
   # For a list of map icons available at Google, see:
-  # http://econym.org.uk/gmap/geicons.htm
+  # https://sites.google.com/site/gmapsdevelopment/
   #
   class MapMarker
     
