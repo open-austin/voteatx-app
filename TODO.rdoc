@@ -4,8 +4,6 @@ Here are planned tasks for the "Find It Nearby" application.
 Please contact me if you have any feedback or are interested
 in working on any of these.
 
-* Add Austin police stations. (That dataset has just been published.)
-
 * Generate documentation for findit-svc.
 
 * Document process for adding a new features (i.e. datasets).

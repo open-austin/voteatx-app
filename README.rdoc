@@ -1,10 +1,10 @@
 = Find It Nearby
 
-The "Find It Nearby" application tries to determine your current
-location, and then finds a number of features closest to you. The
-implementation for Austin currently locates the following features:
+The "Find It Nearby" application identifies features in Austin, TX
+that are closest to you. The features it knows about are:
 
 * Fire Station
+* Police Station
 * Post Office
 * Library
 * Moon Tower
@@ -14,15 +14,15 @@ The "Find It Nearby" package includes:
 
 * a mobile-friendly web application
 * a RESTful web service
-* tools for acquiring and processing specific public datasets
+* tools for acquiring and processing public datasets
 
 You can view the application running at: http://nearby.webatx.us/
 
 The source code is published at: https://github.com/chip-rosenthal/findit
 
 This application was created to demonstrate the value of open
-government data, and the sort of tools that can be build on
+government data, and the sorts of tools that can be build on
 public datasets. This is based on work from the Code for America
-sHack-a-Thon in Austin, TX on Feb 25, 2012.
+Hack-a-Thon in Austin, TX on Feb 25, 2012.
 
 Chip Rosenthal | chip@unicom.com | http://www.unicom.com
