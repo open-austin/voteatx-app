@@ -1,5 +1,5 @@
-SAVEFILE = "Austin_Fire_Stations.csv"
-DOWNLOAD_URL = "https://data.austintexas.gov/api/views/64cq-wf5u/rows.csv?accessType=DOWNLOAD"
+SAVEFILE = "Austin_Police_Stations.csv"
+DOWNLOAD_URL = "https://data.austintexas.gov/api/views/jmp6-p8e2/rows.csv?accessType=DOWNLOAD"
 
 task :default => [SAVEFILE]
   

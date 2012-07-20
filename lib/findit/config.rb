@@ -1,9 +1,10 @@
 
 # Include all of the local features that we want to support.
-require 'findit/local/austin.ci.tx.us/feature/library'
-require 'findit/local/austin.ci.tx.us/feature/post-office'
-require 'findit/local/austin.ci.tx.us/feature/moon-tower'
 require 'findit/local/austin.ci.tx.us/feature/fire-station'
+require 'findit/local/austin.ci.tx.us/feature/library'
+require 'findit/local/austin.ci.tx.us/feature/moon-tower'
+require 'findit/local/austin.ci.tx.us/feature/police-station'
+require 'findit/local/austin.ci.tx.us/feature/post-office'
 require 'findit/local/travis.co.tx.us/feature/voting-place'
 
 require 'dbi'
@@ -15,10 +16,11 @@ module FindIt
   
   # List of classes that implement FindIt::BaseFeature.
   FEATURE_CLASSES = [
-    FindIt::Feature::Austin_CI_TX_US::Library,
-    FindIt::Feature::Austin_CI_TX_US::PostOffice,
     FindIt::Feature::Austin_CI_TX_US::FireStation,
+    FindIt::Feature::Austin_CI_TX_US::Library,
     FindIt::Feature::Austin_CI_TX_US::MoonTower, 
+    FindIt::Feature::Austin_CI_TX_US::PoliceStation,
+    FindIt::Feature::Austin_CI_TX_US::PostOffice,
     FindIt::Feature::Travis_CO_TX_US::VotingPlace,
   ]
 
