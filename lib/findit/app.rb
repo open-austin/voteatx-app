@@ -15,7 +15,7 @@ module FindIt
   # DBI connection to the PostGIS "findit" database.
   DB = DBI.connect("DBI:Pg:host=localhost;database=findit", "findit", "tRdhxlJiREbg")
   
-  # List of classes that implement FindIt::BaseFeature.
+  # List of classes that implement features (derived from FindIt::BaseFeature).
   FEATURE_CLASSES = [
     FindIt::Feature::Austin_CI_TX_US::FireStation,
     FindIt::Feature::Austin_CI_TX_US::Library,
@@ -28,7 +28,6 @@ module FindIt
   # Features beyond this distance (miles) from the current location will
   # be filtered out from the result set.
   MAX_DISTANCE = 12
-  
 
   #
   # Implementation of the FindIt application.
