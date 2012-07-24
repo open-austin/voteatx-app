@@ -2,28 +2,38 @@ require 'findit'
 
 module FindIt
   module Feature
-    module Travis_CO_TX_US      
+    module Travis_CO_TX_US
+      
+      class VotingPlaceFactory
+        def self.create(db, election, options = {})
+          klass = Class.new(AbstractVotingPlace)
+          klass.instance_variable_set(:@db, db)
+          klass.instance_variable_set(:@type, :VOTING_PLACE)
+          klass.instance_variable_set(:@marker, FindIt::MapMarker.new(
+            "/mapicons/vote_icon.png",
+            :height => 32, :width => 32))
+          klass.instance_variable_set(:@marker_shadow, FindIt::MapMarker.new(
+            "/mapicons/vote_icon_shadow.png",        
+            :height => 32, :width => 59))
+          klass.set_election(election)
+          klass
+        end
+      end   
 
-      # Implementation of FindIt::BaseFeature to represent voting places in Travis County, Texas.
-      class VotingPlace < FindIt::BaseFeature    
+      class AbstractVotingPlace < FindIt::BaseFeature    
         
-        @type = :VOTING_PLACE
-
-        @marker = FindIt::MapMarker.new(
-          "/mapicons/vote_icon.png",
-          :height => 32, :width => 32).freeze
+        # class instance variables will be initialized by factory method
+        @type = nil
+        @marker = nil          
+        @marker_shadow = nil
+        @db = nil
+        @voting_places = nil
+                          
+        def self.set_election(election)
+          datafile = self.datafile(__FILE__, "voting-places", "Voting_Places_#{election}.csv")            
           
-        @marker_shadow = FindIt::MapMarker.new(
-          "/mapicons/vote_icon_shadow.png",        
-          :height => 32, :width => 59).freeze            
-
-        DATAFILE = self.datafile(__FILE__, "voting-places", "Voting_Places.csv")
-        
-        def self.load_dataset
-          
-          ds = {}
-            
-          CSV.foreach(DATAFILE, :headers => true) do |row|
+          @voting_places = {}
+          CSV.foreach(datafile, :headers => true) do |row|
             
             #
             # Example Row:
@@ -46,7 +56,7 @@ module FindIt
             note = "precinct #{pct}"
             note += " - #{row["notes"]}" if row["notes"]
             
-            ds[pct] = {       
+            @voting_places[pct] = {       
               :name =>  row["name"],
               :street => row["street"],
               :city => row["city"],
@@ -57,15 +67,12 @@ module FindIt
            
           end
           
-          return ds
-        end
-        
-        DATASET = load_dataset.freeze         
-
+        end # self.load_dataset
+                
                 
         def self.closest(origin)
-
-          sth = DB.execute(%q{SELECT * FROM travis_co_tx_us_voting_districts
+          
+          sth = @db.execute(%q{SELECT * FROM travis_co_tx_us_voting_districts
             WHERE ST_Contains(the_geom, ST_Transform(ST_SetSRID(ST_Point(?, ?), 4326), 3081))},
             origin.lng, origin.lat)
           ds = sth.fetch_all
@@ -81,7 +88,7 @@ module FindIt
           end
           
           precinct = rec[:p_vtd].to_i
-          rec = DATASET[precinct] 
+          rec = @voting_places[precinct] 
           return nil unless rec
                    
           new(rec[:location],

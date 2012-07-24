@@ -55,7 +55,7 @@ module FindIt
     #   $LIBDIR/findit/local/austin.ci.tx.us/data/fire-stations/Austin_Fire_Stations.csv
     #
     def self.datafile(caller, dir, file)          
-      File.dirname(caller) + "/../data/" + dir + "/" + file
+      File.dirname(caller) + "/data/" + dir + "/" + file
     end
 
     
