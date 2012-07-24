@@ -2,13 +2,29 @@ module FindIt
    
   # Abstract class for a map feature.
   #
-  # To implement a feature, the derived class must override the
-  # following methods:
+  # To implement a feature, the derived class must:
   #
-  # * self.type
-  # * self.marker
-  # * self.marker_shadow
-  # * self.closest
+  # * Either define <i>@type</i> class instance variable or override <i>self.type</i> method.
+  # * Either define <i>@marker</i> class instance variable or override <i>self.marker</i> method.
+  # * Either define <i>@marker_shadow</i> class instance variable or override <i>self.marker_shadow</i> method.
+  # * Override <i>self.closest</i> method.
+  #
+  # Example:
+  #
+  #   class Library < BaseFeature
+  #     @type = :LIBRARY
+  #     @marker = FindIt::MapMarker.new(
+  #       "http://maps.google.com/mapfiles/kml/pal3/icon56.png",
+  #       :height => 32, :width => 32).freeze
+  #     @marker_shadow = FindIt::MapMarker.new(
+  #       "http://maps.google.com/mapfiles/kml/pal3/icon56s.png",
+  #       :height => 32, :width => 59).freeze
+  #     def self.closest(loc)
+  #          . 
+  #          . 
+  #          . 
+  #     end
+  #   end
   #
   class BaseFeature
     
@@ -158,40 +174,48 @@ module FindIt
     # origin point (FindIt::BaseFeature).
     #
     def self.closest(origin)
-      raise "abstract method \"self.closest\" must be overridden"
+      raise NotImplementedError, "abstract method \"self.closest\" must be overridden"
     end    
     
     
     #
     # The feature type.
     #
-    # <b>This is an abstract method that must be overridden in the derived class.</b>
-    #
     # Returns: A symbol that indicates the feature type, such
     # as <tt>:FIRE_STATION</tt> or <tt>:LIBRARY</tt>.
     # 
+    # The default implementation returns the value of the
+    # <i>@type</i> class instance variable. A derived class
+    # should either initialize that variable or override this
+    # method.
+    #
     def self.type
-      raise "abstract method \"self.type\" must be overridden"
+      raise NameError, "class instance parameter \"type\" not initialized for class \"#{self.name}\"" unless @type
+      @type
     end
     
     
     #
     # The map marker graphic for this feature.
     #
-    # <b>This is an abstract method that must be overridden in the derived class.</b>
-    #
     # Returns: The graphic that should be used to identify
     # this feature on a map (FindIt::MapMarker).
     #
+    # The default implementation returns the value of the
+    # <i>@marker</i> class instance variable. A derived class
+    # should either initialize that variable or override this
+    # method.
+    #
     def self.marker
-      raise "abstract method \"self.marker\" must be overridden"
+      raise NameError, "class instance parameter \"marker\" not initialized for class \"#{self.name}\"" unless @marker
+      @marker
     end
     
     
     #
     # The map marker for this feature.
     #
-    # Returns: The value from the class marker method.
+    # Returns: The value from the class method <i>self.marker</i>.
     #
     # Typically all features of a given type will use the same
     # marker, which is what this default implementation provides.
@@ -206,19 +230,23 @@ module FindIt
     #
     # The map marker shadow graphic for this feature.
     #
-    # <b>This is an abstract method that must be overridden in the derived class.</b>
-    #
     # Returns: The graphic that should be used as a shadow graphic
     # under the map marker for this feature (FindIt::MapMarker).
     #
+    # The default implementation returns the value of the
+    # <i>@marker_shadow</i> class instance variable. A derived class
+    # should either initialize that variable or override this
+    # method.
+    #
     def self.marker_shadow
-      raise "abstract method \"self.marker_shadow\" must be overridden"
+      raise NameError, "class instance parameter \"marker_shadow\" not initialized for class \"#{self.name}\"" unless @marker_shadow
+      @marker_shadow
     end
     
     #
     # The map marker shadow for this feature.
     #
-    # Returns: The value from the class marker_shadow method.
+    # Returns: The value from the class method <i>self.marker_shadow</i>.
     #
     # Typically all features of a given type will use the same
     # marker, which is what this default implementation provides.

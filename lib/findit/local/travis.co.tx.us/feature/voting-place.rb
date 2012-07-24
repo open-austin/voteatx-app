@@ -5,28 +5,17 @@ module FindIt
     module Travis_CO_TX_US      
 
       # Implementation of FindIt::BaseFeature to represent voting places in Travis County, Texas.
-      class VotingPlace < FindIt::BaseFeature        
+      class VotingPlace < FindIt::BaseFeature    
+        
+        @type = :VOTING_PLACE
 
-        def self.type
-          :VOTING_PLACE
-        end  
-
-        MARKER = FindIt::MapMarker.new(
+        @marker = FindIt::MapMarker.new(
           "/mapicons/vote_icon.png",
           :height => 32, :width => 32).freeze
           
-        def self.marker
-          MARKER
-        end  
-
-        MARKER_SHADOW = FindIt::MapMarker.new(
+        @marker_shadow = FindIt::MapMarker.new(
           "/mapicons/vote_icon_shadow.png",        
           :height => 32, :width => 59).freeze            
-        
-        def self.marker_shadow
-          MARKER_SHADOW
-        end 
-        
 
         DATAFILE = self.datafile(__FILE__, "voting-places", "Voting_Places.csv")
         

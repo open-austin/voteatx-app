@@ -7,25 +7,15 @@ module FindIt
       # Implementation of FindIt::BaseFeature to represent moon towers in Austin, TX.
       class MoonTower < FindIt::BaseFeature
         
-        def self.type
-          :MOON_TOWER
-        end
+        @type = :MOON_TOWER
         
-        MARKER = FindIt::MapMarker.new(
+        @marker = FindIt::MapMarker.new(
           "http://maps.google.com/mapfiles/kml/pal3/icon40.png",
           :height => 32, :width => 32).freeze
           
-        def self.marker
-          MARKER
-        end  
-        
-        MARKER_SHADOW = FindIt::MapMarker.new(
+        @marker_shadow = FindIt::MapMarker.new(
           "http://maps.google.com/mapfiles/kml/pal3/icon40s.png",
           :height => 32, :width => 59).freeze                   
-        
-        def self.marker_shadow
-          MARKER_SHADOW
-        end        
 
         def self.closest(origin)
 
@@ -34,10 +24,10 @@ module FindIt
             ST_Y(ST_Transform(the_geom, 4326)) AS latitude,
             ST_Distance(ST_Transform(the_geom, 4326), ST_SetSRID(ST_Point(?, ?), 4326)) AS distance
             FROM austin_ci_tx_us_historical
-            WHERE building_n = 'MOONLIGHT TOWERS'
+            WHERE building_n = ?
             ORDER BY distance ASC
             LIMIT 1
-          }, origin.lng, origin.lat)
+          }, origin.lng, origin.lat, "MOONLIGHT TOWERS")
           rec = sth.fetch
           sth.finish
 

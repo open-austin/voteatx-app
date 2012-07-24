@@ -7,7 +7,17 @@ module FindIt
       
       # Implementation of FindIt::BaseFeature to represent fire stations in Austin, TX.
       class FireStation < FindIt::BaseFeature
+
+        @type = :FIRE_STATION
         
+        @marker = FindIt::MapMarker.new(
+          "http://maps.google.com/mapfiles/kml/pal2/icon0.png",
+          :height => 32, :width => 32).freeze
+          
+        @marker_shadow = FindIt::MapMarker.new(
+          "http://maps.google.com/mapfiles/kml/pal2/icon0s.png",
+          :height => 32, :width => 59).freeze                  
+               
         DATAFILE = self.datafile(__FILE__, "fire-stations", "Austin_Fire_Stations.csv")
         
         def self.load_dataset
@@ -45,27 +55,8 @@ module FindIt
           return ds
         end
         
-        DATASET = load_dataset.freeze         
-
-        def self.type
-          :FIRE_STATION
-        end
+        DATASET = load_dataset.freeze     
         
-        MARKER = FindIt::MapMarker.new(
-          "http://maps.google.com/mapfiles/kml/pal2/icon0.png",
-          :height => 32, :width => 32).freeze
-          
-        def self.marker
-          MARKER
-        end  
-        
-        MARKER_SHADOW = FindIt::MapMarker.new(
-          "http://maps.google.com/mapfiles/kml/pal2/icon0s.png",
-          :height => 32, :width => 59).freeze                   
-        
-        def self.marker_shadow
-          MARKER_SHADOW
-        end        
 
         def self.closest(origin)
           
