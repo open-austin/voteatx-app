@@ -6,12 +6,12 @@ module FindIt
   #
   # * Either define <i>@type</i> class instance variable or override <i>self.type</i> method.
   # * Either define <i>@marker</i> class instance variable or override <i>self.marker</i> method.
-  # * Either define <i>@marker_shadow</i> class instance variable or override <i>self.marker_shadow</i> method.
+  # * Either define <i>\@marker_shadow</i> class instance variable or override <i>self.marker_shadow</i> method.
   # * Override <i>self.closest</i> method.
   #
   # Example:
   #
-  #   class Library < BaseFeature
+  #   class Library < FindIt::BaseFeature
   #     @type = :LIBRARY
   #     @marker = FindIt::MapMarker.new(
   #       "http://maps.google.com/mapfiles/kml/pal3/icon56.png",
@@ -27,37 +27,6 @@ module FindIt
   #   end
   #
   class BaseFeature
-    
-    #
-    # Locate an external datafile for this feature.
-    #
-    # Parameters:
-    #
-    # * caller -- The full pathname of the file containing
-    #   the calling code, i.e. <tt>__FILE__</tt>
-    #
-    # * dir -- The subdirectory for the datafile.
-    #
-    # * file -- The filename of the datafile.
-    #
-    # Returns: The full pathname (String).
-    #
-    # For example, given a file:
-    #
-    #   $LIBDIR/findit/local/austin.ci.tx.us/feature/fire-station.rb
-    #
-    # Making the following call:
-    #
-    #   self.datafile(__FILE__, "fire-stations", "Austin_Fire_Stations.csv")
-    #
-    # Would produce:
-    #
-    #   $LIBDIR/findit/local/austin.ci.tx.us/data/fire-stations/Austin_Fire_Stations.csv
-    #
-    def self.datafile(caller, dir, file)          
-      File.dirname(caller) + "/data/" + dir + "/" + file
-    end
-
     
     # A FindIt::Location instance that provides the geographical
     # location (latitude, longitude) of this feature.

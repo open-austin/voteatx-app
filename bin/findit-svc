@@ -91,6 +91,8 @@ require "uri"
 require "json"
 require "findit/app"
 
+@@findit = FindIt::App.new
+
 set :public_folder, BASEDIR + "/public"
 
 get "/" do
@@ -98,7 +100,7 @@ get "/" do
 end
 
 get "/svc/nearby/:lat,:lng" do |lat, lng|
-  features = FindIt::App::nearby(lat.to_f, lng.to_f)
+  features = @@findit.nearby(lat.to_f, lng.to_f)
   content_type :json
   features.map{|f| f.to_h}.to_json
 end
@@ -107,7 +109,7 @@ post "/svc/nearby" do
   a = URI.decode_www_form(request.body.read)
   lat = (a.assoc("latitude") || []).last
   lng = (a.assoc("longitude") || []).last
-  features = FindIt::App::nearby(lat.to_f, lng.to_f)
+  features = @@findit.nearby(lat.to_f, lng.to_f)
   content_type :json
   features.map{|f| f.to_h}.to_json
 end

@@ -1,4 +1,5 @@
 require 'findit'
+require 'findit/feature/flat-data-set'
 
 module FindIt
   module Feature
@@ -29,12 +30,9 @@ module FindIt
         @db = nil
         @voting_places = nil
                           
-        def self.set_election(election)
-          datafile = self.datafile(__FILE__, "voting-places", "Voting_Places_#{election}.csv")            
-          
-          @voting_places = {}
-          CSV.foreach(datafile, :headers => true) do |row|
-            
+        def self.set_election(election)      
+          @voting_places = FindIt::Feature::FlatDataSet.load(__FILE__, "voting-places", "Voting_Places_#{election}.csv", :index => :precinct) do |row|
+
             #
             # Example Row:
             #
@@ -54,20 +52,20 @@ module FindIt
             lat = row["geo_latitude"].to_f
             pct = row["precinct"].to_i  
             note = "precinct #{pct}"
-            note += " - #{row["notes"]}" if row["notes"]
-            
-            @voting_places[pct] = {       
+            note += " - #{row["notes"]}" if row["notes"]            
+              
+            {
+              :precinct => pct,
               :name =>  row["name"],
               :street => row["street"],
               :city => row["city"],
               :state => row["state"],
               :note => note,
               :location => FindIt::Location.new(lat, lng, :DEG),
-            }.freeze
-           
-          end
-          
-        end # self.load_dataset
+            } 
+          end # load_csv_data_set_with_location
+
+        end # self.set_election
                 
                 
         def self.closest(origin)

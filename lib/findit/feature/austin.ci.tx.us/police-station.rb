@@ -1,5 +1,5 @@
 require 'findit'
-require 'csv'
+require 'findit/feature/flat-data-set'
 
 module FindIt
   module Feature
@@ -16,57 +16,37 @@ module FindIt
           
         @marker_shadow = FindIt::MapMarker.new(
           "http://maps.google.com/mapfiles/kml/pal2/icon8s.png",
-          :height => 32, :width => 59).freeze                   
-           
-        DATAFILE = self.datafile(__FILE__, "police-stations", "Austin_Police_Stations.csv")
-        
-        def self.load_dataset
-          
-          ds = []
-            
-          CSV.foreach(DATAFILE, :headers => true) do |row|
-            
-            # Example Row:
-            #
-            #   <CSV::Row
-            #     "STATION_NAME":"Main Headquarters"
-            #     "X":"-97.735070"
-            #     "Y":"30.267574"
-            #     "Location":"715 E. 8th St\n(30.267574, -97.735070)">
+          :height => 32, :width => 59).freeze 
+                  
+        @police_stations = FindIt::Feature::FlatDataSet.load(__FILE__, "police-stations", "Austin_Police_Stations.csv") do |row|
 
-            
-            lng = row["X"].to_f
-            lat = row["Y"].to_f
-            street = row["Location"].split("\n").first
-            
-            ds << {        
-              :name => row["STATION NAME"],
-              :street => street,
-              :city => "Austin",
-              :state => "TX",
-              :location => FindIt::Location.new(lat, lng, :DEG),
-            }
-           
-          end
+          # Example Row:
+          #
+          #   <CSV::Row
+          #     "STATION_NAME":"Main Headquarters"
+          #     "X":"-97.735070"
+          #     "Y":"30.267574"
+          #     "Location":"715 E. 8th St\n(30.267574, -97.735070)">
+
           
-          return ds
-        end
-        
-        DATASET = load_dataset.freeze         
-  
+          lng = row["X"].to_f
+          lat = row["Y"].to_f
+          street = row["Location"].split("\n").first
+          
+          {        
+            :name => row["STATION NAME"],
+            :street => street,
+            :city => "Austin",
+            :state => "TX",
+            :location => FindIt::Location.new(lat, lng, :DEG),
+          }
+         
+        end # load_csv_data_set_with_location
+
 
         def self.closest(origin)
-          
-          feature = nil
-          distance = nil
-          
-          DATASET.each do |f|
-            d = origin.distance(f[:location])
-            if distance.nil? || d < distance
-              feature = f
-              distance = d
-            end            
-          end
+
+          feature = @police_stations.closest(origin)
           
           return nil unless feature         
 
@@ -77,7 +57,7 @@ module FindIt
             :city =>  feature[:city],
             :state => feature[:state],
             :zip => feature[:zip],
-            :distance => distance
+            :distance => feature[:distance]
           )
         end
         
