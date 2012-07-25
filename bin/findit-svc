@@ -91,25 +91,28 @@ require "uri"
 require "json"
 require "findit/app"
 
-@@findit = FindIt::App.new
-
 set :public_folder, BASEDIR + "/public"
+
+helpers do
+  def send_entity(entity)
+    content_type :json
+    entity.to_json
+  end
+end
+
+@@findit = FindIt::App.new
 
 get "/" do
   redirect to("/index.html")
 end
 
 get "/svc/nearby/:lat,:lng" do |lat, lng|
-  features = @@findit.nearby(lat.to_f, lng.to_f)
-  content_type :json
-  features.map{|f| f.to_h}.to_json
+  send_entity @@findit.nearby(lat.to_f, lng.to_f).map{|f| f.to_h}
 end
 
 post "/svc/nearby" do
   a = URI.decode_www_form(request.body.read)
   lat = (a.assoc("latitude") || []).last
   lng = (a.assoc("longitude") || []).last
-  features = @@findit.nearby(lat.to_f, lng.to_f)
-  content_type :json
-  features.map{|f| f.to_h}.to_json
+  send_entity @@findit.nearby(lat.to_f, lng.to_f).map{|f| f.to_h}
 end
