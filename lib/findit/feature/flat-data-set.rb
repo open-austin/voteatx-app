@@ -5,6 +5,20 @@ module FindIt
     
     # A data set stored in a CSV flat file.
     #
+    # The data set for an associated feature is stored in a
+    # data subdirectory.
+    #
+    # For instance, the feature described by:
+    #
+    #   lib/findit/feature/austin.ci.tx.us/fire-station.rb
+    #
+    # Uses the data set stored in:
+    #
+    #   lib/findit/feature/austin.ci.tx.us/fire-stations/Austin_Fire_Stations.csv
+    #
+    # This class makes it easy for FindIt::Feature::Austin_CI_TX_US::FireStation
+    # to access the data.
+    #
     class FlatDataSet
       
       # Locate an external data file for an associated feature.
@@ -20,24 +34,18 @@ module FindIt
       #
       # Returns: The full pathname (String).
       #
-      # For example, given a file:
-      #
-      #   $LIBDIR/findit/feature/austin.ci.tx.us/fire-station.rb
-      #
-      # Making the following call:
+      # For example:
       #
       #   self.path(__FILE__, "fire-stations", "Austin_Fire_Stations.csv")
       #
-      # Would produce:
-      #
-      #   $LIBDIR/findit/local/austin.ci.tx.us/data/fire-stations/Austin_Fire_Stations.csv
+      # could be used by <i>fire-station.rb</i> to locate the fire stations data set.
       #
       def self.path(caller, dir, file)          
         File.dirname(caller) + "/data/" + dir + "/" + file
       end
       
       
-      # Load a CSV data set into a list
+      # Create a new FlatDataSet from a CSV data set.
       #
       # Parameters <i>caller</i>, <i>dir</i>, and <i>file</i> are
       # passed to self.path method.
@@ -50,7 +58,7 @@ module FindIt
       #
       # Example:
       #
-      #   @police_stations = FindIt::Feature::FlatDataSet.load_csv(__FILE__, "police-stations", "Austin_Police_Stations.csv") do |row|
+      #   @police_stations = FindIt::Feature::FlatDataSet.load(__FILE__, "police-stations", "Austin_Police_Stations.csv") do |row|
       #     lng = row["X"].to_f
       #     lat = row["Y"].to_f
       #     {       
@@ -71,16 +79,24 @@ module FindIt
       end
 
       
+      # Construct a new FlatDataSet instance.
+      #
       # Arguments:
       # * dataset - The data set, stored as a list of hashes.
-      # * options
-      #   * :location - Name of a field that contains a FindIt::Location
-      #     value. This location is used by the closest() search. (default: ":location")
-      #   * :index - If specified, a field name. The data set will be indexed
-      #     on this field, for lookup via []. (default: none)
+      # * options:
+      #   * :location - Field that contains a location. (default: ":location")
+      #   * :index - Field that should be indexed. (default: none)
+      #
+      # The ":location" option specifies a field that contains a  FindIt::Location
+      # value. The closest() method can then be used to obtain the row that
+      # is closest to a given location.
+      #
+      # The ":index" option specifies a field that should be indexed for quick
+      # lookup. The [] method can then be used to retrieve a row by index value.
+      #
       #
       def initialize(dataset, options = {})
-        @dataset = dataset
+        @dataset = dataset.freeze
         
         @location_field = options[:location] || :location
           
@@ -88,7 +104,8 @@ module FindIt
         @index_field = options[:index]
         if @index_field
           @dataset.each do |rec|
-            @dataset_indexed[rec[@index_field]] = rec
+            key = rec[@index_field]
+            @dataset_indexed[key] = rec
           end
         end
       end
@@ -98,7 +115,7 @@ module FindIt
       #
       # Returns nil if the entry is not found or if the data set was not indexed.
       #
-      # 
+      # A data set is indexed by using the ":index" initialization option.
       #
       def [](key)
         @dataset_indexed[key]
@@ -107,12 +124,15 @@ module FindIt
       
       # Find the entry in the data set that is closest to the indicated location.
       #
+      # Arguments:
+      # * location - A FindIt::Location instance.
+      #
       # Returns a hash that contains the selected record from the data set.
       # A field named ":distance" will be added to the result, that contains
       # the distance to the closest item (in miles).
       #
-      # Arguments:
-      # * location - A FindIt::Location instance.
+      # The location of a row is identified by the ":loocation" initialization
+      # option.
       #        
       def closest(location)    
         feature = nil
