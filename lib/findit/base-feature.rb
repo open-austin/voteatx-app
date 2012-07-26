@@ -254,7 +254,7 @@ module FindIt
       s += " " + @zip unless @zip.empty?
       result << s.html_safe
       
-      result << @note.html_safe unless @note.empty?
+      result += @note.html_safe.split("\n") unless @note.empty?
       
       result << "%.1f mi away" % [@distance]
         
