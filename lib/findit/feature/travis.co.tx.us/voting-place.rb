@@ -50,8 +50,10 @@ module FindIt
             
             lng = row["geo_longitude"].to_f
             lat = row["geo_latitude"].to_f
-            pct = row["precinct"].to_i  
-            note = "precinct #{pct}"
+            pct = row["precinct"].to_i
+            # FIXME - need a more general note
+            note = "IMPORTANT: This location was for the May 12, 2012 election.\nIt may change in future elections.\n"
+            note += "precinct #{pct}"
             note += " - #{row["notes"]}" if row["notes"]            
               
             {
