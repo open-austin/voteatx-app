@@ -14,7 +14,7 @@ module FindIt
     #
     # Uses the data set stored in:
     #
-    #   lib/findit/feature/austin.ci.tx.us/fire-stations/Austin_Fire_Stations.csv
+    #   lib/findit/feature/austin.ci.tx.us/data/fire-stations/Austin_Fire_Stations.csv
     #
     # This class makes it easy for FindIt::Feature::Austin_CI_TX_US::FireStation
     # to access the data.
@@ -36,7 +36,7 @@ module FindIt
       #
       # For example:
       #
-      #   self.path(__FILE__, "fire-stations", "Austin_Fire_Stations.csv")
+      #   FindIt::Feature::FlatDataSet.path(__FILE__, "fire-stations", "Austin_Fire_Stations.csv")
       #
       # could be used by <i>fire-station.rb</i> to locate the fire stations data set.
       #
