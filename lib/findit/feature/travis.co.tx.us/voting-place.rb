@@ -62,7 +62,6 @@ module FindIt
               :state => row["state"],
               :zip => row["zip"],
               :notes => row["notes"],
-              :directions => row["directions"],
               :location => FindIt::Location.new(row["geo_latitude"].to_f, row["geo_longitude"].to_f, :DEG),
             } 
           end # load_csv_data_set_with_location
@@ -94,7 +93,6 @@ module FindIt
   
           notes = ["Election date: #{@election_date.strftime('%a, %b %-d, %Y')}"]
           notes << rec_place[:notes] unless rec_place[:notes].empty?
-          notes << "Directions: " + rec_place[:directions] unless rec_place[:directions].empty?
           
           new(rec_place[:location],
             :title => "Your voting place (precinct #{precinct})",

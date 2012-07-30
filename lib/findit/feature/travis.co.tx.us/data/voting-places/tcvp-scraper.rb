@@ -15,7 +15,8 @@ COLS = [
   :geo_latitude,
   :geo_accuracy,
   :notes,
-  :directions,
+  # Leaving out directions. Use the Googles if you need it.
+  ### :directions,
 ]
 
 class String
