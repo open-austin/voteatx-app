@@ -28,9 +28,15 @@ module FindIt
         @marker = nil          
         @marker_shadow = nil
         @db = nil
+        @election_date = nil
         @voting_places = nil
                           
-        def self.set_election(election)      
+        def self.set_election(election)  
+
+          m = election.match(/^(\d\d\d\d)(\d\d)(\d\d)$/)
+          raise "cannot parse election date \"#{election}\" into YYYYMMDD" unless m && m.length == 4
+          @election_date = Time.mktime(m[1], m[2], m[3])
+             
           @voting_places = FindIt::Feature::FlatDataSet.load(__FILE__, "voting-places", "Voting_Places_#{election}.csv", :index => :precinct) do |row|
 
             #
@@ -47,26 +53,20 @@ module FindIt
             #    "geo_accuracy":"house"
             #    "notes":nil>
             #
-            
-            lng = row["geo_longitude"].to_f
-            lat = row["geo_latitude"].to_f
-            pct = row["precinct"].to_i
-            # FIXME - need a more general note
-            note = "IMPORTANT: This location was for the May 12, 2012 election.\nIt may change in future elections.\n"
-            note += "precinct #{pct}"
-            note += " - #{row["notes"]}" if row["notes"]            
-              
+                          
             {
-              :precinct => pct,
+              :precinct => row["precinct"].to_i,
               :name =>  row["name"],
               :street => row["street"],
               :city => row["city"],
               :state => row["state"],
-              :note => note,
-              :location => FindIt::Location.new(lat, lng, :DEG),
+              :zip => row["zip"],
+              :notes => row["notes"],
+              :directions => row["directions"],
+              :location => FindIt::Location.new(row["geo_latitude"].to_f, row["geo_longitude"].to_f, :DEG),
             } 
           end # load_csv_data_set_with_location
-
+          
         end # self.set_election
                 
                 
@@ -82,22 +82,28 @@ module FindIt
           when 0
             return nil
           when 1
-            rec = ds.first
+            rec_pct = ds.first
           else
-            raise "overlapping precincts at location lat=#{lat}, lng=#{lng}"
+            raise "overlapping precincts at location lat=#{origin.lat}, lng=#{origin.lng}"
           end
           
-          precinct = rec[:p_vtd].to_i
-          rec = @voting_places[precinct] 
-          return nil unless rec
-                   
-          new(rec[:location],
-            :title => "Your voting place",
-            :name => rec[:name],
-            :address => rec[:street],
-            :city => rec[:city],
-            :state => rec[:state],
-            :note => rec[:note],
+          
+          precinct = rec_pct[:p_vtd].to_i
+          rec_place = @voting_places[precinct] 
+          return nil unless rec_place
+  
+          notes = ["Election date: #{@election_date.strftime('%a, %b %-d, %Y')}"]
+          notes << rec_place[:notes] unless rec_place[:notes].empty?
+          notes << "Directions: " + rec_place[:directions] unless rec_place[:directions].empty?
+          
+          new(rec_place[:location],
+            :title => "Your voting place (precinct #{precinct})",
+            :name => rec_place[:name],
+            :address => rec_place[:street],
+            :city => rec_place[:city],
+            :state => rec_place[:state],
+            :zip => rec_place[:zip],
+            :note => notes.join("\n"),
             :origin => origin
           )
         end        

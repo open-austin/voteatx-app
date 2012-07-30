@@ -76,7 +76,7 @@ module FindIt
         FindIt::Feature::Austin_CI_TX_US::HistoricalFactory.create(@db, :MOON_TOWER),
         FindIt::Feature::Austin_CI_TX_US::FireStation, 
         FindIt::Feature::Austin_CI_TX_US::PoliceStation,
-        FindIt::Feature::Travis_CO_TX_US::VotingPlaceFactory.create(@db, "20120512"),
+        FindIt::Feature::Travis_CO_TX_US::VotingPlaceFactory.create(@db, "20120731"),
       ]  
       
     end
