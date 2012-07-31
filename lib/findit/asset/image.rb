@@ -19,8 +19,8 @@ module FindIt
       #
       # The following <i>params</i> are supported.
       #
-      # * :height => <i>Integer</i> -- Height of the image in pixels. (required)
-      # * :width => <i>Integer</i> -- Width of the image in pixels. (required)
+      # * :height => INTEGER -- Height of the image in pixels. (required)
+      # * :width => INTEGER -- Width of the image in pixels. (required)
       #
       def initialize(url, params = {})
         raise("required parameter \":height\"  missing") unless params.has_key?(:height)
