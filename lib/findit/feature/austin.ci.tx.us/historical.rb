@@ -13,12 +13,9 @@ module FindIt
           case type
             
           when :MOON_TOWER
-            klass.instance_variable_set(:@marker, FindIt::MapMarker.new(
+            klass.instance_variable_set(:@marker, FindIt::Asset::MapMarker.new(
               "http://maps.google.com/mapfiles/kml/pal3/icon40.png",
-              :height => 32, :width => 32))
-            klass.instance_variable_set(:@marker_shadow, FindIt::MapMarker.new(
-              "http://maps.google.com/mapfiles/kml/pal3/icon40s.png",
-              :height => 32, :width => 59))
+              :shadow => "icon40s.png"))
             klass.instance_variable_set(:@title, "Closest moon tower")
             klass.instance_variable_set(:@rectype, "MOONLIGHT TOWERS")            
             

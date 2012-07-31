@@ -10,14 +10,10 @@ module FindIt
 
         @type = :POLICE_STATION
         
-        @marker = FindIt::MapMarker.new(
+        @marker = FindIt::Asset::MapMarker.new(
           "http://maps.google.com/mapfiles/kml/pal2/icon8.png",
-          :height => 32, :width => 32).freeze
-          
-        @marker_shadow = FindIt::MapMarker.new(
-          "http://maps.google.com/mapfiles/kml/pal2/icon8s.png",
-          :height => 32, :width => 59).freeze 
-                  
+          :shadow => "icon8s.png")
+                            
         @police_stations = FindIt::Feature::FlatDataSet.load(__FILE__, "police-stations", "Austin_Police_Stations.csv") do |row|
 
           # Example Row:

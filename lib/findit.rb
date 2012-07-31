@@ -1,13 +1,10 @@
 require 'findit/base-feature'
-require 'findit/location'
-require 'findit/map-marker'
-
 
 class String
   
   def capitalize_words
     self.split.map{|w| w.capitalize}.join(" ")
-    end
+  end
     
   require 'cgi'
   def html_safe

@@ -10,12 +10,8 @@ module FindIt
           klass = Class.new(AbstractVotingPlace)
           klass.instance_variable_set(:@db, db)
           klass.instance_variable_set(:@type, :VOTING_PLACE)
-          klass.instance_variable_set(:@marker, FindIt::MapMarker.new(
-            "/mapicons/vote_icon.png",
-            :height => 32, :width => 32))
-          klass.instance_variable_set(:@marker_shadow, FindIt::MapMarker.new(
-            "/mapicons/vote_icon_shadow.png",        
-            :height => 32, :width => 59))
+          klass.instance_variable_set(:@marker, FindIt::Asset::MapMarker.new(
+            "/mapicons/vote_icon.png", :shadow => "vote_icon_shadow.png"))
           klass.set_election(election)
           klass
         end

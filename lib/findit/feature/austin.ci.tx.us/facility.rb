@@ -13,22 +13,14 @@ module FindIt
           case type
             
           when :POST_OFFICE
-            klass.instance_variable_set(:@marker, FindIt::MapMarker.new(
-              "http://maps.google.com/mapfiles/ms/micons/postoffice-us.png",
-              :height => 32, :width => 32))
-            klass.instance_variable_set(:@marker_shadow, FindIt::MapMarker.new(
-              "http://maps.google.com/mapfiles/ms/micons/postoffice-us.shadow.png",
-              :height => 32, :width => 59))
+            klass.instance_variable_set(:@marker, FindIt::Asset::MapMarker.new(
+              "http://maps.google.com/mapfiles/ms/micons/postoffice-us.png", :shadow => "postoffice-us.shadow.png"))
             klass.instance_variable_set(:@facility_title, "Closest post office")
             klass.instance_variable_set(:@facility_type, "POST OFFICE")
             
           when :LIBRARY
-            klass.instance_variable_set(:@marker, FindIt::MapMarker.new(
-              "http://maps.google.com/mapfiles/kml/pal3/icon56.png",
-              :height => 32, :width => 32))
-            klass.instance_variable_set(:@marker_shadow, FindIt::MapMarker.new(
-              "http://maps.google.com/mapfiles/kml/pal3/icon56s.png",
-              :height => 32, :width => 59))
+            klass.instance_variable_set(:@marker, FindIt::Asset::MapMarker.new(
+              "http://maps.google.com/mapfiles/kml/pal3/icon56.png", :shadow => "icon56s.png"))
             klass.instance_variable_set(:@facility_title, "Closest library")
             klass.instance_variable_set(:@facility_type, "LIBRARY")
             
