@@ -1,3 +1,8 @@
+#!/usr/bin/env -- ruby
+#
+# Scrape voting place information from the Travis County web site.
+# Dumps a CSV to standard output.
+#
 require 'logger'
 require 'mechanize'
 require 'csv'
