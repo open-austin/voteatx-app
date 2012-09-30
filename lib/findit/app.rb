@@ -76,7 +76,8 @@ module FindIt
         FindIt::Feature::Austin_CI_TX_US::HistoricalFactory.create(@db, :MOON_TOWER),
         FindIt::Feature::Austin_CI_TX_US::FireStation, 
         FindIt::Feature::Austin_CI_TX_US::PoliceStation,
-        FindIt::Feature::Travis_CO_TX_US::VotingPlaceFactory.create(@db, "20121106"),
+        FindIt::Feature::Travis_CO_TX_US::VotingPlaceFactory.create_voting_place(@db, "20121106"),
+        FindIt::Feature::Travis_CO_TX_US::VotingPlaceFactory.create_early_voting_place("20121106"),
       ]  
       
     end
@@ -93,13 +94,13 @@ module FindIt
     # Returns: A list of FindIt::BaseFeature instances.
     #
     def nearby(lat, lng)
-      origin = FindIt::Location.new(lat, lng, :DEG) 
+      origin = FindIt::Location.new(lat, lng, :DEG)
       
       @feature_classes.map do |klass|
         # For each class, run the "closest" method to find the
         # closest feature of its type.
         klass.send(:closest, origin)
-      end.reject do |feature|
+      end.flatten.reject do |feature|
         # Reject results that came back nil or are too far away.
         feature.nil? || feature.distance > MAX_DISTANCE
       end

@@ -222,10 +222,10 @@ module FindIt
       s = @city + ", " + @state
       s += " " + @zip unless @zip.empty?
       result << s.html_safe
+                 
+      result << "%.1f mi away" % [@distance]
       
       result += @note.html_safe.split("\n") unless @note.empty?
-      
-      result << "%.1f mi away" % [@distance]
         
       unless @link.empty?
         result << "<a href=\"" + @link.html_safe + "\">more info ...</a>"

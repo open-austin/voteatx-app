@@ -23,9 +23,13 @@ Voting_Places_20121106.csv
     Nov 6, 2012 -- General Election (Presidential)
 
     Got a *GREAT* dataset ("20121106-chipG12_WEBLoad_FINAL.xlsx")
-    from Travis County Elections Division. Extracted the sheet with
-    election day places to "20121106-chipG12_WEBLoad_FINAL_EDay.csv",
-    and then ran "20121106-generate.rb" to convert to our standard
-    form.
+    from Travis County Elections Division.
+
+    First, I manually burst the spreadsheet into individual CSV files
+    ("20121106-chipG12_WEBLoad_FINAL_XXXXXX.csv"), one file per sheet.
+
+    Then the "20121106-generate.rb" script is run to process these
+    files into "Voting_Places_20121106.dat", using a new format
+    that is imported by FindIt::Feature::Travis_CO_TX_US::VotingPlaceData.
 
 # vim:autoindent:shiftwidth=4:tabstop=4:expandtab:wrapmargin=4
