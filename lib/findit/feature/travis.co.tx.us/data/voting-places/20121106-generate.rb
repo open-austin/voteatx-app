@@ -277,19 +277,28 @@ places_evmobile_ungrouped.each do |p|
   places_evmobile_by_location_id[id] << p 
 end
 
+# Fixup strftime() output.
+# * remove space padding, e.g. from "%d" (day of month)
+# * convert e.g. "6:00pm" to "6pm"
+# * replace 12am/pm with midnight/noon
+#
+def fixup_displayed_time(s)
+  s.gsub(/\s+/, ' ').sub(/:00([ap]m)/, "\\1").sub(/12am/, 'midnight').sub(/12pm/, 'noon')
+end
+
 @places_evmobile = []
 places_evmobile_by_location_id.each do |id, places|
   
   places_sorted = places.sort {|a,b| a[:datetime_close] <=> b[:datetime_close]}
   
   notes = [places.first[:notes]]
-  
+      
   notes << ""
   notes << "Hours of operation:"
   places_sorted.each do |p|
-    # "Mon, Oct 22: 7am - 7pm",
-    t1 = p[:datetime_open].strftime("%a, %b %d: %l:%M%P").gsub(/\s+/, ' ').sub(/:00([ap]m)/, "\\1")
-    t2 = p[:datetime_close].strftime("%l:%M%P").gsub(/\s+/, ' ').sub(/:00([ap]m)/, "\\1")
+    # display like: "* Mon, Oct 22: 7am - 7pm",
+    t1 = fixup_displayed_time(p[:datetime_open].strftime("%a, %b %d: %l:%M%P"))
+    t2 = fixup_displayed_time(p[:datetime_close].strftime("%l:%M%P"))
     notes << "\u2022 #{t1} - #{t2}"
   end
     
