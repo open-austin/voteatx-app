@@ -224,8 +224,11 @@ module FindIt
       result << s.html_safe
                  
       result << "%.1f mi away" % [@distance]
-      
-      result += @note.html_safe.split("\n") unless @note.empty?
+        
+      if ! @note.empty?
+        result += @note.html_safe.split("\n")
+        result << "" if @note =~ /\n/
+      end        
         
       unless @link.empty?
         result << "<a href=\"" + @link.html_safe + "\">more info ...</a>"
