@@ -1,5 +1,4 @@
 require 'findit'
-require 'findit/feature/flat-data-set'
 
 module FindIt
   module Feature
@@ -17,7 +16,7 @@ module FindIt
       # where <ELECTION> is an identifier for the election, typically
       # in "YYYYMMDD" form.
       #
-      # The dataset is stored as a Marshal hash with four items:
+      # The dataset is stored in Marshal format. It is a hash with four items:
       #
       # * :locations -- A table (Hash) of physical location (address,
       #   latitude/longitued, etc.) for each of the voting places, indexed by id.
