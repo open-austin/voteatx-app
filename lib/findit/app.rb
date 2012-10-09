@@ -1,5 +1,7 @@
+require 'dbi' # XXX - to be removed
+require 'logger'
 require 'findit'
-require 'dbi'
+require 'findit/database'
 
 # Include all of the local features that we want to support.
 require 'findit/feature/austin.ci.tx.us/fire-station'
@@ -21,7 +23,7 @@ module FindIt
   #    features = findit.nearby(latitude, longitude))
   #
   class App
-  
+    
     # DBI URI for the FindIt database.
     #
     # Default value used when constructing a new FindIt::App instance.
@@ -60,24 +62,30 @@ module FindIt
     #   (default: MAX_DISTANCE)
     #    
     def initialize(options = {})
-      
+  
+      @log = Logger.new($stderr)
+      @log.level = Logger::DEBUG
+    
       @db_uri = options[:db_uri] || DB_URI
       @db_user = options[:db_user] || DB_USER
       @db_password = options[:db_password] || DB_PASSWORD
       @max_distance = options[:max_distance] || MAX_DISTANCE
       
       # DBI connection to the PostGIS "findit" database.
-      @db = DBI.connect(@db_uri, @db_user, @db_password)
+      @db_pg = DBI.connect(@db_uri, @db_user, @db_password)
+      
+      fn = File.dirname(__FILE__) + "/../../findit.sqlite"
+      @db = FindIt::Database.connect(fn, :spatialite => "/usr/lib/libspatialite.so.3", :log => @log)
       
       # List of classes that implement features (derived from FindIt::BaseFeature).
       @feature_classes = [
-        FindIt::Feature::Austin_CI_TX_US::FacilityFactory.create(@db, :POST_OFFICE),
-        FindIt::Feature::Austin_CI_TX_US::FacilityFactory.create(@db, :LIBRARY),
-        FindIt::Feature::Austin_CI_TX_US::HistoricalFactory.create(@db, :MOON_TOWER),
+        FindIt::Feature::Austin_CI_TX_US::FacilityFactory.create(@db_pg, :POST_OFFICE),
+        FindIt::Feature::Austin_CI_TX_US::FacilityFactory.create(@db_pg, :LIBRARY),
+        FindIt::Feature::Austin_CI_TX_US::HistoricalFactory.create(@db_pg, :MOON_TOWER),
         FindIt::Feature::Austin_CI_TX_US::FireStation, 
         FindIt::Feature::Austin_CI_TX_US::PoliceStation,
-        FindIt::Feature::Travis_CO_TX_US::VotingPlaceFactory.create_voting_place(@db, "20121106"),
-        FindIt::Feature::Travis_CO_TX_US::VotingPlaceFactory.create_early_voting_place("20121106"),
+        FindIt::Feature::Travis_CO_TX_US::VotingPlaceFactory.create_eday_voting_place(@db, @db_pg, "20121106"),
+        FindIt::Feature::Travis_CO_TX_US::VotingPlaceFactory.create_early_voting_place(@db, "20121106"),
       ]  
       
     end
