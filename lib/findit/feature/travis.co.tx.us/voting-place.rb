@@ -127,11 +127,11 @@ module FindIt
               .select_append{ST_Distance(the_geom, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
               .join(:voting_locations, :id => :location_id) \
               .order(:dist.asc) \
-              .first              
-
+              .first
+              
           raise "no fixed early voting places" unless fixed
           raise "cannot find location for early voting place id #{fixed[:id]}" unless fixed[:location]         
-                 
+            
           ret = []
           ret << new(Marshal.load(fixed[:location]),
             :ev_type => :EVFIXED,
@@ -143,7 +143,7 @@ module FindIt
             :zip => fixed[:zip],
             :link => fixed[:link],
             :note => fixed[:notes],
-            :distance => fixed[:dist])
+            :origin => origin)
               
           mobiles = @db[:voting_evmobile_places] \
             .select_all(:voting_evmobile_places, :voting_locations) \
@@ -170,7 +170,7 @@ module FindIt
               :link => p[:link],
               :note => p[:notes],
               :open_now => p[:open_now],
-              :distance => p[:dist])
+              :origin => origin)
           end
                      
           ret           
