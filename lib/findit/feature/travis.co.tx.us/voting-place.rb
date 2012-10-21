@@ -16,77 +16,99 @@ module FindIt
         # Construct a concrete instance of FindIt::Feature::Travis_CO_TX_US::AbstractEdayVotingPlace.
         #
         # Parameters:
-        # * db -- A DBI handle to the database that has electron district geospatial data.
+        # * db -- A handle to the database that has electron district geospatial data.
         # * election -- The election identifier.
         #
-        def self.create_eday_voting_place(db, db_old, election)          
+        def self.create_eday_voting_place(db, election)          
           klass = Class.new(AbstractEdayVotingPlace)
           klass.instance_variable_set(:@db, db)
-          klass.instance_variable_set(:@db_old, db_old)
           klass.instance_variable_set(:@election, election)
-          klass.instance_variable_set(:@type, :VOTING_PLACE)
-          klass.instance_variable_set(:@marker, FindIt::Asset::MapMarker.new(
-            "/mapicons/vote_icon.png", :shadow => "vote_icon_shadow.png"))
           klass
         end
 
         # Construct a concrete instance of FindIt::Feature::Travis_CO_TX_US::AbstractEarlyVotingPlace.
         #
         # Parameters:
+        # * db -- A handle to the database that has voting place geospatial data.
         # * election -- The election identifier.
         #
         def self.create_early_voting_place(db, election)          
           klass = Class.new(AbstractEarlyVotingPlace)
           klass.instance_variable_set(:@db, db)
           klass.instance_variable_set(:@election, election)
-          klass.instance_variable_set(:@type, :EARLY_VOTING_PLACE)
           klass
         end
       
       end  # class VotingPlaceFactory
-
       
+
       # Derived class from FindIt::BaseFeature, representing an election day voting place.
       #
-      class AbstractEdayVotingPlace < FindIt::BaseFeature    
+      class AbstractVotingPlace < FindIt::BaseFeature    
         
         # class instance variables will be initialized by factory method
         @db = nil
-        @db_old = nil
         @election = nil
-        @type = nil
-        @marker = nil        
-                
+        
+        attr_accessor :marker 
+        
+        def initialize(location, params = {})
+          super
+          @marker = params[:marker]
+        end
+        
+        def self.type
+          :VOTING_PLACE
+        end          
+        
+        def self.place_marker(type, is_open)  
+                  
+          ptype = case type
+          when :EDAY
+            ""
+          when :EV_FIXED
+            "_early"
+          when :EV_MOBILE
+            "_mobile"
+          else
+            raise "unknown voting place type \"#{type}\""
+          end
+          
+          oc = (is_open ? "" : "_closed")
+          
+          graphic = "/mapicons/icon_vote#{ptype}#{oc}.png"
+          
+          FindIt::Asset::MapMarker.new(graphic, :shadow => "icon_vote_shadow.png")          
+        end
+        
+      end # class AbstractVotingPlace
+      
+ 
+      class AbstractEdayVotingPlace < AbstractVotingPlace        
+        
         # Return the voting place that is closest to the given location.
         #
         def self.closest(origin)
           
-          sth = @db_old.execute(%q{SELECT * FROM travis_co_tx_us_voting_districts
-            WHERE ST_Contains(the_geom, ST_Transform(ST_SetSRID(ST_Point(?, ?), 4326), 3081))},
-            origin.lng, origin.lat)
-          ds = sth.fetch_all
-          sth.finish          
-      
-          case ds.count
-          when 0
-            return nil
-          when 1
-            rec_pct = ds.first
-          else
-            raise "overlapping precincts at location lat=#{origin.lat}, lng=#{origin.lng}"
-          end          
-          
-          precinct = rec_pct[:p_vtd]
+          # Find the voting precinct that contains the origin point.
+          district = @db[:travis_co_tx_us_voting_districts] \
+            .select(:p_vtd) \
+            .filter{ST_Contains(:geometry, ST_Transform(MakePoint(origin.lng, origin.lat, 4326), 3081))} \
+            .fetch_one
+          return nil unless district
+          precinct = district[:P_VTD].to_i
             
-          place = @db[:voting_eday_places] \
-            .select_all(:voting_eday_places, :voting_locations) \
-            .join(:voting_locations, :id => :location_id) \
+          # Find the voting place for this precinct.
+          place = @db[:travis_co_tx_us_voting_eday_places] \
+            .select_all(:travis_co_tx_us_voting_eday_places, :travis_co_tx_us_voting_locations) \
+            .join(:travis_co_tx_us_voting_locations, :id => :location_id) \
             .filter(:precinct => precinct) \
             .fetch_one
           raise "cannot find election day voting place for precinct \"#{precinct}\"" unless place
-          raise "cannot find election day voting location for precinct \"#{precinct}\"" unless place[:location]
-          
-          new(Marshal.load(place[:location]),
+          raise "cannot find election day voting location for precinct \"#{precinct}\"" unless place[:geometry]
+
+          new(FindIt::Location.from_geometry(@db, place[:geometry]),
+            :place_type => :EDAY,
             :title => "Your voting place (precinct #{precinct})",
             :name => place[:name],
             :address => place[:street],
@@ -95,19 +117,16 @@ module FindIt
             :zip => place[:zip],
             :link => place[:link],
             :note => place[:notes],
-            :origin => origin
-          )
+            :origin => origin,
+            :marker => place_marker(:EDAY, true))
         end        
-  
+          
       end # class AbstractEdayVotingPlace
+      
       
       # Derived class from FindIt::BaseFeature, representing early voting places.
       #
-      class AbstractEarlyVotingPlace < FindIt::BaseFeature
-        
-        # class instance variables will be initialized by factory method
-        @db = nil
-        @election = nil
+      class AbstractEarlyVotingPlace < AbstractVotingPlace        
         
         # Return a list of early voting places for this given location.
         #
@@ -122,19 +141,18 @@ module FindIt
         #
         def self.closest(origin)
             
-          fixed = @db[:voting_evfixed_places] \
-              .select_all(:voting_evfixed_places, :voting_locations) \
-              .select_append{ST_Distance(the_geom, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
-              .join(:voting_locations, :id => :location_id) \
+          fixed = @db[:travis_co_tx_us_voting_evfixed_places] \
+              .select_all(:travis_co_tx_us_voting_evfixed_places, :travis_co_tx_us_voting_locations) \
+              .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
+              .join(:travis_co_tx_us_voting_locations, :id => :location_id) \
               .order(:dist.asc) \
               .first
               
           raise "no fixed early voting places" unless fixed
-          raise "cannot find location for early voting place id #{fixed[:id]}" unless fixed[:location]         
-            
+          raise "cannot find location for early voting place id #{fixed[:id]}" unless fixed[:geometry]         
+
           ret = []
-          ret << new(Marshal.load(fixed[:location]),
-            :ev_type => :EVFIXED,
+          ret << new(FindIt::Location.from_geometry(@db, fixed[:geometry]),
             :title => "Early voting location",
             :name => fixed[:name],
             :address => fixed[:street],
@@ -143,15 +161,16 @@ module FindIt
             :zip => fixed[:zip],
             :link => fixed[:link],
             :note => fixed[:notes],
-            :origin => origin)
+            :origin => origin,
+            :marker => place_marker(:EV_FIXED, true))
               
-          mobiles = @db[:voting_evmobile_places] \
-            .select_all(:voting_evmobile_places, :voting_locations) \
-            .select_append{ST_Distance(the_geom, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
+          mobiles = @db[:travis_co_tx_us_voting_evmobile_places] \
+            .select_all(:travis_co_tx_us_voting_evmobile_places, :travis_co_tx_us_voting_locations) \
+            .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
             .select_append{((opens > Time.now) & (closes < Time.now)).as(:open_now)} \
             .distinct \
-            .join(:voting_locations, :id => :voting_evmobile_places__location_id) \
-            .join(:voting_evmobile_schedules, :place_id => :voting_evmobile_places__id) \
+            .join(:travis_co_tx_us_voting_locations, :id => :travis_co_tx_us_voting_evmobile_places__location_id) \
+            .join(:travis_co_tx_us_voting_evmobile_schedules, :place_id => :travis_co_tx_us_voting_evmobile_places__id) \
             .filter{dist < fixed[:dist]} \
             .filter{closes > Time.now} \
             .order(:opens.asc, :dist.asc) \
@@ -159,8 +178,11 @@ module FindIt
             .all
             
           mobiles.each do |p|  
-            ret << new(Marshal.load(p[:location]),
-              :ev_type => :EVMOBILE,
+  
+            # TODO - select an alternate marker if the voting place is open now
+            marker = FindIt::Asset::MapMarker.new("/mapicons/icon_vote_mobile.png", :shadow => "vote_icon_shadow.png")
+
+            ret << new(FindIt::Location.from_geometry(@db, p[:geometry]),
               :title => "Mobile early voting location",
               :name => p[:name],
               :address => p[:street],
@@ -169,38 +191,11 @@ module FindIt
               :zip => p[:zip],
               :link => p[:link],
               :note => p[:notes],
-              :open_now => p[:open_now],
-              :origin => origin)
+              :origin => origin,
+              :marker => place_marker(:EV_MOBILE, true))
           end
                      
           ret           
-        end
-        
-        attr_reader :ev_type
-        attr_reader :open_now
-        
-        def initialize(location, params = {})
-          super
-          @ev_type = params[:ev_type]
-          @open_now = params[:open_now]
-        end        
-
-        
-        # Select the appropriate marker for this voting place.
-        #
-        # Chooses between two icons to distinguish between
-        # fixed and mobile locations.
-        #
-        def marker
-          case @ev_type
-          when :EVFIXED
-            icon = "/mapicons/vote_early_icon.png"
-          when :EVMOBILE
-            icon = "/mapicons/vote_mobile_icon.png"
-          else
-            raise "unknown EarlyVotingPlace type \"#{@ev_type}\""
-          end
-          FindIt::Asset::MapMarker.new(icon, :shadow => "vote_icon_shadow.png")
         end
       
       end # class AbstractEarlyVotingPlace

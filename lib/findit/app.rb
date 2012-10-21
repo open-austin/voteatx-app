@@ -1,4 +1,3 @@
-require 'dbi' # XXX - to be removed
 require 'logger'
 require 'findit'
 require 'findit/database'
@@ -24,24 +23,9 @@ module FindIt
   #
   class App
     
-    # DBI URI for the FindIt database.
-    #
-    # Default value used when constructing a new FindIt::App instance.
-    #
-    DB_URI = "DBI:Pg:host=localhost;database=findit"
-    
-    # Username credential to access the FindIt database.
-    #
-    # Default value used when constructing a new FindIt::App instance.
-    #
-    DB_USER = "findit" 
-    
-    # Password credential to access the FindIt database.
-    #
-    # Default value used when constructing a new FindIt::App instance.
-    #
-    DB_PASSWORD = "tRdhxlJiREbg"
-     
+    DATABASE = File.dirname(__FILE__) + "/feature/data/findit.sqlite"
+    LIBSPATIALITE = "/usr/lib/libspatialite.so.3"
+      
     # Features further than this distance (in miles) away from
     # the current location will be filtered out of results.
     #
@@ -64,27 +48,22 @@ module FindIt
     def initialize(options = {})
   
       @log = Logger.new($stderr)
-      @log.level = Logger::DEBUG
-    
-      @db_uri = options[:db_uri] || DB_URI
-      @db_user = options[:db_user] || DB_USER
-      @db_password = options[:db_password] || DB_PASSWORD
-      @max_distance = options[:max_distance] || MAX_DISTANCE
+      @log.level = Logger::DEBUG    
+
+      @max_distance = options[:max_distance] || MAX_DISTANCE    
+      @database = options[:database] || DATABASE
+      @libspatialite = options[:libspatialite]  || LIBSPATIALITE
       
-      # DBI connection to the PostGIS "findit" database.
-      @db_pg = DBI.connect(@db_uri, @db_user, @db_password)
-      
-      fn = File.dirname(__FILE__) + "/../../findit.sqlite"
-      @db = FindIt::Database.connect(fn, :spatialite => "/usr/lib/libspatialite.so.3", :log => @log)
+      @db = FindIt::Database.connect(@database, :spatialite => @libspatialite, :log => @log)
       
       # List of classes that implement features (derived from FindIt::BaseFeature).
       @feature_classes = [
-        FindIt::Feature::Austin_CI_TX_US::FacilityFactory.create(@db_pg, :POST_OFFICE),
-        FindIt::Feature::Austin_CI_TX_US::FacilityFactory.create(@db_pg, :LIBRARY),
-        FindIt::Feature::Austin_CI_TX_US::HistoricalFactory.create(@db_pg, :MOON_TOWER),
-        FindIt::Feature::Austin_CI_TX_US::FireStation, 
-        FindIt::Feature::Austin_CI_TX_US::PoliceStation,
-        FindIt::Feature::Travis_CO_TX_US::VotingPlaceFactory.create_eday_voting_place(@db, @db_pg, "20121106"),
+        ### FindIt::Feature::Austin_CI_TX_US::FacilityFactory.create(@db_pg, :POST_OFFICE),
+        ### FindIt::Feature::Austin_CI_TX_US::FacilityFactory.create(@db_pg, :LIBRARY),
+        ### FindIt::Feature::Austin_CI_TX_US::HistoricalFactory.create(@db_pg, :MOON_TOWER),
+        ### FindIt::Feature::Austin_CI_TX_US::FireStation, 
+        ### FindIt::Feature::Austin_CI_TX_US::PoliceStation,
+        FindIt::Feature::Travis_CO_TX_US::VotingPlaceFactory.create_eday_voting_place(@db, "20121106"),
         FindIt::Feature::Travis_CO_TX_US::VotingPlaceFactory.create_early_voting_place(@db, "20121106"),
       ]  
       
