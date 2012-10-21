@@ -43,6 +43,22 @@ module FindIt
       end      
     end
     
+    # Construct a new instance from a Spatialite geometry blob.
+    #
+    # Parameters:
+    # * db -- A Sequel handle to a spatialite database.
+    # * geometry -- A spatialite geometry blob.
+    #
+    # No data are read or written to the database. The database
+    # handle is needed because we use Spatialite libraries to
+    # process the geometry information.
+    #
+    def self.from_geometry(db, geometry)
+      lng = db.get{X(ST_Transform(geometry.to_sequel_blob, 4326))}
+      lat = db.get{Y(ST_Transform(geometry.to_sequel_blob, 4326))}
+      self.new(lat, lng, :DEG)
+    end
+    
     # Short for <i>latitude_deg</i>.
     def lat
       @latitude_deg
