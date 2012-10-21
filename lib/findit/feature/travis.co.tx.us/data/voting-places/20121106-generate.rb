@@ -3,6 +3,8 @@
 BASEDIR = File.dirname(__FILE__) + "/../../../../../.."
 $:.insert(0, BASEDIR + "/lib")
 
+DATABASE = BASEDIR + "/findit.sqlite"
+  
 require 'logger'
 require 'csv'
 require 'findit'
@@ -11,26 +13,22 @@ require 'findit'
 @log.level = Logger::INFO
 #@log.level = Logger::DEBUG
 
-DATABASE = BASEDIR + "/findit.sqlite"
 @db = FindIt::Database.connect(DATABASE, :spatialite => "/usr/lib/libspatialite.so.3", :log => @log)
 
-INFILE_EDAY="20121106-chipG12_WEBLoad_FINAL_EDay.csv"
-INFILE_EVFIXED="20121106-chipG12_WEBLoad_FINAL_EVPerm.csv"
-INFILE_EVMOBILE="20121106-chipG12_WEBLoad_FINAL_EVMobile.csv"
-
-ELECTION_DATE = "For the Nov 6, 2012 general election in Travis County."
-
-ALLOW_ANY_VOTING_PLACE_ON_ELECTION_DAY = true
-ELECTION_DAY_HOURS = "Tue, Nov 6: 7am - 7pm"
-
-LINK_INFO_BY_TYPE = {
-  :EDAY => "http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4",
-  :EVFIXED => "http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4",
-  :EVMOBILE => "http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4",
+INFILE = {
+  :EDAY => "20121106-chipG12_WEBLoad_FINAL_EDay.csv",
+  :EVFIXED => "20121106-chipG12_WEBLoad_FINAL_EVPerm.csv",
+  :EVMOBILE => "20121106-chipG12_WEBLoad_FINAL_EVMobile.csv",
 }
 
-FIXED_EV_LOCATION_HOURS_BY_CODE = {
-  "R" => [
+ELECTION_DESCRIPTION = "For the Nov 6, 2012 general election in Travis County."
+
+ALLOW_ANY_VOTING_PLACE_ON_ELECTION_DAY = true
+ELECTION_DAY_OPENS = Time.new(2012, 11, 6, 7, 0)
+ELECTION_DAY_CLOSES = Time.new(2012, 11, 6, 19, 0)
+
+EVFIXED_SCHEDULE = {
+  "R" => [    
     "Mon, Oct 22 - Sat, Oct 27: 7am - 7pm",
     "Sun, Oct 28: noon - 6pm",
     "Mon, Oct 29 - Fri, Nov 2: 7am - 7pm",
@@ -43,9 +41,19 @@ FIXED_EV_LOCATION_HOURS_BY_CODE = {
   ],
 }
 
+INFO_LINK = {
+  :EDAY => "http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4",
+  :EVFIXED => "http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4",
+  :EVMOBILE => "http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4",
+}
 
 RANGE_LNG = Range.new(-98.056777, -97.407671)
 RANGE_LAT = Range.new(30.088999, 30.571213)
+
+############################################################################
+#
+# no user servicable parts below
+#
 
 class String
   def cleanup
@@ -78,6 +86,7 @@ def ensure_not_empty(row, *cols)
   end
 end
 
+# Extract date as [mm,dd,yyyy] from specified col in form "MM/DD/YYYY"
 def get_date(row, col)
   ensure_not_empty(row, col)
   m = row[col].match(%r[^(\d\d)/(\d{1,2})/(\d\d\d\d)$])
@@ -85,6 +94,7 @@ def get_date(row, col)
   m.captures.map {|s| s.to_i}
 end
 
+# Extract time as [hh,mm] from specified col "HH:MM"
 def get_time(row, col)
   ensure_not_empty(row, col)
   m = row[col].match(%r[^(\d{1,2}):(\d\d)$])
@@ -92,6 +102,7 @@ def get_time(row, col)
   m.captures.map {|s| s.to_i}
 end
 
+# Extract [start_time, end_time] from info in database record
 def get_datetimes(row)
   mm, dd, yyyy = get_date(row, "Date")
   start_hh, start_mm = get_time(row, "Start Time")
@@ -99,56 +110,81 @@ def get_datetimes(row)
   [Time.local(yyyy, mm, dd, start_hh, start_mm), Time.local(yyyy, mm, dd, end_hh, end_mm)]
 end
 
+# Format time range like: "* Sun, Oct 28: noon - 6pm"
+def time_range(t1, t2)
+  s1 = t1.strftime("%a, %b %-d: %-l:%M%P").sub(/:00([ap]m)/, "\\1").sub(/12am/, 'midnight').sub(/12pm/, 'noon')
+  s2 = t2.strftime("%-l:%M%P").sub(/:00([ap]m)/, "\\1").sub(/12am/, 'midnight').sub(/12pm/, 'noon')
+  "\u2022 #{s1} - #{s2}"
+end
+
+# Initialize a list of strings that will be used to create the "notes" field.
 def init_notes
-  ["", ELECTION_DATE].dup
+  ["", ELECTION_DESCRIPTION].dup
 end
 
-@log.info("creating table \"voting_locations\" ...")
-@db.create_table :voting_locations do
-  primary_key :id
-  String :name, :size => 20, :null => false
-  String :street, :size => 40, :null => false
-  String :city, :size => 20, :null => false
-  String :state, :size=> 2, :null => false
-  String :zip, :size => 10, :null => false
-  Blob :location, :null => false
-end  
-rc = @db.get{AddGeometryColumn('voting_locations', 'the_geom', 4326, 'POINT', 'XY')}
-raise "AddGeometryColumn failed (rc=#{rc})" unless rc == 1
-rc = @db.get{CreateSpatialIndex('voting_locations', 'the_geom')}
-raise "CreateSpatialIndex failed (rc=#{rc})" unless rc == 1
 
-@log.info("creating table \"voting_eday_places\" ...")
-@db.create_table :voting_eday_places do
-  primary_key :id
-  Integer :precinct, :unique => true, :null => false
-  foreign_key :location_id, :voting_locations, :null => false
-  String :link, :size => 80, :null => false
-  Text :notes
-end
+def create_tables
+  
+  @log.info("creating table \"travis_co_tx_us_voting_locations\" ...")
+  @db.create_table :travis_co_tx_us_voting_locations do
+    primary_key :id
+    String :name, :size => 20, :null => false
+    String :street, :size => 40, :null => false
+    String :city, :size => 20, :null => false
+    String :state, :size=> 2, :null => false
+    String :zip, :size => 10, :null => false
+  end  
+  rc = @db.get{AddGeometryColumn('travis_co_tx_us_voting_locations', 'geometry', 4326, 'POINT', 'XY')}
+  raise "AddGeometryColumn failed (rc=#{rc})" unless rc == 1
+  rc = @db.get{CreateSpatialIndex('travis_co_tx_us_voting_locations', 'geometry')}
+  raise "CreateSpatialIndex failed (rc=#{rc})" unless rc == 1
+  
+  @log.info("creating table \"travis_co_tx_us_voting_eday_places\" ...")
+  @db.create_table :travis_co_tx_us_voting_eday_places do
+    primary_key :id
+    Integer :precinct, :unique => true, :null => false
+    foreign_key :location_id, :travis_co_tx_us_voting_locations, :null => false
+    DateTime :opens, :null => false, :index => true
+    DateTime :closes, :null => false, :index => true
+    String :link, :size => 80, :null => false
+    Text :notes
+  end
+  
+  @log.info("creating table \"travis_co_tx_us_voting_evfixed_places\" ...")
+  @db.create_table :travis_co_tx_us_voting_evfixed_places do
+    primary_key :id
+    foreign_key :location_id, :travis_co_tx_us_voting_locations, :null => false
+    String :schedule, :size => 1, :null => false
+    String :link, :size => 80, :null => false
+    Text :notes
+  end
 
-@log.info("creating table \"voting_evfixed_places\" ...")
-@db.create_table :voting_evfixed_places do
-  primary_key :id
-  foreign_key :location_id, :voting_locations, :null => false
-  String :link, :size => 80, :null => false
-  Text :notes
-end
+  @log.info("creating table \"travis_co_tx_us_voting_evfixed_schedules\" ...")
+  @db.create_table :travis_co_tx_us_voting_evfixed_schedules do
+    primary_key :id
+    String :schedule, :size => 1, :null => false, :index => true
+    DateTime :opens, :null => false, :index => true
+    DateTime :closes, :null => false, :index => true
+  end
+  
+  # TODO - fill in "travis_co_tx_us_voting_evfixed_schedules" table from EVFIXED_SCHEDULE
 
-@log.info("creating table \"voting_evmobile_places\" ...")
-@db.create_table :voting_evmobile_places do
-  primary_key :id
-  foreign_key :location_id, :voting_locations, :null => false
-  String :link, :size => 80, :null => false
-  Text :notes
-end
+  @log.info("creating table \"travis_co_tx_us_voting_evmobile_places\" ...")
+  @db.create_table :travis_co_tx_us_voting_evmobile_places do
+    primary_key :id
+    foreign_key :location_id, :travis_co_tx_us_voting_locations, :null => false
+    String :link, :size => 80, :null => false
+    Text :notes
+  end
+  
+  @log.info("creating table \"travis_co_tx_us_voting_evmobile_schedules\" ...")
+  @db.create_table :travis_co_tx_us_voting_evmobile_schedules do
+    primary_key :id
+    foreign_key :place_id, :travis_co_tx_us_voting_evmobile_places
+    DateTime :opens, :null => false, :index => true
+    DateTime :closes, :null => false, :index => true
+  end
 
-@log.info("creating table \"voting_evmobile_schedules\" ...")
-@db.create_table :voting_evmobile_schedules do
-  primary_key :id
-  foreign_key :place_id, :voting_evmobile_places
-  DateTime :opens, :null => false, :index => true
-  DateTime :closes, :null => false, :index => true
 end
 
 
@@ -170,7 +206,9 @@ def make_location(row)
   lat = v.to_f
   raise "latitude \"#{lat}\" outside of expected range (#{RANGE_LAT}): #{row}" unless RANGE_LAT.include?(lat)
   
-  rs = @db[:voting_locations].filter("the_geom = MakePoint(#{lng}, #{lat}, 4326)")
+  loc = @db[:travis_co_tx_us_voting_locations] \
+    .filter{ST_Equals(:geometry, MakePoint(lng, lat, 4326))} \
+    .fetch_one
   
   rec = {
     :name => name,
@@ -178,27 +216,20 @@ def make_location(row)
     :city => row["City"],
     :state => "TX",
     :zip => zip,
-    :the_geom => Sequel.function(:MakePoint, lng, lat, 4326),
-    :location => Marshal.dump(FindIt::Location.new(lat, lng, :DEG)),
+    :geometry => Sequel.function(:MakePoint, lng, lat, 4326),
   }
   
-  the_geom = @db.get{MakePoint(lng, lat, 4326)}
-    
-  case rs.count
-  when 0
-    @log.debug("voting_locations: creating: #{rec}")
-    @db[:voting_locations].insert(rec)
-  when 1
-    curr = rs.first
+  if loc
     [:name, :street, :city, :state, :zip].each do |field|
-      if curr[field] != rec[field]
-        @log.warn("voting_locations(id #{curr[:id]}): inconsistent \"#{field}\" values [\"#{curr[field]}\", \"#{rec[field]}\"]")
+      if loc[field] != rec[field]
+        @log.warn("voting_locations(id #{loc[:id]}): inconsistent \"#{field}\" values [\"#{loc[field]}\", \"#{rec[field]}\"]")
       end
     end
-    curr[:id]
-  else
-    raise "location #{loc} has #{rs.count} records"
-  end
+    loc[:id]    
+  else    
+    @log.debug("voting_locations: creating: #{rec}")
+    @db[:travis_co_tx_us_voting_locations].insert(rec)
+  end  
   
 end
 
@@ -242,7 +273,7 @@ def load_eday_places(fname)
     end
   
     notes << ""
-    notes << "Hours of operation: #{ELECTION_DAY_HOURS}"
+    notes << "Hours of operation: " + time_range(ELECTION_DAY_OPENS, ELECTION_DAY_CLOSES)
     
     unless row["Combined Pcts."].empty?
       a = [precinct] + row["Combined Pcts."].split(",").map {|s| s.to_i}  
@@ -251,10 +282,12 @@ def load_eday_places(fname)
     end
     
     @log.debug("load_eday_places: creating: precinct=#{precinct} location_id=#{location_id}")
-    @db[:voting_eday_places] << {
+    @db[:travis_co_tx_us_voting_eday_places] << {
       :precinct => precinct,
       :location_id => location_id,
-      :link => LINK_INFO_BY_TYPE[:EDAY],
+      :opens => ELECTION_DAY_OPENS,
+      :closes => ELECTION_DAY_CLOSES,
+      :link => INFO_LINK[:EDAY],
       :notes => notes.join("\n"),
     }
   
@@ -277,8 +310,8 @@ end
 #     "Hours":"R"
 #     "Election Code":"G12">
 def load_evfixed_places(fname)
-  @log.info("reading input file \"#{INFILE_EVFIXED}\" ...")
-  CSV.foreach(INFILE_EVFIXED, :headers => true) do |row|
+  @log.info("reading input file \"#{fname}\" ...")
+  CSV.foreach(fname, :headers => true) do |row|
     
     cleanup_row(row)
         
@@ -286,29 +319,22 @@ def load_evfixed_places(fname)
       
     notes = init_notes 
       
-    unless FIXED_EV_LOCATION_HOURS_BY_CODE.has_key?(row["Hours"])
+    unless EVFIXED_SCHEDULE.has_key?(row["Hours"])
         raise "unknown \"Hours\" code \"#{row['Hours']}\": #{row}"    
     end  
     notes << ""
     notes << "Hours of operation:"
-    notes += FIXED_EV_LOCATION_HOURS_BY_CODE[row["Hours"]].map {|s| "\u2022 " + s}
+    notes += EVFIXED_SCHEDULE[row["Hours"]].map {|s| "\u2022 " + s}
   
     @log.debug("places_early_fixed: creating: location_id=#{location_id}")
-    @db[:voting_evfixed_places] << {
+    @db[:travis_co_tx_us_voting_evfixed_places] << {
       :location_id => location_id,
-      :link => LINK_INFO_BY_TYPE[:EVFIXED],
+      :link => INFO_LINK[:EVFIXED],
+      :schedule => row["Hours"],
       :notes => notes.join("\n"),
     }
   
   end
-end
-
-
-# format time range like: "* Sun, Oct 28: noon - 6pm"
-def format_schedule_line(t1, t2)
-  s1 = t1.strftime("%a, %b %-d: %-l:%M%P").sub(/:00([ap]m)/, "\\1").sub(/12am/, 'midnight').sub(/12pm/, 'noon')
-  s2 = t2.strftime("%-l:%M%P").sub(/:00([ap]m)/, "\\1").sub(/12am/, 'midnight').sub(/12pm/, 'noon')
-  "\u2022 #{s1} - #{s2}"
 end
 
 
@@ -341,20 +367,20 @@ def load_evmobile_places(fname)
         
     opens, closes = get_datetimes(row)
     
-    rs = @db[:voting_evmobile_places].filter(:location_id => location_id)
-    id = case rs.count
-    when 0
-      @db[:voting_evmobile_places].insert({
-        :location_id => location_id,
-        :link => LINK_INFO_BY_TYPE[:EVMOBILE],
-      })
-    when 1
-      rs.first[:id]
+    place = @db[:travis_co_tx_us_voting_evmobile_places] \
+      .filter(:location_id => location_id) \
+      .fetch_one
+      
+    id = if place
+      place[:id]
     else
-      raise "load_evmobile_places: too many records for location_id=\"#{location_id}\""
+      @db[:travis_co_tx_us_voting_evmobile_places].insert({
+        :location_id => location_id,
+        :link => INFO_LINK[:EVMOBILE],
+      })
     end
     
-    @db[:voting_evmobile_schedules] << {
+    @db[:travis_co_tx_us_voting_evmobile_schedules] << {
       :place_id => id,
       :opens => opens,
       :closes => closes,
@@ -362,22 +388,22 @@ def load_evmobile_places(fname)
     
   end  
   
-  @db[:voting_evmobile_places].each do |place|
+  @db[:travis_co_tx_us_voting_evmobile_places].each do |place|
     notes = init_notes 
     notes << ""
     notes << "Hours of operation:"    
-    @db[:voting_evmobile_schedules].filter(:place_id => place[:id]).order(:opens).each do |hours|
-      notes << format_schedule_line(hours[:opens], hours[:closes])
+    @db[:travis_co_tx_us_voting_evmobile_schedules].filter(:place_id => place[:id]).order(:opens).each do |hours|
+      notes << "\u2022 " + time_range(hours[:opens], hours[:closes])
     end
-    @db[:voting_evmobile_places].filter(:id => place[:id]).update(:notes => notes.join("\n"))
+    @db[:travis_co_tx_us_voting_evmobile_places].filter(:id => place[:id]).update(:notes => notes.join("\n"))
   end
   
 end
 
-
-load_eday_places(INFILE_EDAY)
-load_evfixed_places(INFILE_EVFIXED)
-load_evmobile_places(INFILE_EVMOBILE)
+create_tables
+load_eday_places(INFILE[:EDAY])
+load_evfixed_places(INFILE[:EVFIXED])
+load_evmobile_places(INFILE[:EVMOBILE])
 @log.info("done")
 
 # vim:autoindent:shiftwidth=2:tabstop=2:expandtab

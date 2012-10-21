@@ -47,6 +47,24 @@ module FindIt
       db      
     end
     
+    
+    # Run the "shp2pgsql" command on a shape file and load the output.
+    def load_shapefile(table, shapefile, srid, codepage = "CP1252")
+      self.log.debug("load_shapefile: entered, table=\"#{table}\", shapefile=\"#{shapefile}\", srid=\"#{srid}\", codepage=\"#{codepage}\"")   
+      cmdv = ["spatialite_tool", "-i",
+        "-shp", shapefile,
+        "-d", self.name,
+        "-t", table,
+        "-c", codepage,
+        "-s", srid,
+      ]
+      unless system(cmdv)
+        raise "system() failed: #{$?}"
+      end
+      self.log.debug("load_shapefile: done")
+    end
+
+    
   end # module Database
 end # module FindIt
 
