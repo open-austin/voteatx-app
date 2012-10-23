@@ -49,7 +49,8 @@ function FindIt(map_id, opts) {
   r.map = null;
   
   /**
-   * XXX document me
+   * An OverlappingMarkerSpiderfier instance, to handle "spiderifying" of markers that
+   * are too close together.
    */
   r.oms = null;
 
@@ -65,8 +66,8 @@ function FindIt(map_id, opts) {
 
   /**
    * The info window that currently is active.
-   * 
-   * TODO - document me
+   * Used by closeActiveInfoWindow().
+   * Set by activateInfoWindow().
    */
   r.last_opened_info_window = null;
 
@@ -195,6 +196,7 @@ FindIt.methods = {
       this.oms.addListener('click', function(marker) {
         that.activateInfoWindow(marker);
       });
+      
       this.oms.addListener('spiderfy', function(markers) {
     	  that.closeActiveInfoWindow();    	  
       });
@@ -280,8 +282,8 @@ FindIt.methods = {
         shadow: shadow,
         draggable: true,
         title: "You are here",
+        info_window: this.makeInfoWindow("<b>You are here</b>")
     });    
-    marker.info_window = this.makeInfoWindow("<b>You are here</b>");
     this.oms.addMarker(marker);
 
     var dragCallBack = function(event) {
@@ -367,10 +369,21 @@ FindIt.methods = {
   /**
    * Callback handler to bind to "click" event on an information window.
    *
-   * @param w -- The google.maps.InfoWindow to activate.
    * @param m -- The google.maps.Marker that was clicked on.
    *
    * Any currently active info window will be closed.
+   * 
+   * This routine requires that we add an "info_window" attribute
+   * to the marker. Example:
+   *
+   *   marker = new google.maps.Marker({
+   *       .
+   *       .
+   *     info_window: this.makeInfoWindow( ... ),
+   *       .
+   *       .
+   *    });
+   *       
    */
   activateInfoWindow : function(marker) {
     this.closeActiveInfoWindow();
@@ -380,7 +393,11 @@ FindIt.methods = {
   },
   
   /**
-   * TODO - document me
+   * Close last opened info window.
+   * 
+   * The open info window is tracked by this.last_opened_info_window.
+   * Note that if user manually closes the info window we won't know
+   * about it. No worries, there's no harm in closing it again.
    */
   closeActiveInfoWindow : function() {
     if (this.last_opened_info_window != null) {
@@ -473,8 +490,8 @@ FindIt.methods = {
       icon: this.makeMarkerIcon(feature.marker),
       shadow: this.makeMarkerShadow(feature.shadow, feature.marker),
       title: feature.hint,
+      info_window: this.makeInfoWindow(feature.info),
     });    
-    marker.info_window = this.makeInfoWindow(feature.info);
     
     this.oms.addMarker(marker);
 
