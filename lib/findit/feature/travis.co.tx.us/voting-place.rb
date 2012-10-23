@@ -107,6 +107,17 @@ module FindIt
           raise "cannot find election day voting place for precinct \"#{precinct}\"" unless place
           raise "cannot find election day voting location for precinct \"#{precinct}\"" unless place[:geometry]
 
+          sched = @db[:travis_co_tx_us_voting_schedules_by_type][:type => place[:schedule_type]]
+          raise "cannot locate entry for schedule type \"#{place[:schedule_type]}\"" unless sched
+            
+          now = Time.now
+            
+          is_open = @db[:travis_co_tx_us_voting_schedules_by_type] \
+            .filter(:type => place[:schedule_type]) \
+            .filter{opens <= now} \
+            .filter{closes > now} \
+            .count != 0            
+          
           new(FindIt::Location.from_geometry(@db, place[:geometry]),
             :place_type => :EDAY,
             :title => "Your voting place (precinct #{precinct})",
@@ -118,7 +129,7 @@ module FindIt
             :link => place[:link],
             :note => place[:notes],
             :origin => origin,
-            :marker => place_marker(:EDAY, true))
+            :marker => place_marker(:EDAY, is_open))
         end        
           
       end # class AbstractEdayVotingPlace
@@ -140,6 +151,9 @@ module FindIt
         # this election.
         #
         def self.closest(origin)
+
+          now = Time.now
+          ret = []
             
           fixed = @db[:travis_co_tx_us_voting_evfixed_places] \
               .select_all(:travis_co_tx_us_voting_evfixed_places, :travis_co_tx_us_voting_locations) \
@@ -150,8 +164,13 @@ module FindIt
               
           raise "no fixed early voting places" unless fixed
           raise "cannot find location for early voting place id #{fixed[:id]}" unless fixed[:geometry]         
-
-          ret = []
+          
+          is_open = @db[:travis_co_tx_us_voting_schedules_by_type] \
+            .filter(:type => fixed[:schedule_type]) \
+            .filter{opens <= now} \
+            .filter{closes > now} \
+            .count != 0            
+          
           ret << new(FindIt::Location.from_geometry(@db, fixed[:geometry]),
             :title => "Early voting location",
             :name => fixed[:name],
@@ -162,7 +181,7 @@ module FindIt
             :link => fixed[:link],
             :note => fixed[:notes],
             :origin => origin,
-            :marker => place_marker(:EV_FIXED, true))
+            :marker => place_marker(:EV_FIXED, is_open))
               
           mobiles = @db[:travis_co_tx_us_voting_evmobile_places] \
             .select_all(:travis_co_tx_us_voting_evmobile_places, :travis_co_tx_us_voting_locations) \
@@ -177,11 +196,14 @@ module FindIt
             .limit(3) \
             .all
             
-          mobiles.each do |p|  
-  
-            # TODO - select an alternate marker if the voting place is open now
-            marker = FindIt::Asset::MapMarker.new("/mapicons/icon_vote_mobile.png", :shadow => "vote_icon_shadow.png")
-
+          mobiles.each do |p| 
+            
+            is_open = @db[:travis_co_tx_us_voting_evmobile_schedules] \
+              .filter(:place_id => p[:id]) \
+              .filter{opens <= now} \
+              .filter{closes > now} \
+              .count != 0
+            
             ret << new(FindIt::Location.from_geometry(@db, p[:geometry]),
               :title => "Mobile early voting location",
               :name => p[:name],
@@ -192,7 +214,7 @@ module FindIt
               :link => p[:link],
               :note => p[:notes],
               :origin => origin,
-              :marker => place_marker(:EV_MOBILE, true))
+              :marker => place_marker(:EV_MOBILE, is_open))
           end
                      
           ret           
