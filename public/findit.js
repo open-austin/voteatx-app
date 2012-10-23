@@ -490,8 +490,28 @@ FindIt.methods = {
       icon: this.makeMarkerIcon(feature.marker),
       shadow: this.makeMarkerShadow(feature.shadow, feature.marker),
       title: feature.hint,
-      info_window: this.makeInfoWindow(feature.info),
-    });    
+    });
+    
+    if (feature.info != null) {
+    	marker.info_window = this.makeInfoWindow(feature.info);    	
+    }
+    
+    if (feature.region != null) {
+      var path = new Array();
+      for (var i = 0 ; i < feature.region.length ; ++i) {
+    	  path.push(new google.maps.LatLng(feature.region[i][1], feature.region[i][0]));    	  
+      }
+      marker.region = new google.maps.Polygon({
+    	map: this.map,
+        paths: path,
+        strokeColor: "green",
+        strokeOpacity: 0.7,
+        strokeWeight: 2,
+        fillColor: "green",
+        fillOpacity: 0.2,
+        visible: false,
+      });
+    }
     
     this.oms.addMarker(marker);
 

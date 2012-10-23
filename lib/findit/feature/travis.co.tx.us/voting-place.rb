@@ -1,4 +1,5 @@
 require 'findit'
+require 'json'
 
 module FindIt
   module Feature
@@ -51,10 +52,12 @@ module FindIt
         @election = nil
         
         attr_accessor :marker 
+        attr_accessor :region
         
         def initialize(location, params = {})
           super
           @marker = params[:marker]
+          @region = params[:region]
         end
         
         def self.type
@@ -93,6 +96,7 @@ module FindIt
           # Find the voting precinct that contains the origin point.
           district = @db[:travis_co_tx_us_voting_districts] \
             .select(:p_vtd) \
+            .select_append{AsGeoJSON(ST_Transform(:geometry, 4326)).as(:region)} \
             .filter{ST_Contains(:geometry, ST_Transform(MakePoint(origin.lng, origin.lat, 4326), 3081))} \
             .fetch_one
           return nil unless district
@@ -129,8 +133,13 @@ module FindIt
             :link => place[:link],
             :note => place[:notes],
             :origin => origin,
-            :marker => place_marker(:EDAY, is_open))
-        end        
+            :marker => place_marker(:EDAY, is_open),
+            :region => JSON.parse(district[:region])["coordinates"].first)
+        end   
+        
+        def to_h
+          super.merge(:region => @region).freeze
+        end
           
       end # class AbstractEdayVotingPlace
       
