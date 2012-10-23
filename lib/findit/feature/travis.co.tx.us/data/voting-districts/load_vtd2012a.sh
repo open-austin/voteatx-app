@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DBNAME="../../../../../../findit.sqlite"
+DBNAME="../../../data/findit.sqlite"
 TABLENAME="travis_co_tx_us_voting_districts"
 
 SHAPEFILE="VTD2012a"

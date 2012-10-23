@@ -3,7 +3,7 @@
 BASEDIR = File.dirname(__FILE__) + "/../../../../../.."
 $:.insert(0, BASEDIR + "/lib")
 
-DATABASE = BASEDIR + "/findit.sqlite"
+DATABASE = BASEDIR + "/lib/findit/feature/data/findit.sqlite"
   
 require 'logger'
 require 'csv'
@@ -26,6 +26,7 @@ ELECTION_DESCRIPTION = "For the Nov 6, 2012 general election in Travis County."
 ALLOW_ANY_VOTING_PLACE_ON_ELECTION_DAY = true
 ELECTION_DAY_OPENS = Time.new(2012, 11, 6, 7, 0)
 ELECTION_DAY_CLOSES = Time.new(2012, 11, 6, 19, 0)
+ELECTION_DAY_SCHEDULE_TYPE = "E"
 
 EVFIXED_SCHEDULE = {
   "R" => [    
@@ -36,8 +37,8 @@ EVFIXED_SCHEDULE = {
   "V" => [
     "Mon, Oct 22 - Sat, Oct 27: 7am - 7pm",
     "Sun, Oct 28: noon - 6pm",
-    "Mon, Oct 29: - Tue, Oct 30: 7am - 7pm",
-    "Wed, Oct 31 - Fri, Nov 2: 7am - 7pm",
+    "Mon, Oct 29 - Tue, Oct 30: 7am - 7pm",
+    "Wed, Oct 31 - Fri, Nov 2: 7am - 9pm",
   ],
 }
 
@@ -114,7 +115,7 @@ end
 def time_range(t1, t2)
   s1 = t1.strftime("%a, %b %-d: %-l:%M%P").sub(/:00([ap]m)/, "\\1").sub(/12am/, 'midnight').sub(/12pm/, 'noon')
   s2 = t2.strftime("%-l:%M%P").sub(/:00([ap]m)/, "\\1").sub(/12am/, 'midnight').sub(/12pm/, 'noon')
-  "\u2022 #{s1} - #{s2}"
+  "#{s1} - #{s2}"
 end
 
 # Initialize a list of strings that will be used to create the "notes" field.
@@ -144,8 +145,7 @@ def create_tables
     primary_key :id
     Integer :precinct, :unique => true, :null => false
     foreign_key :location_id, :travis_co_tx_us_voting_locations, :null => false
-    DateTime :opens, :null => false, :index => true
-    DateTime :closes, :null => false, :index => true
+    String :schedule_type, :size => 1, :null => false
     String :link, :size => 80, :null => false
     Text :notes
   end
@@ -154,20 +154,58 @@ def create_tables
   @db.create_table :travis_co_tx_us_voting_evfixed_places do
     primary_key :id
     foreign_key :location_id, :travis_co_tx_us_voting_locations, :null => false
-    String :schedule, :size => 1, :null => false
+    String :schedule_type, :size => 1, :null => false
     String :link, :size => 80, :null => false
     Text :notes
   end
 
-  @log.info("creating table \"travis_co_tx_us_voting_evfixed_schedules\" ...")
-  @db.create_table :travis_co_tx_us_voting_evfixed_schedules do
+  @log.info("creating table \"travis_co_tx_us_voting_schedules_by_type\" ...")
+  @db.create_table :travis_co_tx_us_voting_schedules_by_type do
     primary_key :id
-    String :schedule, :size => 1, :null => false, :index => true
+    String :type, :size => 1, :null => false, :index => true
     DateTime :opens, :null => false, :index => true
     DateTime :closes, :null => false, :index => true
   end
   
-  # TODO - fill in "travis_co_tx_us_voting_evfixed_schedules" table from EVFIXED_SCHEDULE
+  add_sched = proc do |type, year, mon, day, hour_opens, min_opens, hour_closes,  min_closes|  
+    @db[:travis_co_tx_us_voting_schedules_by_type] <<  {
+      :type => type,
+      :opens => Time.new(year, mon, day, hour_opens, min_opens),
+      :closes => Time.new(year, mon, day, hour_closes, min_closes)
+    }
+  end
+  
+  # election day
+  add_sched.call(ELECTION_DAY_SCHEDULE_TYPE,
+                      2012, 11,  6,  7, 0, 19, 0)  
+
+  # early voting place type "R"
+  add_sched.call("R", 2012, 10, 22,  7, 0, 19, 0)
+  add_sched.call("R", 2012, 10, 23,  7, 0, 19, 0)
+  add_sched.call("R", 2012, 10, 24,  7, 0, 19, 0)
+  add_sched.call("R", 2012, 10, 25,  7, 0, 19, 0)
+  add_sched.call("R", 2012, 10, 26,  7, 0, 19, 0)
+  add_sched.call("R", 2012, 10, 27,  7, 0, 19, 0)
+  add_sched.call("R", 2012, 10, 28, 12, 0, 18, 0)
+  add_sched.call("R", 2012, 10, 29,  7, 0, 19, 0)
+  add_sched.call("R", 2012, 10, 30,  7, 0, 19, 0)
+  add_sched.call("R", 2012, 10, 31,  7, 0, 19, 0)
+  add_sched.call("R", 2012, 11,  1,  7, 0, 19, 0)
+  add_sched.call("R", 2012, 11,  2,  7, 0, 19, 0)
+
+  # early voting place type "R"
+  add_sched.call("V", 2012, 10, 22,  7, 0, 19, 0)
+  add_sched.call("V", 2012, 10, 23,  7, 0, 19, 0)
+  add_sched.call("V", 2012, 10, 24,  7, 0, 19, 0)
+  add_sched.call("V", 2012, 10, 25,  7, 0, 19, 0)
+  add_sched.call("V", 2012, 10, 26,  7, 0, 19, 0)
+  add_sched.call("V", 2012, 10, 27,  7, 0, 19, 0)
+  add_sched.call("V", 2012, 10, 28, 12, 0, 18, 0)
+  add_sched.call("V", 2012, 10, 29,  7, 0, 19, 0)
+  add_sched.call("V", 2012, 10, 30,  7, 0, 19, 0)
+  add_sched.call("V", 2012, 10, 31,  7, 0, 21, 0)
+  add_sched.call("V", 2012, 11,  1,  7, 0, 21, 0)
+  add_sched.call("V", 2012, 11,  2,  7, 0, 21, 0)
 
   @log.info("creating table \"travis_co_tx_us_voting_evmobile_places\" ...")
   @db.create_table :travis_co_tx_us_voting_evmobile_places do
@@ -285,8 +323,7 @@ def load_eday_places(fname)
     @db[:travis_co_tx_us_voting_eday_places] << {
       :precinct => precinct,
       :location_id => location_id,
-      :opens => ELECTION_DAY_OPENS,
-      :closes => ELECTION_DAY_CLOSES,
+      :schedule_type => ELECTION_DAY_SCHEDULE_TYPE,
       :link => INFO_LINK[:EDAY],
       :notes => notes.join("\n"),
     }
@@ -329,8 +366,8 @@ def load_evfixed_places(fname)
     @log.debug("places_early_fixed: creating: location_id=#{location_id}")
     @db[:travis_co_tx_us_voting_evfixed_places] << {
       :location_id => location_id,
+      :schedule_type => row["Hours"],
       :link => INFO_LINK[:EVFIXED],
-      :schedule => row["Hours"],
       :notes => notes.join("\n"),
     }
   

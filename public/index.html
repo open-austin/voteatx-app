@@ -78,7 +78,7 @@ input#address_field {
       displayEventMessage("error", "Sorry ... your browser does not support automatic geolocation. (Enter an address at bottom.");
       break;
     case "GEOLOCATION_FAILED":
-      displayEventMessage("error", "Automatic geolocation failed: " + escapeHTML(args.error) + "(Enter an address at bottom.)");
+      displayEventMessage("error", "Automatic geolocation failed: " + escapeHTML(args.error.message) + "(Enter an address at bottom.)");
       break;
     case "GEOLOCATION_SUCCEEDED":
       displayEventMessage("info", "");
@@ -87,7 +87,7 @@ input#address_field {
       displayEventMessage("notice", escapeHTML(args.address));
       break;
     case "ADDRESS_BAD":
-      displayEventMessage("error", "Cannot locate specified address: " + escapeHTML(args.error));
+      displayEventMessage("error", "Cannot locate specified address: " + escapeHTML(args.error.message));
       break;
     case "NO_FEATURES":
       displayEventMessage("error", "Sorry ... your location is outside the service area of this application.");
