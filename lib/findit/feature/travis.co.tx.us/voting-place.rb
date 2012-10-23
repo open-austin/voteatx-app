@@ -186,23 +186,17 @@ module FindIt
           mobiles = @db[:travis_co_tx_us_voting_evmobile_places] \
             .select_all(:travis_co_tx_us_voting_evmobile_places, :travis_co_tx_us_voting_locations) \
             .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
-            .select_append{((opens > Time.now) & (closes < Time.now)).as(:open_now)} \
+            .select_append{((opens <= now) & (closes > now)).as(:is_open)} \
             .distinct \
             .join(:travis_co_tx_us_voting_locations, :id => :travis_co_tx_us_voting_evmobile_places__location_id) \
             .join(:travis_co_tx_us_voting_evmobile_schedules, :place_id => :travis_co_tx_us_voting_evmobile_places__id) \
             .filter{dist < fixed[:dist]} \
-            .filter{closes > Time.now} \
+            .filter{closes > now} \
             .order(:opens.asc, :dist.asc) \
             .limit(3) \
             .all
             
-          mobiles.each do |p| 
-            
-            is_open = @db[:travis_co_tx_us_voting_evmobile_schedules] \
-              .filter(:place_id => p[:id]) \
-              .filter{opens <= now} \
-              .filter{closes > now} \
-              .count != 0
+          mobiles.each do |p|  
             
             ret << new(FindIt::Location.from_geometry(@db, p[:geometry]),
               :title => "Mobile early voting location",
@@ -214,7 +208,7 @@ module FindIt
               :link => p[:link],
               :note => p[:notes],
               :origin => origin,
-              :marker => place_marker(:EV_MOBILE, is_open))
+              :marker => place_marker(:EV_MOBILE, p[:is_open] == 1))
           end
                      
           ret           
