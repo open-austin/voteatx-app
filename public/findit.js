@@ -47,21 +47,28 @@ function FindIt(map_id, opts) {
    * The google.maps.Map we are building.
    */
   r.map = null;
+  
+  /**
+   * XXX document me
+   */
+  r.oms = null;
 
   /**
    * The google.maps.Marker on the map that shows where I am.
    */
   r.marker_me = null;
-
+  
   /**
    * List of google.maps.Marker instances for all the features placed on the map.
    */
   r.feature_markers = [];
 
   /**
-   * List of google.maps.InfoWindow instances for all the markers (both me and features).
+   * The info window that currently is active.
+   * 
+   * TODO - document me
    */
-  r.info_windows = [];
+  r.last_opened_info_window = null;
 
   return r;
 }
@@ -167,17 +174,37 @@ FindIt.methods = {
     var that = this;
 
     if (this.map) {
+    	
       this.map.panTo(loc);
-    } else {
+      
+    } else {    	
+    	
       this.map = new google.maps.Map(this.dom_map_elem, {
         zoom: 13,
         center: loc,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       });
+      
+      this.oms = new OverlappingMarkerSpiderfier(this.map, {
+        markersWontMove: true,
+    	markersWontHide: true,
+    	keepSpiderfied: true,
+    	nearbyDistance: 10
+      });
+    		  
+      this.oms.addListener('click', function(marker) {
+        that.activateInfoWindow(marker);
+      });
+      this.oms.addListener('spiderfy', function(markers) {
+    	  that.closeActiveInfoWindow();    	  
+      });
+            
       var mapClickCallBack = function(event) {
         that.changeLocation(event.latLng);
       };
+      
       google.maps.event.addListener(this.map, 'click', mapClickCallBack);
+      
     }
 
     if (this.marker_me) {
@@ -253,15 +280,15 @@ FindIt.methods = {
         shadow: shadow,
         draggable: true,
         title: "You are here",
-    });
+    });    
+    marker.info_window = this.makeInfoWindow("<b>You are here</b>");
+    this.oms.addMarker(marker);
 
     var dragCallBack = function(event) {
       that.changeLocation(event.latLng);
     };
 
     google.maps.event.addListener(marker, 'dragend', dragCallBack);
-
-    this.makeInfoWindow(marker, "<b>You are here</b>");
 
     return marker;
   },
@@ -312,6 +339,7 @@ FindIt.methods = {
    * @param loc -- A google.maps.LatLng of the location to search around.
    */
   searchNearby : function(loc) {
+	this.closeActiveInfoWindow();
     this.removeFeatureMarkers();
 
     var data = "latitude=" + loc.lat() + "&longitude=" + loc.lng();
@@ -342,17 +370,23 @@ FindIt.methods = {
    * @param w -- The google.maps.InfoWindow to activate.
    * @param m -- The google.maps.Marker that was clicked on.
    *
-   * All other info windows will be closed.
-   *
-   * The info windows are tracked in the "info_windows[]" lists.
+   * Any currently active info window will be closed.
    */
-  activateInfoWindow : function(w, m) {
-    for (var i = 0 ; i < this.info_windows.length ; ++i) {
-      if (this.info_windows[i] !== w) {
-        this.info_windows[i].close();
-      }
-    }
-    w.open(this.map, m);
+  activateInfoWindow : function(marker) {
+    this.closeActiveInfoWindow();
+	var iw = marker.info_window;
+	iw.open(this.map, marker);
+	this.last_opened_info_window = iw;
+  },
+  
+  /**
+   * TODO - document me
+   */
+  closeActiveInfoWindow : function() {
+    if (this.last_opened_info_window != null) {
+	  this.last_opened_info_window.close();
+	}
+    this.last_opened_info_window = null;
   },
 
 
@@ -379,21 +413,10 @@ FindIt.methods = {
    *
    * @return A google.maps.InfoWindow
    *
-   * The window will be created but not displayed. A callback
-   * will be setup to call activateInfoWindow() when the
-   * marker is clicked. The new info window will be added
-   * to the "info_windows[]" list.
+   * The window will be created but not displayed.
    */
-  makeInfoWindow : function(marker, content) {
-    var that = this;
-    var infowindow = new google.maps.InfoWindow({content: content});
-    var m1 = marker;
-    var markerClickCallBack = function() {
-      that.activateInfoWindow(infowindow, m1);
-    };
-    google.maps.event.addListener(marker, 'click', markerClickCallBack);
-    this.info_windows.push(infowindow);
-    return infowindow;
+  makeInfoWindow : function(content) {
+    return new google.maps.InfoWindow({content: content});
   },
   
   /**
@@ -450,11 +473,10 @@ FindIt.methods = {
       icon: this.makeMarkerIcon(feature.marker),
       shadow: this.makeMarkerShadow(feature.shadow, feature.marker),
       title: feature.hint,
-    });
+    });    
+    marker.info_window = this.makeInfoWindow(feature.info);
     
-    if (feature.info) {
-      this.makeInfoWindow(marker, feature.info);      
-    }
+    this.oms.addMarker(marker);
 
     this.feature_markers.push(marker);
     return marker;
