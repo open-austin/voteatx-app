@@ -1,15 +1,5 @@
-
 /**
- * Helper to define classes.
- */
-function inherit(m) {
-  var o = function() {};
-  o.prototype = m;
-  return new o();
-}
-
-/**
- * Class to find and map features around Austin.
+ * Class FindIt: find and map features around town.
  *
  * @param map_id - The HTML DOM id of the division in which the map will be placed.
  * @param options
@@ -24,6 +14,7 @@ function inherit(m) {
  *    to be set.
  */
 function FindIt(map_id, opts) {
+  
   r = inherit(FindIt.methods);
 
   /**
@@ -128,7 +119,7 @@ FindIt.methods = {
    * returns quickly, and the geolocation callback will be triggered
    * once the process resolves.
    */
-  start : function () {
+  start : function() {
     
     this.send_event("START");
     
@@ -187,8 +178,8 @@ FindIt.methods = {
       this.oms = new OverlappingMarkerSpiderfier(this.map, {
         markersWontMove: true,
         markersWontHide: true,
-    	keepSpiderfied: true,
-    	nearbyDistance: 10
+    	  keepSpiderfied: true,
+    	  nearbyDistance: 10
       });
     		  
       this.oms.addListener('click', function(marker) {
@@ -270,8 +261,8 @@ FindIt.methods = {
         height: 32,
         width: 59,        
       },
-      hint: "You are here.",
       draggable: true,
+      hint: "You are here.",
       info: "<b>You are here.</b>",
     });
 
@@ -345,8 +336,7 @@ FindIt.methods = {
     }
 
     for (type in nearby_features) {
-      var marker = this.makeMarker(nearby_features[type]);
-      this.feature_markers.push(marker);
+      this.feature_markers.push(this.makeMarker(nearby_features[type]));
     }
 
     this.send_event("COMPLETE");
@@ -376,13 +366,11 @@ FindIt.methods = {
    * 
    * The marker will be registered with the "spiderify" handler.
    */
-  makeMarker : function(params) {
-    
-    var position = params.position || new google.maps.LatLng(params.latitude, params.longitude);
+  makeMarker : function(params) {    
     
     var marker = new google.maps.Marker({
       map: this.map,
-      position: position,
+      position: params.position || new google.maps.LatLng(params.latitude, params.longitude),
       icon: this.makeMarkerIcon(params.marker),
       shadow: this.makeMarkerShadow(params.shadow, params.marker),
       title: params.hint,
@@ -420,12 +408,16 @@ FindIt.methods = {
    * * close_overlays - Hide all overlays associated with this marker.
    */
   addOverlayMethods : function(marker) {
+    
+    /** list of overlays associated with this marker */
     marker.overlays = [];
     
+    /** attach an overlay to this marker */
     marker.add_overlay = function(overlay) {
       this.overlays.push(overlay);
     }
     
+    /** display all the overlays associated with this marker */
     marker.open_overlays = function() {
       var that = this;
         for (var i = 0 ; i < this.overlays.length ; ++i) {
@@ -440,6 +432,7 @@ FindIt.methods = {
       }
     }
     
+    /** hide all the overlays associated with this marker */
     marker.close_overlays = function() {
       var that = this;
         for (var i = 0 ; i < this.overlays.length ; ++i) {
@@ -478,8 +471,8 @@ FindIt.methods = {
    */
   activateMarker : function(marker) {
     this.closeActiveMarker();
-    marker.open_overlays();
     this.last_opened_marker = marker;    
+    marker.open_overlays();
   },
 
 
@@ -591,6 +584,15 @@ FindIt.methods = {
 
 };
 
+
+/**
+ * Helper to define classes.
+ */
+function inherit(m) {
+  var o = function() {};
+  o.prototype = m;
+  return new o();
+}
 
 function isEmpty(str) {
   return (!str || 0 === str.length);
