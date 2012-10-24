@@ -181,14 +181,14 @@ FindIt.methods = {
       this.map = new google.maps.Map(this.dom_map_elem, {
         zoom: 13,
         center: loc,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
       });
       
       this.oms = new OverlappingMarkerSpiderfier(this.map, {
         markersWontMove: true,
-    	  markersWontHide: true,
-    	  keepSpiderfied: true,
-    	  nearbyDistance: 10
+        markersWontHide: true,
+    	keepSpiderfied: true,
+    	nearbyDistance: 10
       });
     		  
       this.oms.addListener('click', function(marker) {
@@ -198,12 +198,10 @@ FindIt.methods = {
       this.oms.addListener('spiderfy', function(markers) {
         that.closeActiveMarker();
       });
-            
-      var mapClickCallBack = function(event) {
-        that.changeLocation(event.latLng);
-      };
       
-      google.maps.event.addListener(this.map, 'click', mapClickCallBack);
+      google.maps.event.addListener(this.map, 'click', function(event) {
+        that.changeLocation(event.latLng);
+      });
       
     }
 
@@ -260,7 +258,6 @@ FindIt.methods = {
 
     var that = this;
     
-    # FIXME - the marker needs to be draggable
     var marker = this.makeMarker({
       position: loc,
       marker: {
@@ -274,6 +271,7 @@ FindIt.methods = {
         width: 59,        
       },
       hint: "You are here.",
+      draggable: true,
       info: "<b>You are here.</b>",
     });
 
@@ -368,6 +366,7 @@ FindIt.methods = {
    * * marker -- Arguments to makeMarkerIcon().
    * * shadow -- Arguments to makeMarkerShadow().
    * * hint -- Text message to display when hover over the marker.
+   * * draggable -- If true, marker will be draggable.
    * * info -- If specified, text message to be placed in an infoWindow.
    * * region -- If specified, parameters to makePolygon().
    * 
@@ -387,6 +386,7 @@ FindIt.methods = {
       icon: this.makeMarkerIcon(params.marker),
       shadow: this.makeMarkerShadow(params.shadow, params.marker),
       title: params.hint,
+      draggable: params.draggable || false,
     });
     
     this.addOverlayMethods(marker);
