@@ -55,8 +55,7 @@ function FindIt(map_id, opts) {
   r.feature_markers = [];
 
   /**
-   * The marker that was most recently opened (clicked on).
-   * Used by activateMarker() and closeActiveMarker().
+   * The google.maps.Marker that was most recently activated (clicked on).
    */
   r.last_opened_marker = null;
 
