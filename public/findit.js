@@ -64,11 +64,10 @@ function FindIt(map_id, opts) {
   r.feature_markers = [];
 
   /**
-   * The info window that currently is active.
-   * Used by closeActiveInfoWindow().
-   * Set by activateInfoWindow().
+   * The marker that was most recently opened (clicked on).
+   * Used by activateMarker() and closeActiveMarker().
    */
-  r.last_opened_info_window = null;
+  r.last_opened_marker = null;
 
   return r;
 }
@@ -187,24 +186,17 @@ FindIt.methods = {
       
       this.oms = new OverlappingMarkerSpiderfier(this.map, {
         markersWontMove: true,
-    	markersWontHide: true,
-    	keepSpiderfied: true,
-    	nearbyDistance: 10
+    	  markersWontHide: true,
+    	  keepSpiderfied: true,
+    	  nearbyDistance: 10
       });
     		  
       this.oms.addListener('click', function(marker) {
-        if (that.last_marker_opened != null) {
-          that.last_marker_opened.close_overlays();
-        }
-    	marker.open_overlays();
-	    that.last_marker_opened = marker;    		  
+        that.activateMarker(marker);
       });
       
       this.oms.addListener('spiderfy', function(markers) {
-    	  if (that.last_marker_opened != null) {
-    	    that.last_marker_opened.close_overlays();
-    	    that.last_marker_opened = null;    		  
-    	  }
+        that.closeActiveMarker();
       });
             
       var mapClickCallBack = function(event) {
@@ -257,7 +249,6 @@ FindIt.methods = {
   },
 
 
-
   /**
    * Place the "I am here" marker on the map.
    *
@@ -268,38 +259,27 @@ FindIt.methods = {
   placeMe : function(loc) {
 
     var that = this;
-
-    var icon = new google.maps.MarkerImage("http://maps.google.com/mapfiles/ms/micons/red-dot.png",
-        new google.maps.Size(32, 32),  // size
-        new google.maps.Point(0,0),       // origin
-        new google.maps.Point(16, 32)     // anchor
-    );
     
-    var shadow = new google.maps.MarkerImage("http://maps.google.com/mapfiles/ms/micons/msmarker.shadow.png",
-        new google.maps.Size(59, 32),  // size
-        new google.maps.Point(0,0),       // origin
-        new google.maps.Point(16, 32)     // anchor
-    );
+    # FIXME - the marker needs to be draggable
+    var marker = this.makeMarker({
+      position: loc,
+      marker: {
+        url: "http://maps.google.com/mapfiles/ms/micons/red-dot.png",
+        height: 32,
+        width: 32,      
+      },
+      shadow: {
+        url: "http://maps.google.com/mapfiles/ms/micons/msmarker.shadow.png",
+        height: 32,
+        width: 59,        
+      },
+      hint: "You are here.",
+      info: "<b>You are here.</b>",
+    });
 
-    var marker = new google.maps.Marker({
-        map: this.map,
-        position: loc,        
-        icon: icon,
-        shadow: shadow,
-        draggable: true,
-        title: "You are here",
-    });    
-
-    this.addOverlayMethods(marker);    
-    marker.add_overlay(this.makeInfoWindow("<b>You are here</b>"));
-    
-    this.oms.addMarker(marker);
-
-    var dragCallBack = function(event) {
+    google.maps.event.addListener(marker, 'dragend', function(event) {
       that.changeLocation(event.latLng);
-    };
-
-    google.maps.event.addListener(marker, 'dragend', dragCallBack);
+    });
 
     return marker;
   },
@@ -350,7 +330,6 @@ FindIt.methods = {
    * @param loc -- A google.maps.LatLng of the location to search around.
    */
   searchNearby : function(loc) {
-	this.closeActiveInfoWindow();
     this.removeFeatureMarkers();
 
     var data = "latitude=" + loc.lat() + "&longitude=" + loc.lng();
@@ -368,62 +347,151 @@ FindIt.methods = {
     }
 
     for (type in nearby_features) {
-      this.placeFeatureOnMap(nearby_features[type]);
+      var marker = this.makeMarker(nearby_features[type]);
+      this.feature_markers.push(marker);
     }
 
     this.send_event("COMPLETE");
   },
-
-
-  /**
-   * Callback handler to bind to "click" event on an information window.
-   *
-   * @param m -- The google.maps.Marker that was clicked on.
-   *
-   * Any currently active info window will be closed.
-   * 
-   * This routine requires that we add an "info_window" attribute
-   * to the marker. Example:
-   *
-   *   marker = new google.maps.Marker({
-   *       .
-   *       .
-   *     info_window: this.makeInfoWindow( ... ),
-   *       .
-   *       .
-   *    });
-   *       
-   */
-  activateInfoWindow : function(marker) {
-    this.closeActiveInfoWindow();
-	var iw = marker.info_window;
-	iw.open(this.map, marker);
-	this.last_opened_info_window = iw;
-  },
+  
   
   /**
-   * Close last opened info window.
+   * Create a google.maps.Marker for use with the FindIt application.
    * 
-   * The open info window is tracked by this.last_opened_info_window.
-   * Note that if user manually closes the info window we won't know
-   * about it. No worries, there's no harm in closing it again.
+   * @param params -- See description of parameters below.
+   * 
+   * @return A google.maps.Marker instance.
+   * 
+   * Parameters:
+   * * position -- A google.maps.LatLng instance.
+   * * latitude, longitude -- Must be specified if "position" not defined.
+   * * marker -- Arguments to makeMarkerIcon().
+   * * shadow -- Arguments to makeMarkerShadow().
+   * * hint -- Text message to display when hover over the marker.
+   * * info -- If specified, text message to be placed in an infoWindow.
+   * * region -- If specified, parameters to makePolygon().
+   * 
+   * In addition to the marker, associated overlays (infoWindow, Polygon) will
+   * be created and associated with the marker. See addOverlayMethods() for
+   * additional information.
+   * 
+   * The marker will be registered with the "spiderify" handler.
    */
-  closeActiveInfoWindow : function() {
-    if (this.last_opened_info_window != null) {
-	  this.last_opened_info_window.close();
-	}
-    this.last_opened_info_window = null;
+  makeMarker : function(params) {
+    
+    var position = params.position || new google.maps.LatLng(params.latitude, params.longitude);
+    
+    var marker = new google.maps.Marker({
+      map: this.map,
+      position: position,
+      icon: this.makeMarkerIcon(params.marker),
+      shadow: this.makeMarkerShadow(params.shadow, params.marker),
+      title: params.hint,
+    });
+    
+    this.addOverlayMethods(marker);
+    
+    if (params.info != null) {
+      marker.add_overlay(this.makeInfoWindow(params.info));
+    }
+    
+    if (params.region != null) {
+      marker.add_overlay(this.makePolygon(params.region));
+    }
+    
+    this.oms.addMarker(marker);
+
+    return marker;
+  },
+
+  
+  /**
+   * Modify a google.maps.Marker instance to add support for associated overlays.
+   * 
+   * Once modified, the following types of overlays can be attached to a marker:
+   * 
+   * * google.maps.InfoWindow
+   * * google.maps.Polygon
+   * 
+   * The following methods are added to the marker instance:
+   * 
+   * * add_overlay(overlay) - Attach the overlay to this marker.
+   * * open_overlays - Display all the overlays associated with this marker.
+   * * close_overlays - Hide all overlays associated with this marker.
+   */
+  addOverlayMethods : function(marker) {
+    marker.overlays = [];
+    
+    marker.add_overlay = function(overlay) {
+      this.overlays.push(overlay);
+    }
+    
+    marker.open_overlays = function() {
+      var that = this;
+        for (var i = 0 ; i < this.overlays.length ; ++i) {
+        var ovr = this.overlays[i];
+        if (ovr instanceof google.maps.InfoWindow) {
+          ovr.open(that.getMap(), that);
+        } else if (ovr instanceof google.maps.Polygon) {
+          ovr.setVisible(true);       
+        } else {
+          throw "unsupported or bad overlay type"; 
+        }
+      }
+    }
+    
+    marker.close_overlays = function() {
+      var that = this;
+        for (var i = 0 ; i < this.overlays.length ; ++i) {
+        var ovr = this.overlays[i];
+        if (ovr instanceof google.maps.InfoWindow) {
+          ovr.close();
+        } else if (ovr instanceof google.maps.Polygon) {
+          ovr.setVisible(false);        
+        } else {
+          throw "unsupported or bad overlay type"; 
+        }
+      }
+    }
+    
+    return marker;
+  },
+  
+
+  /**
+   * Close all overlays (info window, polygon, etc.) associated with last marker activated.
+   * 
+   * This method assumes the marker implements features created by addOverlayMethods().
+   */
+  closeActiveMarker : function() {
+    if (this.last_opened_marker != null) {
+	    this.last_opened_marker.close_overlays();
+	    this.last_opened_marker = null;
+	  }
+  },
+  
+  
+  /**
+   * Open all overlays (info window, polygon, etc.) associated with the given marker.
+   * 
+   * This method assumes the marker implements features created by addOverlayMethods().
+   */
+  activateMarker : function(marker) {
+    this.closeActiveMarker();
+    marker.open_overlays();
+    this.last_opened_marker = marker;    
   },
 
 
   /**
    * Remove all of the current markers from the map.
-   *
-   * The markers are tracked in the "feature_markers[]" list.
+   * 
+   * Also hides any overlays associated with most recently selected marker.
    *
    * This is done in preparation for moving to a new location.
    */
   removeFeatureMarkers : function() {
+    this.closeActiveMarker();
     for (var i = 0 ; i < this.feature_markers.length ; ++i) {
       this.feature_markers[i].setMap(null);
     }
@@ -432,9 +500,8 @@ FindIt.methods = {
 
 
   /**
-   * Create an information window that opens when a marker is clicked.
+   * Create a google.maps.InfoWindow that can be displayed when a marker is clicked.
    *
-   * @param marker -- The marker to attach the new info window to.
    * @param content -- The HTML content to display in the window.
    *
    * @return A google.maps.InfoWindow
@@ -444,6 +511,43 @@ FindIt.methods = {
   makeInfoWindow : function(content) {
     return new google.maps.InfoWindow({content: content});
   },
+  
+  
+  /**
+   * Create a google.maps.Polygon that can be displayed when a marker is clicked.
+   * 
+   * @param params -- See description of parameters below.
+   * 
+   * @return A google.maps.Polygon
+   * 
+   * Parameters:
+   * * coordinates -- An array of [longitude, latitude] pairs.
+   * * stroke_color -- Color for border (default: same as fill color)
+   * * stroke_opacity -- 0 (transparent) to 1.0 (opaque) value (default: 0.8)
+   * * stroke_weight -- Width of border in pixels (default: 3)
+   * * fill_color -- Color for shade fill (default: purple)
+   * * fill_opacity -- 0 (transparent) to 1.0 (opaque) value (default: 0.3)
+   * 
+   * The polygon will be created but not displayed.
+   */
+  makePolygon : function(params) {    
+    var path = new Array();
+    for (var i = 0 ; i < params.coordinates.length ; ++i) {
+      path.push(new google.maps.LatLng(params.coordinates[i][1], params.coordinates[i][0]));        
+    }
+    
+    return new google.maps.Polygon({
+      map: this.map,
+      paths: path,
+      strokeColor: params.stroke_color || params.fill_color || "purple",
+      strokeOpacity: params.stroke_opacity || 0.8,
+      strokeWeight: params.stroke_weight || 3,
+      fillColor: params.fill_color || "purple",
+      fillOpacity: params.fill_opacity || 0.3,
+      visible: false,
+    });
+  },
+  
   
   /**
    * Create a MarkerImage instance for a map marker.
@@ -457,11 +561,12 @@ FindIt.methods = {
   makeMarkerIcon : function(marker) {
     return new google.maps.MarkerImage(marker.url,
       new google.maps.Size(marker.width, marker.height),    // size
-      new google.maps.Point(0,0),                       // origin
+      new google.maps.Point(0, 0),                          // origin
       new google.maps.Point(marker.width/2, marker.height)  // anchor
     );
   },
 
+  
   /**
    * Create a MarkerImage instance for a map marker shadow.
    * 
@@ -473,103 +578,15 @@ FindIt.methods = {
    * The shadow and icon parameters are structures with elements: url, width, height.
    */
   makeMarkerShadow : function(shadow, marker) {
-    if (shadow) {
-      return new google.maps.MarkerImage(shadow.url,
-          new google.maps.Size(shadow.width, shadow.height),// size
-          new google.maps.Point(0,0),                       // origin
-          new google.maps.Point(marker.width/2, marker.height)  // anchor
-      );      
-    } else {
+    if (! shadow) {
       return null;
     }
+    return new google.maps.MarkerImage(shadow.url,
+      new google.maps.Size(shadow.width, shadow.height),    // size
+      new google.maps.Point(0,0),                           // origin
+      new google.maps.Point(marker.width/2, marker.height)  // anchor
+    );      
   },
-
-  /**
-   * Place a marker on the map for a given feature.
-   *
-   * @param feature - Information on this feature, as provided by the "Find It Nearby" web service.
-   *
-   * @return A google.maps.Marker
-   */
-  placeFeatureOnMap : function(feature) {    
-    
-    marker = new google.maps.Marker({
-      map: this.map,
-      position: new google.maps.LatLng(feature.latitude, feature.longitude),
-      icon: this.makeMarkerIcon(feature.marker),
-      shadow: this.makeMarkerShadow(feature.shadow, feature.marker),
-      title: feature.hint,
-    });
-    
-    this.addOverlayMethods(marker);
-    
-    if (feature.info != null) {
-    	marker.add_overlay(this.makeInfoWindow(feature.info));
-    }
-    
-    if (feature.region != null) {
-      var path = new Array();
-      for (var i = 0 ; i < feature.region.length ; ++i) {
-    	  path.push(new google.maps.LatLng(feature.region[i][1], feature.region[i][0]));    	  
-      }
-      marker.add_overlay(new google.maps.Polygon({
-    	map: this.map,
-        paths: path,
-        strokeColor: "purple",
-        strokeOpacity: 0.8,
-        strokeWeight: 3,
-        fillColor: "purple",
-        fillOpacity: 0.3,
-        visible: false,
-      }));
-    }
-    
-    this.oms.addMarker(marker);
-
-    this.feature_markers.push(marker);
-    return marker;
-  },
-  
-
-  /**
-   * TODO - document me
-   */
-  addOverlayMethods : function(marker) {
-  	marker.overlays = [];
-  	
-  	marker.add_overlay = function(overlay) {
-  		this.overlays.push(overlay);
-  	}
-  	
-  	marker.open_overlays = function() {
-  		var that = this;
-        for (var i = 0 ; i < this.overlays.length ; ++i) {
-	    	var ovr = this.overlays[i];
-			if (ovr instanceof google.maps.InfoWindow) {
-			  ovr.open(that.getMap(), that);
-			} else if (ovr instanceof google.maps.Polygon) {
-			  ovr.setVisible(true);				
-			} else {
-			  throw "unsupported or bad overlay type"; 
-			}
-  		}
-  	}
-  	
-  	marker.close_overlays = function() {
-  		var that = this;
-        for (var i = 0 ; i < this.overlays.length ; ++i) {
-	    	var ovr = this.overlays[i];
-			if (ovr instanceof google.maps.InfoWindow) {
-			  ovr.close();
-			} else if (ovr instanceof google.maps.Polygon) {
-			  ovr.setVisible(false);				
-			} else {
-			  throw "unsupported or bad overlay type"; 
-			}
-  		}
-  	}  	
-  },
-
 
 
 };

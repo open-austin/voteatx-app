@@ -1,5 +1,4 @@
 require 'findit'
-require 'json'
 
 module FindIt
   module Feature
@@ -52,12 +51,10 @@ module FindIt
         @election = nil
         
         attr_accessor :marker 
-        attr_accessor :region
         
         def initialize(location, params = {})
           super
           @marker = params[:marker]
-          @region = params[:region]
         end
         
         def self.type
@@ -134,13 +131,9 @@ module FindIt
             :note => place[:notes],
             :origin => origin,
             :marker => place_marker(:EDAY, is_open),
-            :region => JSON.parse(district[:region])["coordinates"].first)
+            :region => FindIt::Asset::MapRegion.new(district[:region]))
         end   
         
-        def to_h
-          super.merge(:region => @region).freeze
-        end
-          
       end # class AbstractEdayVotingPlace
       
       

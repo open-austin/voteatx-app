@@ -1,5 +1,6 @@
 require 'findit/asset/image'
 require 'findit/asset/map-marker'
+require 'findit/asset/map-region'
 require 'findit/location'
 
 module FindIt
@@ -69,6 +70,9 @@ module FindIt
     # origin point to this feature.
     attr_reader :distance
     
+    # TODO - document me
+    attr_accessor :region
+    
     
     #
     # Construct a new feature.
@@ -105,6 +109,7 @@ module FindIt
     # * :zip => String
     # * :link => String
     # * :note => String
+    # * :region => FindIt::Asset::MapRegion
     #
     def initialize(location, params = {})
       [:title, :address, :city, :state].each do |p|
@@ -119,6 +124,7 @@ module FindIt
       @zip = params[:zip] if params.has_key?(:zip)
       @link = params[:link] if params.has_key?(:link)
       @note = params[:note] if params.has_key?(:note)
+      @region = params[:region] if params.has_key?(:region)        
       @distance = if params.has_key?(:distance)
         params[:distance]
       elsif params.has_key?(:origin)
@@ -240,7 +246,7 @@ module FindIt
 
     # Produce a Hash that represents the feature values.
     def to_h
-      {    
+      ret = {    
         :type => self.class.type,
         :title => @title,
         :name => @name,
@@ -255,7 +261,9 @@ module FindIt
         :distance => @distance,
         :hint => self.hint,
         :info => self.info,
-      }.merge(self.marker.to_h).freeze
+      }.merge(self.marker.to_h)
+      ret[:region] = @region.to_h if @region
+      ret.freeze
     end
     
   end
