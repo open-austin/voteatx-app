@@ -8,7 +8,6 @@ function inherit(m) {
   return new o();
 }
 
-
 /**
  * Class to find and map features around Austin.
  *
@@ -194,11 +193,18 @@ FindIt.methods = {
       });
     		  
       this.oms.addListener('click', function(marker) {
-        that.activateInfoWindow(marker);
+        if (that.last_marker_opened != null) {
+          that.last_marker_opened.close_overlays();
+        }
+    	marker.open_overlays();
+	    that.last_marker_opened = marker;    		  
       });
       
       this.oms.addListener('spiderfy', function(markers) {
-    	  that.closeActiveInfoWindow();    	  
+    	  if (that.last_marker_opened != null) {
+    	    that.last_marker_opened.close_overlays();
+    	    that.last_marker_opened = null;    		  
+    	  }
       });
             
       var mapClickCallBack = function(event) {
@@ -282,8 +288,11 @@ FindIt.methods = {
         shadow: shadow,
         draggable: true,
         title: "You are here",
-        info_window: this.makeInfoWindow("<b>You are here</b>")
     });    
+
+    this.addOverlayMethods(marker);    
+    marker.add_overlay(this.makeInfoWindow("<b>You are here</b>"));
+    
     this.oms.addMarker(marker);
 
     var dragCallBack = function(event) {
@@ -492,8 +501,10 @@ FindIt.methods = {
       title: feature.hint,
     });
     
+    this.addOverlayMethods(marker);
+    
     if (feature.info != null) {
-    	marker.info_window = this.makeInfoWindow(feature.info);    	
+    	marker.add_overlay(this.makeInfoWindow(feature.info));
     }
     
     if (feature.region != null) {
@@ -501,16 +512,16 @@ FindIt.methods = {
       for (var i = 0 ; i < feature.region.length ; ++i) {
     	  path.push(new google.maps.LatLng(feature.region[i][1], feature.region[i][0]));    	  
       }
-      marker.region = new google.maps.Polygon({
+      marker.add_overlay(new google.maps.Polygon({
     	map: this.map,
         paths: path,
-        strokeColor: "green",
-        strokeOpacity: 0.7,
-        strokeWeight: 2,
-        fillColor: "green",
-        fillOpacity: 0.2,
+        strokeColor: "purple",
+        strokeOpacity: 0.8,
+        strokeWeight: 3,
+        fillColor: "purple",
+        fillOpacity: 0.3,
         visible: false,
-      });
+      }));
     }
     
     this.oms.addMarker(marker);
@@ -518,6 +529,47 @@ FindIt.methods = {
     this.feature_markers.push(marker);
     return marker;
   },
+  
+
+  /**
+   * TODO - document me
+   */
+  addOverlayMethods : function(marker) {
+  	marker.overlays = [];
+  	
+  	marker.add_overlay = function(overlay) {
+  		this.overlays.push(overlay);
+  	}
+  	
+  	marker.open_overlays = function() {
+  		var that = this;
+        for (var i = 0 ; i < this.overlays.length ; ++i) {
+	    	var ovr = this.overlays[i];
+			if (ovr instanceof google.maps.InfoWindow) {
+			  ovr.open(that.getMap(), that);
+			} else if (ovr instanceof google.maps.Polygon) {
+			  ovr.setVisible(true);				
+			} else {
+			  throw "unsupported or bad overlay type"; 
+			}
+  		}
+  	}
+  	
+  	marker.close_overlays = function() {
+  		var that = this;
+        for (var i = 0 ; i < this.overlays.length ; ++i) {
+	    	var ovr = this.overlays[i];
+			if (ovr instanceof google.maps.InfoWindow) {
+			  ovr.close();
+			} else if (ovr instanceof google.maps.Polygon) {
+			  ovr.setVisible(false);				
+			} else {
+			  throw "unsupported or bad overlay type"; 
+			}
+  		}
+  	}  	
+  },
+
 
 
 };
