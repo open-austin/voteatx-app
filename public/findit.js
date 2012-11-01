@@ -262,7 +262,8 @@ FindIt.methods = {
       },
       draggable: true,
       hint: "You are here.",
-      info: "<b>You are here.</b>",
+      info: "<b>You are here.</b>" +
+      	"<p>To change location: drag the marker,<br />click on the map, or type address<br />in the field at bottom of screen.</p>",
     });
 
     google.maps.event.addListener(marker, 'dragend', function(event) {
