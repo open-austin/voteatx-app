@@ -1,5 +1,5 @@
 require 'rubygems'
 require 'sinatra'
 
-load "./bin/findit-svc"
+load "./bin/voteatx-svc"
 run Sinatra::Application
