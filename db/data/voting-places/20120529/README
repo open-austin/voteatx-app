@@ -1,0 +1,5 @@
+The "GA12-May_12_EDay_Polling_Places_Guide_Final.xls", file is the source
+to a PDF "voting place" document published by Travis County. I extracted
+the locations and did a batch geolocation to obtain the resulting
+dataset. The quality is poor: there are locations with missing lat/lng
+information and locations with wrong lat/lng inforation.
