@@ -5,18 +5,48 @@ module VoteATX
 
     class Base
 
+      attr_reader :origin, :location, :type, :title, :name, :address,
+        :city, :state, :zip, :link, :note, :is_open, :marker, :region
+
       def initialize(params)
-        @params = params
+        p = params.dup
+        @origin = p.delete(:origin) or raise "required VoteATX::VotingPlace attribute \":origin\" not specified"
+        @location = p.delete(:location) or raise "required VoteATX::VotingPlace attribute \":location\" not specified"
+        @type = p.delete(:type) or raise "required VoteATX::VotingPlace attribute \":type\" not specified"
+        @title = p.delete(:title) or raise "required VoteATX::VotingPlace attribute \":title\" not specified"
+        @name = p.delete(:name) or raise "required VoteATX::VotingPlace attribute \":name\" not specified"
+        @address = p.delete(:address) or raise "required VoteATX::VotingPlace attribute \":address\" not specified"
+        @city = p.delete(:city) or raise "required VoteATX::VotingPlace attribute \":city\" not specified"
+        @state = p.delete(:state) or raise "required VoteATX::VotingPlace attribute \":state\" not specified"
+        @zip = p.delete(:zip) or raise "required VoteATX::VotingPlace attribute \":zip\" not specified"
+        @link = p.delete(:link) or raise "required VoteATX::VotingPlace attribute \":link\" not specified"
+        @note = p.delete(:note) or raise "required VoteATX::VotingPlace attribute \":note\" not specified"
+        @is_open = p.delete(:is_open)
+        @marker = p.delete(:marker) or raise "required VoteATX::VotingPlace attribute \":marker\" not specified"
+        @region = p.delete(:region)
       end
 
       def to_h
-        Hash[
-          @params.to_a.map do |a|
-            key, value = a
-            [ key, value.respond_to?(:to_h) ? value.to_h : value ]
-          end
-        ]
+        h = {
+          :latitude => @location.lat,
+          :longitude => @location.lng,
+          :type => @type,
+          :title => @title,
+          :name => @name,
+          :address => @address,
+          :city => @city,
+          :state => @state,
+          :zip => @zip,
+          :link => @link,
+          :note => @note,
+          :is_open => @is_open,
+          :marker => @marker.marker.to_h,
+          :shadow => @marker.shadow.to_h,
+        }
+        h[:region] = @region.to_h if @region
+        h
       end
+
 
       def self.place_marker(type, is_open)
 

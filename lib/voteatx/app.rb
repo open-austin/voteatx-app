@@ -1,53 +1,45 @@
-require 'logger'
 require 'findit-support'
 
 require_relative './voting-place.rb'
 
 module VoteATX
 
-  #
   # Implementation of the VoteATX application.
   #
-  # Example usage:
-  #
-  #    require "findit/app"
-  #    findit = VoteATX::App.new
-  #    features = findit.nearby(latitude, longitude))
+  #    require "voteatx/app"
+  #    app = VoteATX::App.new
+  #    voting_places = app.search(latitude, longitude))
   #
   class App
-    
-    DATABASE = File.dirname(__FILE__) + "/voteatx.db"
-      
-    # Features further than this distance (in miles) away from
-    # the current location will be filtered out of results.
-    #
-    # Default value used when constructing a new VoteATX::App instance.
-    #
-    MAX_DISTANCE = 12    
 
-    # XXX document me
+    # Default path to the VoteATX database.
+    DATABASE = VoteATX::BASEDIR + '/db/voteatx.db'
+
+    # Default max distance (in miles) from current location.
+    #
+    # Results will include only voting places within this distance.
+    #
+    MAX_DISTANCE = 12
+
+    # FIXME - this is not properly implemented yet
     #
     MAX_PLACES = 3
 
     # Construct a new VoteATX app instance.
+    #
     # Options:
+    # * :database
     # * :max_distance
     # * :max_places
-    # * :database
+    #
     def initialize(options = {})
-  
-      @log = Logger.new($stderr)
-      @log.level = Logger::DEBUG    
-
-      @max_distance = options[:max_distance] || MAX_DISTANCE    
-      @max_places = options[:max_places] || MAX_PLACES    
+      @max_distance = options[:max_distance] || MAX_DISTANCE
+      @max_places = options[:max_places] || MAX_PLACES
       @database = options[:database] || DATABASE
-
       @db = Sequel.spatialite(@database)
-
     end
-    
-    
+
+
     # Search for features near a given location.
     #
     # Parameters:
@@ -67,6 +59,6 @@ module VoteATX
       ret += VoteATX::VotingPlace::Early.search(@db, origin, :max_distance => @max_distance, :max_places => @max_places, :time => t)
       ret
     end
- 
+
   end # module App
 end # module VoteATX

@@ -31,7 +31,7 @@ function FindIt(map_id, opts) {
   /**
    * REST endpoint for the Find It Nearby web service.
    */
-  r.svc_endpoint = opts.svc_endpoint || (document.URL.replace(/\/[^\/]*$/, "") + "/svc/nearby");
+  r.svc_endpoint = opts.svc_endpoint || (document.URL.replace(/\/[^\/]*$/, "") + "/svc/search");
 
   /**
    * The google.maps.Map we are building.
@@ -335,8 +335,9 @@ FindIt.methods = {
       return;
     }
 
-    for (type in nearby_features) {
-      this.feature_markers.push(this.makeMarker(nearby_features[type]));
+    for (var i = 0 ; i < nearby_features.length ; ++i) {
+      var o = nearby_features[i];
+      this.feature_markers.push(this.makeMarker(o));
     }
 
     this.send_event("COMPLETE");

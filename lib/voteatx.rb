@@ -1,20 +1,19 @@
 require 'rubygems'
 require 'bundler/setup' 
-
 require 'sinatra/base'
 require 'sinatra/jsonp'
-require 'uri'
-require 'json'
+
+module VoteATX
+  BASEDIR = File.dirname(__FILE__) + '/..'
+end
 
 require_relative './voteatx/app.rb'
 
-
 module VoteATX
+
   class Service < Sinatra::Base   
 
     @@app = VoteATX::App.new
-
-    BASEDIR = File.dirname(__FILE__) + '/..'
 
     set :public_folder, BASEDIR + '/public'
 
@@ -27,7 +26,9 @@ module VoteATX
     end
 
     before do
-      @params = request.env['rack.request.query_hash']
+      @params = {}
+      @params.merge!(request.env['rack.request.form_hash'] || {})
+      @params.merge!(request.env['rack.request.query_hash'] || {})
     end
        
     get '/' do
@@ -41,9 +42,8 @@ module VoteATX
     end
 
     post '/svc/search' do
-      a = URI.decode_www_form(request.body.read)
-      lat = (a.assoc('latitude') || []).last
-      lng = (a.assoc('longitude') || []).last
+      lat = @params['latitude']
+      lng = @params['longitude']
       send_result @@app.search(lat.to_f, lng.to_f)
     end
 
