@@ -1,24 +1,18 @@
 #!/usr/bin/env -- ruby
-
-BASEDIR = File.dirname(__FILE__) + "/../../../../../.."
-$:.insert(0, BASEDIR + "/lib")
-
-DATABASE = BASEDIR + "/lib/findit/feature/data/findit.sqlite"
   
+require 'rubygems'
+require 'bundler'
+Bundler.setup
+require 'findit-support'
 require 'logger'
 require 'csv'
-require 'findit'
 
-@log = Logger.new($stderr)
-@log.level = Logger::INFO
-#@log.level = Logger::DEBUG
-
-@db = FindIt::Database.connect(DATABASE, :spatialite => "/usr/lib/libspatialite.so.3", :log => @log)
+DATABASE = "voteatx.db"
 
 INFILE = {
-  :EDAY => "20121106-chipG12_WEBLoad_FINAL_EDay.csv",
-  :EVFIXED => "20121106-chipG12_WEBLoad_FINAL_EVPerm.csv",
-  :EVMOBILE => "20121106-chipG12_WEBLoad_FINAL_EVMobile.csv",
+  :EDAY => "20121106_WEBLoad_FINAL_EDay.csv",
+  :EVFIXED => "20121106_WEBLoad_FINAL_EVPerm.csv",
+  :EVMOBILE => "20121106_WEBLoad_FINAL_EVMobile.csv",
 }
 
 ELECTION_DESCRIPTION = "For the Nov 6, 2012 general election in Travis County."
@@ -50,6 +44,12 @@ INFO_LINK = {
 
 RANGE_LNG = Range.new(-98.056777, -97.407671)
 RANGE_LAT = Range.new(30.088999, 30.571213)
+
+@log = Logger.new($stderr)
+@log.level = Logger::INFO
+#@log.level = Logger::DEBUG
+
+@db = Sequel.spatialite(DATABASE)
 
 ############################################################################
 #
