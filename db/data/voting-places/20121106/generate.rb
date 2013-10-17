@@ -1,5 +1,5 @@
 #!/usr/bin/env -- ruby
-  
+
 require 'rubygems'
 require 'bundler'
 Bundler.setup
@@ -7,49 +7,82 @@ require 'findit-support'
 require 'logger'
 require 'csv'
 
+LOG_DEBUG = false
+
 DATABASE = "voteatx.db"
 
-INFILE = {
-  :EDAY => "20121106_WEBLoad_FINAL_EDay.csv",
-  :EVFIXED => "20121106_WEBLoad_FINAL_EVPerm.csv",
-  :EVMOBILE => "20121106_WEBLoad_FINAL_EVMobile.csv",
+DESCRIPTION = "For the Nov 6, 2012 general election in Travis County."
+ELECTION_DAY_VOTING_PLACES = true
+INFO_LINK = "http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4"
+
+CONFIG_ELECTION_DAY = {
+  :input => "20121106_WEBLoad_FINAL_EDay.csv",
+  :hours => [Time.new(2012, 11, 6, 7, 0) ..  Time.new(2012, 11, 6, 19, 0)],
 }
 
-ELECTION_DESCRIPTION = "For the Nov 6, 2012 general election in Travis County."
-
-ALLOW_ANY_VOTING_PLACE_ON_ELECTION_DAY = true
-ELECTION_DAY_OPENS = Time.new(2012, 11, 6, 7, 0)
-ELECTION_DAY_CLOSES = Time.new(2012, 11, 6, 19, 0)
-ELECTION_DAY_SCHEDULE_TYPE = "E"
-
-EVFIXED_SCHEDULE = {
-  "R" => [    
-    "Mon, Oct 22 - Sat, Oct 27: 7am - 7pm",
-    "Sun, Oct 28: noon - 6pm",
-    "Mon, Oct 29 - Fri, Nov 2: 7am - 7pm",
-  ],
-  "V" => [
-    "Mon, Oct 22 - Sat, Oct 27: 7am - 7pm",
-    "Sun, Oct 28: noon - 6pm",
-    "Mon, Oct 29 - Tue, Oct 30: 7am - 7pm",
-    "Wed, Oct 31 - Fri, Nov 2: 7am - 9pm",
-  ],
+CONFIG_EARLY_VOTING_FIXED = {
+  :input => "20121106_WEBLoad_FINAL_EVPerm.csv",
+  :hours_by_code => {
+    'R' => [
+      Time.new(2012, 10, 22,  7, 0) .. Time.new(2012, 10, 22, 19, 0),
+      Time.new(2012, 10, 23,  7, 0) .. Time.new(2012, 10, 23, 19, 0),
+      Time.new(2012, 10, 24,  7, 0) .. Time.new(2012, 10, 24, 19, 0),
+      Time.new(2012, 10, 25,  7, 0) .. Time.new(2012, 10, 25, 19, 0),
+      Time.new(2012, 10, 26,  7, 0) .. Time.new(2012, 10, 26, 19, 0),
+      Time.new(2012, 10, 27,  7, 0) .. Time.new(2012, 10, 27, 19, 0),
+      Time.new(2012, 10, 28, 12, 0) .. Time.new(2012, 10, 28, 18, 0),
+      Time.new(2012, 10, 29,  7, 0) .. Time.new(2012, 10, 20, 19, 0),
+      Time.new(2012, 10, 30,  7, 0) .. Time.new(2012, 10, 30, 19, 0),
+      Time.new(2012, 10, 31,  7, 0) .. Time.new(2012, 10, 31, 19, 0),
+      Time.new(2012, 11,  1,  7, 0) .. Time.new(2012, 11,  1, 19, 0),
+      Time.new(2012, 11,  2,  7, 0) .. Time.new(2012, 11,  2, 19, 0),
+    ],
+    'V' => [
+      Time.new(2012, 10, 22,  7, 0) .. Time.new(2012, 10, 22, 19, 0),
+      Time.new(2012, 10, 23,  7, 0) .. Time.new(2012, 10, 23, 19, 0),
+      Time.new(2012, 10, 24,  7, 0) .. Time.new(2012, 10, 24, 19, 0),
+      Time.new(2012, 10, 25,  7, 0) .. Time.new(2012, 10, 25, 19, 0),
+      Time.new(2012, 10, 26,  7, 0) .. Time.new(2012, 10, 26, 19, 0),
+      Time.new(2012, 10, 27,  7, 0) .. Time.new(2012, 10, 27, 19, 0),
+      Time.new(2012, 10, 28, 12, 0) .. Time.new(2012, 10, 28, 18, 0),
+      Time.new(2012, 10, 29,  7, 0) .. Time.new(2012, 10, 29, 19, 0),
+      Time.new(2012, 10, 30,  7, 0) .. Time.new(2012, 10, 30, 19, 0),
+      Time.new(2012, 10, 31,  7, 0) .. Time.new(2012, 10, 31, 21, 0),
+      Time.new(2012, 11,  1,  7, 0) .. Time.new(2012, 11,  1, 21, 0),
+      Time.new(2012, 11,  2,  7, 0) .. Time.new(2012, 11,  2, 21, 0),
+    ],
+  },
+  :schedule_formatted_by_code => {
+    'R' => [
+      "Hours of operation:",
+      "\u2022 Mon, Oct 22 - Sat, Oct 27: 7am - 7pm",
+      "\u2022 Sun, Oct 28: noon - 6pm",
+      "\u2022 Mon, Oct 29 - Fri, Nov 2: 7am - 7pm",
+    ],
+    'V' => [
+      "Hours of operation:",
+      "\u2022 Mon, Oct 22 - Sat, Oct 27: 7am - 7pm",
+      "\u2022 Sun, Oct 28: noon - 6pm",
+      "\u2022 Mon, Oct 29 - Tue, Oct 30: 7am - 7pm",
+      "\u2022 Wed, Oct 31 - Fri, Nov 2: 7am - 9pm",
+    ],
+  },
 }
 
-INFO_LINK = {
-  :EDAY => "http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4",
-  :EVFIXED => "http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4",
-  :EVMOBILE => "http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4",
+CONFIG_EARLY_VOTING_MOBILE = {
+  :input => "20121106_WEBLoad_FINAL_EVMobile.csv",
 }
+
 
 RANGE_LNG = Range.new(-98.056777, -97.407671)
 RANGE_LAT = Range.new(30.088999, 30.571213)
 
 @log = Logger.new($stderr)
-@log.level = Logger::INFO
-#@log.level = Logger::DEBUG
+@log.level = (LOG_DEBUG ? Logger::DEBUG : Logger::INFO)
 
 @db = Sequel.spatialite(DATABASE)
+@db.logger = @log
+@db.sql_log_level = :debug
 
 ############################################################################
 #
@@ -76,6 +109,29 @@ class NilClass
     nil
   end
 end
+
+class Notes
+
+  def initialize
+    @notes = ["", DESCRIPTION]
+  end
+
+  def <<(stuff)
+    @notes << ""
+    case stuff
+    when Array
+      @notes += stuff
+    else
+      @notes << stuff
+    end
+  end
+
+  def to_s
+    @notes.join("\n")
+  end
+
+end
+
 
 def cleanup_row(row)
   row.each {|k,v| row[k] = v.cleanup}
@@ -107,128 +163,73 @@ end
 def get_datetimes(row)
   mm, dd, yyyy = get_date(row, "Date")
   start_hh, start_mm = get_time(row, "Start Time")
-  end_hh, end_mm = get_time(row, "End Time") 
+  end_hh, end_mm = get_time(row, "End Time")
   [Time.local(yyyy, mm, dd, start_hh, start_mm), Time.local(yyyy, mm, dd, end_hh, end_mm)]
 end
 
-# Format time range like: "* Sun, Oct 28: noon - 6pm"
-def time_range(t1, t2)
-  s1 = t1.strftime("%a, %b %-d: %-l:%M%P").sub(/:00([ap]m)/, "\\1").sub(/12am/, 'midnight').sub(/12pm/, 'noon')
-  s2 = t2.strftime("%-l:%M%P").sub(/:00([ap]m)/, "\\1").sub(/12am/, 'midnight').sub(/12pm/, 'noon')
-  "#{s1} - #{s2}"
+def format_start_time(t)
+  t.strftime("%a, %b %-d: %-l:%M%P").sub(/:00([ap]m)/, "\\1").sub(/12am/, 'midnight').sub(/12pm/, 'noon')
 end
 
-# Initialize a list of strings that will be used to create the "notes" field.
-def init_notes
-  ["", ELECTION_DESCRIPTION].dup
+def format_end_time(t)
+    t.strftime("%-l:%M%P").sub(/:00([ap]m)/, "\\1").sub(/12am/, 'midnight').sub(/12pm/, 'noon')
+end
+
+def format_schedule_line(h, leader = "\u2022 ", separator = " - ")
+    leader + format_start_time(h.first) + separator + format_end_time(h.last)
+end
+
+def format_schedule(hours, title = "Hours of operation:")
+  [title] + hours.map {|h| format_schedule_line(h)}
 end
 
 
 def create_tables
-  
-  @log.info("creating table \"travis_co_tx_us_voting_locations\" ...")
-  @db.create_table :travis_co_tx_us_voting_locations do
+
+  @log.info("creating table \"voting_locations\" ...")
+  @db.create_table :voting_locations do
     primary_key :id
     String :name, :size => 20, :null => false
     String :street, :size => 40, :null => false
     String :city, :size => 20, :null => false
     String :state, :size=> 2, :null => false
     String :zip, :size => 10, :null => false
-  end  
-  rc = @db.get{AddGeometryColumn('travis_co_tx_us_voting_locations', 'geometry', 4326, 'POINT', 'XY')}
+  end
+  rc = @db.get{AddGeometryColumn('voting_locations', 'geometry', 4326, 'POINT', 'XY')}
   raise "AddGeometryColumn failed (rc=#{rc})" unless rc == 1
-  rc = @db.get{CreateSpatialIndex('travis_co_tx_us_voting_locations', 'geometry')}
+  rc = @db.get{CreateSpatialIndex('voting_locations', 'geometry')}
   raise "CreateSpatialIndex failed (rc=#{rc})" unless rc == 1
-  
-  @log.info("creating table \"travis_co_tx_us_voting_eday_places\" ...")
-  @db.create_table :travis_co_tx_us_voting_eday_places do
+
+  @log.info("creating table \"voting_schedules\" ...")
+  @db.create_table :voting_schedules do
     primary_key :id
-    Integer :precinct, :unique => true, :null => false
-    foreign_key :location_id, :travis_co_tx_us_voting_locations, :null => false
-    String :schedule_type, :size => 1, :null => false
-    String :link, :size => 80, :null => false
-    Text :notes
-  end
-  
-  @log.info("creating table \"travis_co_tx_us_voting_evfixed_places\" ...")
-  @db.create_table :travis_co_tx_us_voting_evfixed_places do
-    primary_key :id
-    foreign_key :location_id, :travis_co_tx_us_voting_locations, :null => false
-    String :schedule_type, :size => 1, :null => false
-    String :link, :size => 80, :null => false
-    Text :notes
   end
 
-  @log.info("creating table \"travis_co_tx_us_voting_schedules_by_type\" ...")
-  @db.create_table :travis_co_tx_us_voting_schedules_by_type do
+  @log.info("creating table \"voting_schedule_entries\" ...")
+  @db.create_table :voting_schedule_entries do
     primary_key :id
-    String :type, :size => 1, :null => false, :index => true
+    foreign_key :schedule_id, :voting_schedules, :null => false
     DateTime :opens, :null => false, :index => true
     DateTime :closes, :null => false, :index => true
   end
-  
-  add_sched = proc do |type, year, mon, day, hour_opens, min_opens, hour_closes,  min_closes|  
-    @db[:travis_co_tx_us_voting_schedules_by_type] <<  {
-      :type => type,
-      :opens => Time.new(year, mon, day, hour_opens, min_opens),
-      :closes => Time.new(year, mon, day, hour_closes, min_closes)
-    }
-  end
-  
-  # election day
-  add_sched.call(ELECTION_DAY_SCHEDULE_TYPE,
-                      2012, 11,  6,  7, 0, 19, 0)  
 
-  # early voting place type "R"
-  add_sched.call("R", 2012, 10, 22,  7, 0, 19, 0)
-  add_sched.call("R", 2012, 10, 23,  7, 0, 19, 0)
-  add_sched.call("R", 2012, 10, 24,  7, 0, 19, 0)
-  add_sched.call("R", 2012, 10, 25,  7, 0, 19, 0)
-  add_sched.call("R", 2012, 10, 26,  7, 0, 19, 0)
-  add_sched.call("R", 2012, 10, 27,  7, 0, 19, 0)
-  add_sched.call("R", 2012, 10, 28, 12, 0, 18, 0)
-  add_sched.call("R", 2012, 10, 29,  7, 0, 19, 0)
-  add_sched.call("R", 2012, 10, 30,  7, 0, 19, 0)
-  add_sched.call("R", 2012, 10, 31,  7, 0, 19, 0)
-  add_sched.call("R", 2012, 11,  1,  7, 0, 19, 0)
-  add_sched.call("R", 2012, 11,  2,  7, 0, 19, 0)
-
-  # early voting place type "R"
-  add_sched.call("V", 2012, 10, 22,  7, 0, 19, 0)
-  add_sched.call("V", 2012, 10, 23,  7, 0, 19, 0)
-  add_sched.call("V", 2012, 10, 24,  7, 0, 19, 0)
-  add_sched.call("V", 2012, 10, 25,  7, 0, 19, 0)
-  add_sched.call("V", 2012, 10, 26,  7, 0, 19, 0)
-  add_sched.call("V", 2012, 10, 27,  7, 0, 19, 0)
-  add_sched.call("V", 2012, 10, 28, 12, 0, 18, 0)
-  add_sched.call("V", 2012, 10, 29,  7, 0, 19, 0)
-  add_sched.call("V", 2012, 10, 30,  7, 0, 19, 0)
-  add_sched.call("V", 2012, 10, 31,  7, 0, 21, 0)
-  add_sched.call("V", 2012, 11,  1,  7, 0, 21, 0)
-  add_sched.call("V", 2012, 11,  2,  7, 0, 21, 0)
-
-  @log.info("creating table \"travis_co_tx_us_voting_evmobile_places\" ...")
-  @db.create_table :travis_co_tx_us_voting_evmobile_places do
+  @log.info("creating table \"voting_places\" ...")
+  @db.create_table :voting_places do
     primary_key :id
-    foreign_key :location_id, :travis_co_tx_us_voting_locations, :null => false
+    String :place_type, :size => 16, :null => false
+    Integer :precinct, :unique => true, :null => true
+    foreign_key :location_id, :voting_locations, :null => false
+    foreign_key :schedule_id, :voting_schedules, :null => false
     String :link, :size => 80, :null => false
     Text :notes
-  end
-  
-  @log.info("creating table \"travis_co_tx_us_voting_evmobile_schedules\" ...")
-  @db.create_table :travis_co_tx_us_voting_evmobile_schedules do
-    primary_key :id
-    foreign_key :place_id, :travis_co_tx_us_voting_evmobile_places
-    DateTime :opens, :null => false, :index => true
-    DateTime :closes, :null => false, :index => true
   end
 
 end
 
 
-def make_location(row)  
+def make_location(row)
   ensure_not_empty(row, "Name", "Address", "City", "Zipcode", "Longitude", "Latitude")
-  
+
   name = row["Name"].sub(/^Combined\s+@\s+\d+\s+/, "")
 
   zip = row["Zipcode"]
@@ -238,16 +239,16 @@ def make_location(row)
   raise "required column \"#{"Longitude"}\" not defined: #{row}" if v.empty?
   lng = v.to_f
   raise "longitude \"#{lng}\" outside of expected range (#{RANGE_LNG}): #{row}" unless RANGE_LNG.include?(lng)
-  
+
   v = row["Latitude"]
   raise "required column \"#{"Latitude"}\" not defined: #{row}" if v.empty?
   lat = v.to_f
   raise "latitude \"#{lat}\" outside of expected range (#{RANGE_LAT}): #{row}" unless RANGE_LAT.include?(lat)
-  
-  loc = @db[:travis_co_tx_us_voting_locations] \
+
+  loc = @db[:voting_locations] \
     .filter{ST_Equals(:geometry, MakePoint(lng, lat, 4326))} \
     .fetch_one
-  
+
   rec = {
     :name => name,
     :street => row["Address"],
@@ -256,23 +257,38 @@ def make_location(row)
     :zip => zip,
     :geometry => Sequel.function(:MakePoint, lng, lat, 4326),
   }
-  
+
   if loc
     [:name, :street, :city, :state, :zip].each do |field|
       if loc[field] != rec[field]
         @log.warn("voting_locations(id #{loc[:id]}): inconsistent \"#{field}\" values [\"#{loc[field]}\", \"#{rec[field]}\"]")
       end
     end
-    loc[:id]    
-  else    
+    loc[:id]
+  else
     @log.debug("voting_locations: creating: #{rec}")
-    @db[:travis_co_tx_us_voting_locations].insert(rec)
-  end  
-  
+    @db[:voting_locations].insert(rec)
+  end
+
 end
 
 
-# Process CSV containing day-of-election voting places.
+def make_schedule(hours)
+  id = @db[:voting_schedules].insert({})
+  hours.each {|e| add_schedule_entry(id, e)}
+  id
+end
+
+def add_schedule_entry(id, hours_entry)
+  @db[:voting_schedule_entries] << {
+    :schedule_id => id,
+    :opens => hours_entry.first,
+    :closes => hours_entry.last,
+  }
+  id
+end
+
+
 #
 # Example record:
 #   <CSV::Row
@@ -291,43 +307,50 @@ end
 #     "Type":"ED"
 #     "Hours":"R"
 #     "Election Code":"G12">
-def load_eday_places(fname)
-  @log.info("reading input file \"#{fname}\" ...")
-  CSV.foreach(fname, :headers => true) do |row|  
-    
+def load_eday_places(config)
+  @log.info("reading input file \"#{config[:input]}\" ...")
+
+  # Create schedule record for election day.
+  schedule_id = make_schedule(config[:hours])
+
+  # Ensure there is a formatted schedule string for election day.
+  schedule_formatted = config[:schedule_formatted] || format_schedule(config[:hours])
+
+  CSV.foreach(config[:input], :headers => true) do |row|
+
     cleanup_row(row)
-    
+
     precinct = row["Pct."].to_i
     raise "failed to parse precinct from: #{row}" if precinct == 0
-    
-    location_id = make_location(row)  
-  
-    notes = init_notes
-    
-    if ALLOW_ANY_VOTING_PLACE_ON_ELECTION_DAY  
-      notes << ""
-      notes << "NOTE: For this election, you can vote at your regular home precinct"
-      notes << "or ANY OTHER Travis County polling place."
+
+    location_id = make_location(row)
+
+    notes = Notes.new
+
+    if ELECTION_DAY_VOTING_PLACES
+      notes << [
+        "NOTE: For this election, you can vote at your regular home precinct",
+        "or ANY OTHER Travis County polling place.",
+      ]
     end
-  
-    notes << ""
-    notes << "Hours of operation: " + time_range(ELECTION_DAY_OPENS, ELECTION_DAY_CLOSES)
-    
+
+    notes << schedule_formatted
+
     unless row["Combined Pcts."].empty?
-      a = [precinct] + row["Combined Pcts."].split(",").map {|s| s.to_i}  
-      notes << ""
+      a = [precinct] + row["Combined Pcts."].split(",").map {|s| s.to_i}
       notes << "Combined precincts " + a.sort.join(", ")
     end
-    
+
     @log.debug("load_eday_places: creating: precinct=#{precinct} location_id=#{location_id}")
-    @db[:travis_co_tx_us_voting_eday_places] << {
+    @db[:voting_places] << {
+      :place_type => "ELECTION_DAY",
       :precinct => precinct,
       :location_id => location_id,
-      :schedule_type => ELECTION_DAY_SCHEDULE_TYPE,
-      :link => INFO_LINK[:EDAY],
-      :notes => notes.join("\n"),
+      :schedule_id => schedule_id,
+      :link => INFO_LINK,
+      :notes => notes.to_s,
     }
-  
+
   end
 end
 
@@ -346,31 +369,42 @@ end
 #     "Type":"EV"
 #     "Hours":"R"
 #     "Election Code":"G12">
-def load_evfixed_places(fname)
-  @log.info("reading input file \"#{fname}\" ...")
-  CSV.foreach(fname, :headers => true) do |row|
-    
+def load_evfixed_places(config)
+  @log.info("reading input file \"#{config[:input]}\" ...")
+
+  # Create schedule records and formatted displays for early voting schedules.
+  valid_schedule_code = {}
+  schedule_id_by_code = {}
+  schedule_formatted_by_code = config[:schedule_formatted_by_code] || {}
+  config[:hours_by_code].each do |code, hours|
+    valid_schedule_code[code] = true
+    schedule_id_by_code[code] = make_schedule(hours)
+    schedule_formatted_by_code[code] ||= format_schedule(hours)
+  end
+
+  CSV.foreach(config[:input], :headers => true) do |row|
+
     cleanup_row(row)
-        
+
+    schedule_code = row["Hours"]
+    unless valid_schedule_code[schedule_code]
+      raise "unknown schedule code \"#{schedule_code}\": #{row}"
+    end
+
     location_id = make_location(row)
-      
-    notes = init_notes 
-      
-    unless EVFIXED_SCHEDULE.has_key?(row["Hours"])
-        raise "unknown \"Hours\" code \"#{row['Hours']}\": #{row}"    
-    end  
-    notes << ""
-    notes << "Hours of operation:"
-    notes += EVFIXED_SCHEDULE[row["Hours"]].map {|s| "\u2022 " + s}
-  
+
+    notes = Notes.new
+    notes << schedule_formatted_by_code[schedule_code]
+
     @log.debug("places_early_fixed: creating: location_id=#{location_id}")
-    @db[:travis_co_tx_us_voting_evfixed_places] << {
+    @db[:voting_places] << {
+      :place_type => "EARLY_FIXED",
       :location_id => location_id,
-      :schedule_type => row["Hours"],
-      :link => INFO_LINK[:EVFIXED],
-      :notes => notes.join("\n"),
+      :schedule_id => schedule_id_by_code[schedule_code],
+      :link => INFO_LINK,
+      :notes => notes.to_s,
     }
-  
+
   end
 end
 
@@ -392,55 +426,49 @@ end
 #    "Type":"EM"
 #    "Hours":"V"
 #    "Election Code":"G12">
-def load_evmobile_places(fname)
-  @log.info("reading input file \"#{fname}\" ...")
-  places_evmobile_ungrouped = []
-  CSV.foreach(fname, :headers => true) do |row|  
-  
+def load_evmobile_places(config)
+  @log.info("reading input file \"#{config[:input]}\" ...")
+
+  CSV.foreach(config[:input], :headers => true) do |row|
+
     cleanup_row(row)
-    row["Address"] = row["Site Address"]    
+    row["Address"] = row["Site Address"]
 
     location_id = make_location(row)
-        
+
     opens, closes = get_datetimes(row)
-    
-    place = @db[:travis_co_tx_us_voting_evmobile_places] \
+
+    place = @db[:voting_places] \
+      .filter(:place_type => "EARLY_MOBILE") \
       .filter(:location_id => location_id) \
-      .fetch_one
-      
-    id = if place
-      place[:id]
-    else
-      @db[:travis_co_tx_us_voting_evmobile_places].insert({
+      .limit(1)
+
+    if place.empty?
+      schedule_id = make_schedule([opens..closes])
+      notes = Notes.new
+      notes << format_schedule([opens..closes])
+
+      @db[:voting_places] << {
+        :place_type => "EARLY_MOBILE",
         :location_id => location_id,
-        :link => INFO_LINK[:EVMOBILE],
-      })
+        :schedule_id => schedule_id,
+        :link => INFO_LINK,
+        :notes => notes.to_s
+      }
+    else
+      add_schedule_entry(place.get(:schedule_id), opens..closes)
+      notes = place.get(:notes) + "\n" + format_schedule_line(opens..closes)
+      place.update(:notes => notes)
     end
-    
-    @db[:travis_co_tx_us_voting_evmobile_schedules] << {
-      :place_id => id,
-      :opens => opens,
-      :closes => closes,
-    }  
-    
-  end  
-  
-  @db[:travis_co_tx_us_voting_evmobile_places].each do |place|
-    notes = init_notes 
-    notes << ""
-    notes << "Hours of operation:"    
-    @db[:travis_co_tx_us_voting_evmobile_schedules].filter(:place_id => place[:id]).order(:opens).each do |hours|
-      notes << "\u2022 " + time_range(hours[:opens], hours[:closes])
-    end
-    @db[:travis_co_tx_us_voting_evmobile_places].filter(:id => place[:id]).update(:notes => notes.join("\n"))
+
   end
-  
+
 end
 
 create_tables
-load_eday_places(INFILE[:EDAY])
-load_evfixed_places(INFILE[:EVFIXED])
-load_evmobile_places(INFILE[:EVMOBILE])
+load_eday_places(CONFIG_ELECTION_DAY)
+load_evfixed_places(CONFIG_EARLY_VOTING_FIXED)
+load_evmobile_places(CONFIG_EARLY_VOTING_MOBILE)
 @log.info("done")
 
 # vim:autoindent:shiftwidth=2:tabstop=2:expandtab
