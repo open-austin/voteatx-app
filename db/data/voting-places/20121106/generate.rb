@@ -9,8 +9,6 @@ require 'csv'
 
 LOG_DEBUG = false
 
-DATABASE = "voteatx.db"
-
 DESCRIPTION = "For the Nov 6, 2012 general election in Travis County."
 ELECTION_DAY_VOTING_PLACES = true
 INFO_LINK = "http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4"
@@ -73,14 +71,17 @@ CONFIG_EARLY_VOTING_MOBILE = {
   :input => "20121106_WEBLoad_FINAL_EVMobile.csv",
 }
 
-
 RANGE_LNG = Range.new(-98.056777, -97.407671)
 RANGE_LAT = Range.new(30.088999, 30.571213)
 
 @log = Logger.new($stderr)
 @log.level = (LOG_DEBUG ? Logger::DEBUG : Logger::INFO)
 
-@db = Sequel.spatialite(DATABASE)
+raise "usage: #{$0} database" unless ARGV.length == 1
+@database = ARGV.first
+raise "file \"#{@database}\" not found" unless File.exist?(@database)
+
+@db = Sequel.spatialite(@database)
 @db.logger = @log
 @db.sql_log_level = :debug
 
