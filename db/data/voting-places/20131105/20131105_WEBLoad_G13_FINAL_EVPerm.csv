@@ -2,7 +2,7 @@ Name,Address,City,Zipcode,Latitude,Longitude,Area of the City,Type,Hours,Locatio
 Ben Hur Shrine Center,7811 Rockwood Lane ,Austin,78757,30.35824,-97.738248,NC,EV,R,247,G13,1
 Carver Library and Museum Complex,1165 Angelina  Street ,Austin,78702,30.27017,-97.72414,E,EV,V1,339,G13,2
 "County Tax Office, Pflugerville",15822 Foothill Farms Loop ,Pflugerville,78660,30.44886,-97.65221,NE,EV,R,346,G13,3
-Dan Ruiz Public Library,1600 Grove Boulevard ,Austin,78741,30.229915,-97.706995,SE,EV,V2,424,G13,4
+Dan Ruiz Branch Public Library,1600 Grove Boulevard ,Austin,78741,30.229915,-97.706995,SE,EV,V2,424,G13,4
 Fiesta Mart Central,3909 North IH 35 ,Austin,78722,30.296147,-97.717745,E,EV,R,602,G13,5
 Fiesta Mart Stassney,5510 South IH 35 ,Austin,78745,30.200482,-97.764437,S,EV,R,620,G13,6
 Gus Garcia Recreation Center,1201 East Rundberg Lane ,Austin,78753,30.35258,-97.68208,NE,EV,V3,718,G13,7
@@ -11,10 +11,10 @@ Howson Branch Library,2500 Exposition Boulevard ,Austin,78703,30.2982,-97.7676,C
 Parque Zaragoza Recreation Center,2608 Gonzales Street ,Austin,78702,30.261746,-97.711565,E,EV,V5,1670,G13,13
 Randalls Ben White and Manchaca,2025 West Ben White Boulevard ,Austin,78704,30.229418,-97.790117,S,EV,R,1800,G13,14
 Randalls Brodie and Slaughter,9911 Brodie Lane ,Austin,78748,30.184057,-97.847993,S,EV,R,1830,G13,19
-Randalls Flagship at West Lake Hills,3300 Bee Cave Road ,Westlake Hills,78746,30.275376,-97.798812,W,EV,R,1803,G13,15
+Randalls Flagship at West Lake Hills,3300 Bee Cave Road ,West Lake Hills,78746,30.275376,-97.798812,W,EV,R,1803,G13,15
 Randalls Lakeway,2301 RR 620 South ,Lakeway,78734,30.341584,-97.966429,W,EV,R,1826,G13,18
 Randalls Research and Braker,10900-D Research Boulevard ,Austin,78759,30.401991,-97.747132,NW,EV,R,1805,G13,17
 Randalls South Mopac and William Cannon,6600 South Mopac Expressway ,Austin,78749,30.22278,-97.836277,SW,EV,R,1804,G13,16
 Randalls Steiner Ranch,5145 RM 620 North ,Austin,78732,30.389128,-97.884042,NW,EV,R,1847,G13,20
 Travis County Airport Blvd Offices,5501 Airport Boulevard ,Austin,78751,30.316062,-97.713196,C,EV,R,2035,G13,21
-"University of Texas, Flawn Academic Center",2400 Inner Campus Drive (On the West Mall) ,Austin,78713,30.286086,-97.74033,C,EV,R,2100,G13,22
+"University of Texas, Flawn Academic Center",2400 Inner Campus Drive (On the West Mall) ,Austin,78712,30.286086,-97.74033,C,EV,R,2100,G13,22

@@ -1,4 +1,16 @@
 require 'findit-support'
+require 'cgi'
+
+class String
+  def escape_html
+    CGI.escape_html(self)
+  end
+end
+class NilClass
+  def empty?
+    true
+  end
+end
 
 module VoteATX
   module VotingPlace
@@ -66,6 +78,42 @@ module VoteATX
         FindIt::Asset::MapMarker.new(graphic, :shadow => "icon_vote_shadow.png")
       end
 
+      def self.format_info(place)
+	info = []
+	info << "<b>" + place[:title].escape_html + "</b>"
+	info << "<i>" + @election_description.escape_html + "</i>"
+	info << ""
+	info << place[:location_formatted].escape_html
+	info << ""
+	info << "Hours of operation:"
+	info += place[:schedule_formatted].escape_html.split("\n").map {|s| "\u2022 " + s}
+	unless place[:notes].empty?
+	  info << ""
+	  info << place[:notes].escape_html
+	end
+	unless @election_info.empty?
+	  info << ""
+	  info << @election_info
+	end
+	info.join("\n")
+      end
+
+
+    def self.search_query(db, *conditions)
+
+      # Grab the election definitions for later use, if we haven't already
+      @election_description ||= db[:election_defs][:name => "ELECTION_DESCRIPTION"][:value]
+      @election_info ||= db[:election_defs][:name => "ELECTION_INFO"][:value]
+
+      db[:voting_places] \
+	.select_append(:voting_locations__formatted.as(:location_formatted)) \
+	.select_append(:voting_schedules__formatted.as(:schedule_formatted)) \
+	.filter(conditions) \
+	.join(:voting_locations, :id => :location_id) \
+	.join(:voting_schedules, :id => :voting_places__schedule_id) \
+	.join(:voting_schedule_entries, :schedule_id => :id)
+    end
+
     end
 
     class ElectionDay < Base
@@ -80,14 +128,8 @@ module VoteATX
         return nil unless district
         precinct = district[:P_VTD].to_i
 
-        # Find the voting place for this precinct.
-        place = db[:voting_places] \
-	  .filter(:place_type => "ELECTION_DAY") \
-          .filter(:precinct => precinct) \
-          .join(:voting_locations, :id => :location_id) \
-	  .join(:voting_schedules, :id => :voting_places__schedule_id) \
-	  .join(:voting_schedule_entries, :schedule_id => :id) \
-          .first
+	place = search_query(db, :place_type => "ELECTION_DAY", :precinct => precinct).first
+
         raise "cannot find election day voting place for precinct \"#{precinct}\"" unless place
         raise "cannot find election day voting location for precinct \"#{precinct}\"" unless place[:geometry]
 
@@ -103,7 +145,7 @@ module VoteATX
           :city => place[:city],
           :state => place[:state],
           :zip => place[:zip],
-          :info => place[:info],
+          :info => format_info(place),
           :is_open => is_open,
           :marker => place_marker(:ELECTION_DAY, is_open),
           :region => FindIt::Asset::MapRegion.new(district[:region]))
@@ -130,13 +172,10 @@ module VoteATX
         now = options[:time] || Time.now
         ret = []
 
-        fixed = db[:voting_places] \
-	    .filter(:place_type => "EARLY_FIXED") \
-            .select_all(:voting_places, :voting_locations) \
-            .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
-	    .join(:voting_locations, :id => :location_id) \
-            .order(:dist.asc) \
-            .first
+	fixed = search_query(db, :place_type => "EARLY_FIXED") \
+	  .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
+	  .order(:dist.asc) \
+	  .first
 
         raise "no fixed early voting places" unless fixed
         raise "cannot find location for early voting place id #{fixed[:id]}" unless fixed[:geometry]
@@ -156,17 +195,12 @@ module VoteATX
           :city => fixed[:city],
           :state => fixed[:state],
           :zip => fixed[:zip],
-          :info => fixed[:info],
+          :info => format_info(fixed),
           :is_open => is_open,
           :marker => place_marker(:EARLY_VOTING_FIXED, is_open))
 
-        mobiles = db[:voting_places] \
-	  .filter(:place_type => "EARLY_MOBILE") \
-          .select_all(:voting_places, :voting_locations, :voting_schedule_entries) \
-          .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
-          .join(:voting_locations, :id => :location_id) \
-	  .join(:voting_schedules, :id => :voting_places__schedule_id) \
-	  .join(:voting_schedule_entries, :schedule_id => :id) \
+	mobiles = search_query(db, :place_type => "EARLY_MOBILE") \
+	  .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
           .filter{dist < fixed[:dist]} \
           .filter{closes > now} \
           .order(:opens.asc, :dist.asc) \
@@ -176,7 +210,7 @@ module VoteATX
         mobiles.each do |place|
 	  is_open = (now >= place[:opens])
           ret << new(:origin => origin,
-            :location => FindIt::Location.from_geometry(db, p[:geometry]),
+            :location => FindIt::Location.from_geometry(db, place[:geometry]),
             :type => :EARLY_VOTING_MOBILE,
             :title => "Mobile early voting location",
             :name => place[:name],
@@ -184,7 +218,7 @@ module VoteATX
             :city => place[:city],
             :state => place[:state],
             :zip => place[:zip],
-            :info => place[:info],
+            :info => format_info(place),
             :is_open => is_open,
             :marker => place_marker(:EARLY_VOTING_MOBILE, is_open))
         end

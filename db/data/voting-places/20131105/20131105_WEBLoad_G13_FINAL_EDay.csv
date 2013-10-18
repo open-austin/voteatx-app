@@ -143,7 +143,7 @@ Pct,Name,Combined Pcts.,Address,City,Date,Open Time,Close Time,Zipcode,Latitude,
 320,Randalls Lakeway,,2301 RR 620 South ,Lakeway,11/5/2013,7:00 AM,7:00 PM,78734,30.341584,-97.966429,W,ED,R,1845,G13,127
 321,Triumphant Love Lutheran Church,,9508 Great Hills Trail,Austin,11/5/2013,7:00 AM,7:00 PM,78759,30.39469,-97.755822,NW,ED,R,2019,G13,128
 323,Great Hills Baptist Church,"323, 305, 345",10500 Jollyville Road ,Austin,11/5/2013,7:00 AM,7:00 PM,78759,30.39879,-97.7521,NW,ED,R,709,G13,129
-3230,Randalls Research,,10900-D Research Boulevard ,Austin,11/5/2013,7:00 AM,7:00 PM,78759,30.401991,-97.747132,NE,ED,R,1841,G13,130
+3230,Randalls Research and Braker,,10900-D Research Boulevard ,Austin,11/5/2013,7:00 AM,7:00 PM,78759,30.401991,-97.747132,NE,ED,R,1841,G13,130
 324,Bee Cave City Hall,"324, 368",4000 Galleria Parkway ,Bee Cave,11/5/2013,7:00 AM,7:00 PM,78738,30.308171,-97.939939,W,ED,R,246,G13,131
 325,Combined @ 329 Austin City Hall,"329, 325",301 West 2nd Street (Media Room) ,Austin,11/5/2013,7:00 AM,7:00 PM,78701,30.264553,-97.747271,C,ED,R,142,G13,135
 326,Laurel Mountain Elementary School,,10111 DK Ranch Road ,Austin,11/5/2013,7:00 AM,7:00 PM,78759,30.413978,-97.781153,NW,ED,R,1213,G13,132
@@ -170,8 +170,8 @@ Pct,Name,Combined Pcts.,Address,City,Date,Open Time,Close Time,Zipcode,Latitude,
 347,Hill Country Middle School,,1300 Walsh Tarlton Lane ,Austin,11/5/2013,7:00 AM,7:00 PM,78746,30.270465,-97.803774,W,ED,R,829,G13,148
 349,ACC Pinnacle Campus,,7748 Highway 290 West ,Austin,11/5/2013,7:00 AM,7:00 PM,78736,30.23149,-97.88354,SW,ED,R,131,G13,149
 350,Cowan Elementary School,"350, 309",2817 Kentish DR,Austin,11/5/2013,7:00 AM,7:00 PM,78748,30.188686,-97.833724,S,ED,R,317,G13,150
-3500,Randalls Brodie,,9911 Brodie Lane ,Austin,11/5/2013,7:00 AM,7:00 PM,78748,30.184057,-97.847993,SW,ED,R,1846,G13,151
-3510,Randalls South Mopac,,6600 South Mopac Expressway ,Austin,11/5/2013,7:00 AM,7:00 PM,78749,30.22278,-97.836277,SW,ED,R,1843,G13,152
+3500,Randalls Brodie and Slaughter,,9911 Brodie Lane ,Austin,11/5/2013,7:00 AM,7:00 PM,78748,30.184057,-97.847993,SW,ED,R,1846,G13,151
+3510,Randalls South Mopac and William Cannon,,6600 South Mopac Expressway ,Austin,11/5/2013,7:00 AM,7:00 PM,78749,30.22278,-97.836277,SW,ED,R,1843,G13,152
 351,Small Middle School,,4801 Monterey Oaks Boulevard ,Austin,11/5/2013,7:00 AM,7:00 PM,78749,30.23417,-97.84149,SW,ED,R,1952,G13,153
 352,Combined @ 358 Covington Middle School,"358, 352",3700 Convict Hill Road ,Austin,11/5/2013,7:00 AM,7:00 PM,78749,30.212073,-97.834582,SW,ED,R,318,G13,155
 354,Travis Country Office (H.O.A.),,4504 Travis Country Circle ,Austin,11/5/2013,7:00 AM,7:00 PM,78735,30.245949,-97.827448,SW,ED,R,2026,G13,154
@@ -183,8 +183,8 @@ Pct,Name,Combined Pcts.,Address,City,Date,Open Time,Close Time,Zipcode,Latitude,
 361,Oak Hill Fire Dept. Station #301,,9211 Circle Drive ,Austin,11/5/2013,7:00 AM,7:00 PM,78736,30.239456,-97.919694,SW,ED,R,1590,G13,158
 362,Will Hampton Branch Public Library,,5125 Convict Hill Road ,Austin,11/5/2013,7:00 AM,7:00 PM,78749,30.217702,-97.854999,SW,ED,R,2322,G13,159
 363,Shepherd of the Hills Presbyterian Church,,5226 West William Cannon Drive ,Austin,11/5/2013,7:00 AM,7:00 PM,78749,30.225441,-97.851888,SW,ED,R,1924,G13,160
-364,Randalls Flagship at West Lake Hills,,3300 Bee Cave Road ,Austin,11/5/2013,7:00 AM,7:00 PM,78746,30.275376,-97.798812,W,ED,R,1844,G13,161
-365,West Rural Community Center,,"8656 Highway 71 West, #A",Austin,11/5/2013,7:00 AM,7:00 PM,78735,30.251449,-97.893596,W,ED,R,2330,G13,162
+364,Randalls Flagship at West Lake Hills,,3300 Bee Cave Road ,West Lake Hills,11/5/2013,7:00 AM,7:00 PM,78746,30.275376,-97.798812,W,ED,R,1844,G13,161
+365,West Rural Community Center,,"8656 Highway 71 West #A",Austin,11/5/2013,7:00 AM,7:00 PM,78735,30.251449,-97.893596,W,ED,R,2330,G13,162
 366,Mills Elementary School,,6201 Davis Lane ,Austin,11/5/2013,7:00 AM,7:00 PM,78749,30.21111,-97.87819,SW,ED,R,1327,G13,163
 367,Clayton Elementary School,,7525 La Crosse Avenue ,Austin,11/5/2013,7:00 AM,7:00 PM,78739,30.195113,-97.906573,SW,ED,R,348,G13,164
 368,Combined @ 324 Bee Cave City Hall,"324, 368",4000 Galleria Parkway ,Bee Cave,11/5/2013,7:00 AM,7:00 PM,78738,30.308171,-97.939939,W,ED,R,246,G13,131
