@@ -161,6 +161,7 @@ FindIt.methods = {
   displayMapAtLocation : function(loc, address) {
 
     var that = this;
+    console.log("displayMapAtLocation called, loc=", loc, " address=", address);
 
     if (this.map) {
     	
@@ -261,7 +262,7 @@ FindIt.methods = {
         width: 59,        
       },
       draggable: true,
-      hint: "You are here.",
+      title: "You are here.",
       info: "<b>You are here.</b>" +
       	"<p>To change location: drag the marker,<br />click on the map, or type address<br />in the field at bottom of screen.</p>",
     });
@@ -337,6 +338,7 @@ FindIt.methods = {
 
     for (var i = 0 ; i < nearby_features.length ; ++i) {
       var o = nearby_features[i];
+      console.log("searchNearby: feature ", i, " = ", o);
       this.feature_markers.push(this.makeMarker(o));
     }
 
@@ -356,7 +358,7 @@ FindIt.methods = {
    * * latitude, longitude -- Must be specified if "position" not defined.
    * * marker -- Arguments to makeMarkerIcon().
    * * shadow -- Arguments to makeMarkerShadow().
-   * * hint -- Text message to display when hover over the marker.
+   * * title -- Text message to display when hover over the marker.
    * * draggable -- If true, marker will be draggable.
    * * info -- If specified, text message to be placed in an infoWindow.
    * * region -- If specified, parameters to makePolygon().
@@ -368,13 +370,13 @@ FindIt.methods = {
    * The marker will be registered with the "spiderify" handler.
    */
   makeMarker : function(params) {    
-    
+
     var marker = new google.maps.Marker({
       map: this.map,
       position: params.position || new google.maps.LatLng(params.latitude, params.longitude),
       icon: this.makeMarkerIcon(params.marker),
       shadow: this.makeMarkerShadow(params.shadow, params.marker),
-      title: params.hint,
+      title: params.title,
       draggable: params.draggable || false,
     });
     
@@ -503,7 +505,8 @@ FindIt.methods = {
    * The window will be created but not displayed.
    */
   makeInfoWindow : function(content) {
-    return new google.maps.InfoWindow({content: content});
+    var s = content.split("\n").join("<br />\n");
+    return new google.maps.InfoWindow({content: s});
   },
   
   

@@ -6,12 +6,19 @@ Bundler.setup
 require 'findit-support'
 require 'logger'
 require 'csv'
+require 'cgi'
 
 LOG_DEBUG = false
 
-DESCRIPTION = "For the Nov 6, 2012 general election in Travis County."
-ELECTION_DAY_VOTING_PLACES = true
-INFO_LINK = "http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4"
+INFO_FOOTER = [
+  "",
+  "For the Nov 6, 2012 general election in Travis County.",
+  "",
+  "<b>Note:</b> For this election, on election day you can vote at your",
+  "regular home precinct or <em>any other</em> Travis County polling place.",
+  "",
+  "<i><a href=\"http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4\">more information ...</a></i>",
+]
 
 CONFIG_ELECTION_DAY = {
   :input => "20121106_WEBLoad_FINAL_EDay.csv",
@@ -94,6 +101,9 @@ class String
   def cleanup
     strip
   end
+  def escape_html
+    CGI.escape_html(self)
+  end
 end
 
 class Array
@@ -111,24 +121,40 @@ class NilClass
   end
 end
 
-class Notes
 
-  def initialize
-    @notes = ["", DESCRIPTION]
+class VotingPlaceInfo
+
+  def initialize(title, location, schedule, footer = INFO_FOOTER)
+    @title = title
+    @location = location
+    @schedule = schedule
+    @footer = footer
+    @middle = []
+
   end
 
   def <<(stuff)
-    @notes << ""
+    @middle << ""
     case stuff
     when Array
-      @notes += stuff
+      @middle += stuff
     else
-      @notes << stuff
+      @middle << stuff
     end
   end
 
   def to_s
-    @notes.join("\n")
+    to_a.join("\n")
+  end
+
+  def to_a
+    [
+      "<b>" + @title.escape_html + "</b>",
+      @location[:name].escape_html ,
+      @location[:street].escape_html ,
+      (@location[:city] + ", " + @location[:state] + " " + @location[:zip]).escape_html ,
+      "",
+    ] + @schedule + @middle + @footer
   end
 
 end
@@ -221,8 +247,8 @@ def create_tables
     Integer :precinct, :unique => true, :null => true
     foreign_key :location_id, :voting_locations, :null => false
     foreign_key :schedule_id, :voting_schedules, :null => false
-    String :link, :size => 80, :null => false
-    Text :notes
+    #String :link, :size => 80, :null => false
+    Text :info
   end
 
 end
@@ -265,12 +291,12 @@ def make_location(row)
         @log.warn("voting_locations(id #{loc[:id]}): inconsistent \"#{field}\" values [\"#{loc[field]}\", \"#{rec[field]}\"]")
       end
     end
-    loc[:id]
+    loc
   else
     @log.debug("voting_locations: creating: #{rec}")
-    @db[:voting_locations].insert(rec)
+    id = @db[:voting_locations].insert(rec)
+    @db[:voting_locations][:id => id]
   end
-
 end
 
 
@@ -324,32 +350,22 @@ def load_eday_places(config)
     precinct = row["Pct."].to_i
     raise "failed to parse precinct from: #{row}" if precinct == 0
 
-    location_id = make_location(row)
+    location = make_location(row)
 
-    notes = Notes.new
-
-    if ELECTION_DAY_VOTING_PLACES
-      notes << [
-        "NOTE: For this election, you can vote at your regular home precinct",
-        "or ANY OTHER Travis County polling place.",
-      ]
-    end
-
-    notes << schedule_formatted
+    info = VotingPlaceInfo.new("Precinct #{precinct}", location, schedule_formatted)
 
     unless row["Combined Pcts."].empty?
       a = [precinct] + row["Combined Pcts."].split(",").map {|s| s.to_i}
-      notes << "Combined precincts " + a.sort.join(", ")
+      info << "Combined precincts " + a.sort.join(", ")
     end
 
-    @log.debug("load_eday_places: creating: precinct=#{precinct} location_id=#{location_id}")
+    @log.debug("load_eday_places: creating: precinct=#{precinct} location_id=#{location[:id]}")
     @db[:voting_places] << {
       :place_type => "ELECTION_DAY",
       :precinct => precinct,
-      :location_id => location_id,
+      :location_id => location[:id],
       :schedule_id => schedule_id,
-      :link => INFO_LINK,
-      :notes => notes.to_s,
+      :info => info.to_s,
     }
 
   end
@@ -392,18 +408,16 @@ def load_evfixed_places(config)
       raise "unknown schedule code \"#{schedule_code}\": #{row}"
     end
 
-    location_id = make_location(row)
+    location = make_location(row)
 
-    notes = Notes.new
-    notes << schedule_formatted_by_code[schedule_code]
+    info = VotingPlaceInfo.new("Early Voting Location", location, schedule_formatted_by_code[schedule_code])
 
-    @log.debug("places_early_fixed: creating: location_id=#{location_id}")
+    @log.debug("places_early_fixed: creating: location_id=#{location[:id]}")
     @db[:voting_places] << {
       :place_type => "EARLY_FIXED",
-      :location_id => location_id,
+      :location_id => location[:id],
       :schedule_id => schedule_id_by_code[schedule_code],
-      :link => INFO_LINK,
-      :notes => notes.to_s,
+      :info => info.to_s,
     }
 
   end
@@ -435,31 +449,29 @@ def load_evmobile_places(config)
     cleanup_row(row)
     row["Address"] = row["Site Address"]
 
-    location_id = make_location(row)
+    location = make_location(row)
 
     opens, closes = get_datetimes(row)
 
     place = @db[:voting_places] \
       .filter(:place_type => "EARLY_MOBILE") \
-      .filter(:location_id => location_id) \
+      .filter(:location_id => location[:id]) \
       .limit(1)
 
     if place.empty?
       schedule_id = make_schedule([opens..closes])
-      notes = Notes.new
-      notes << format_schedule([opens..closes])
+      info = VotingPlaceInfo.new("Mobile Early Voting Location", location, format_schedule([opens..closes]))
 
       @db[:voting_places] << {
         :place_type => "EARLY_MOBILE",
-        :location_id => location_id,
+        :location_id => location[:id],
         :schedule_id => schedule_id,
-        :link => INFO_LINK,
-        :notes => notes.to_s
+        :info => info.to_s
       }
     else
       add_schedule_entry(place.get(:schedule_id), opens..closes)
-      notes = place.get(:notes) + "\n" + format_schedule_line(opens..closes)
-      place.update(:notes => notes)
+      info = place.get(:info) + "\n" + format_schedule_line(opens..closes)
+      place.update(:info => info)
     end
 
   end

@@ -6,7 +6,7 @@ module VoteATX
     class Base
 
       attr_reader :origin, :location, :type, :title, :name, :address,
-        :city, :state, :zip, :link, :note, :is_open, :marker, :region
+        :city, :state, :zip, :info, :is_open, :marker, :region
 
       def initialize(params)
         p = params.dup
@@ -19,8 +19,7 @@ module VoteATX
         @city = p.delete(:city) or raise "required VoteATX::VotingPlace attribute \":city\" not specified"
         @state = p.delete(:state) or raise "required VoteATX::VotingPlace attribute \":state\" not specified"
         @zip = p.delete(:zip) or raise "required VoteATX::VotingPlace attribute \":zip\" not specified"
-        @link = p.delete(:link) or raise "required VoteATX::VotingPlace attribute \":link\" not specified"
-        @note = p.delete(:note) or raise "required VoteATX::VotingPlace attribute \":note\" not specified"
+        @info = p.delete(:info) or raise "required VoteATX::VotingPlace attribute \":info\" not specified"
         @is_open = p.delete(:is_open)
         @marker = p.delete(:marker) or raise "required VoteATX::VotingPlace attribute \":marker\" not specified"
         @region = p.delete(:region)
@@ -37,8 +36,7 @@ module VoteATX
           :city => @city,
           :state => @state,
           :zip => @zip,
-          :link => @link,
-          :note => @note,
+          :info => @info,
           :is_open => @is_open,
           :marker => @marker.marker.to_h,
           :shadow => @marker.shadow.to_h,
@@ -105,8 +103,7 @@ module VoteATX
           :city => place[:city],
           :state => place[:state],
           :zip => place[:zip],
-          :link => place[:link],
-          :note => place[:notes],
+          :info => place[:info],
           :is_open => is_open,
           :marker => place_marker(:ELECTION_DAY, is_open),
           :region => FindIt::Asset::MapRegion.new(district[:region]))
@@ -159,8 +156,7 @@ module VoteATX
           :city => fixed[:city],
           :state => fixed[:state],
           :zip => fixed[:zip],
-          :link => fixed[:link],
-          :note => fixed[:notes],
+          :info => fixed[:info],
           :is_open => is_open,
           :marker => place_marker(:EARLY_VOTING_FIXED, is_open))
 
@@ -188,8 +184,7 @@ module VoteATX
             :city => place[:city],
             :state => place[:state],
             :zip => place[:zip],
-            :link => place[:link],
-            :note => place[:notes],
+            :info => place[:info],
             :is_open => is_open,
             :marker => place_marker(:EARLY_VOTING_MOBILE, is_open))
         end
