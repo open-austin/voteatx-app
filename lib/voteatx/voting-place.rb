@@ -74,33 +74,27 @@ module VoteATX
       def self.search(db, origin, options = {})
 
         # Find the voting precinct that contains the origin point.
-        district = db[:travis_co_tx_us_voting_districts] \
+        district = db[:voting_districts] \
           .select(:p_vtd) \
           .select_append{AsGeoJSON(ST_Transform(:geometry, 4326)).as(:region)} \
           .filter{ST_Contains(:geometry, ST_Transform(MakePoint(origin.lng, origin.lat, 4326), 3081))} \
-          .fetch_one
+          .first
         return nil unless district
         precinct = district[:P_VTD].to_i
 
         # Find the voting place for this precinct.
-        place = db[:travis_co_tx_us_voting_eday_places] \
-          .select_all(:travis_co_tx_us_voting_eday_places, :travis_co_tx_us_voting_locations) \
-          .join(:travis_co_tx_us_voting_locations, :id => :location_id) \
+        place = db[:voting_places] \
+	  .filter(:place_type => "ELECTION_DAY") \
           .filter(:precinct => precinct) \
-          .fetch_one
+          .join(:voting_locations, :id => :location_id) \
+	  .join(:voting_schedules, :id => :voting_places__schedule_id) \
+	  .join(:voting_schedule_entries, :schedule_id => :id) \
+          .first
         raise "cannot find election day voting place for precinct \"#{precinct}\"" unless place
         raise "cannot find election day voting location for precinct \"#{precinct}\"" unless place[:geometry]
 
-        sched = db[:travis_co_tx_us_voting_schedules_by_type][:type => place[:schedule_type]]
-        raise "cannot locate entry for schedule type \"#{place[:schedule_type]}\"" unless sched
-
         now = options[:time] || Time.now
-
-        is_open = db[:travis_co_tx_us_voting_schedules_by_type] \
-          .filter(:type => place[:schedule_type]) \
-          .filter{opens <= now} \
-          .filter{closes > now} \
-          .count != 0
+	is_open = (now >= place[:opens] && now < place[:closes])
 
         new(:origin => origin,
           :location => FindIt::Location.from_geometry(db, place[:geometry]),
@@ -139,21 +133,22 @@ module VoteATX
         now = options[:time] || Time.now
         ret = []
 
-        fixed = db[:travis_co_tx_us_voting_evfixed_places] \
-            .select_all(:travis_co_tx_us_voting_evfixed_places, :travis_co_tx_us_voting_locations) \
+        fixed = db[:voting_places] \
+	    .filter(:place_type => "EARLY_FIXED") \
+            .select_all(:voting_places, :voting_locations) \
             .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
-            .join(:travis_co_tx_us_voting_locations, :id => :location_id) \
+	    .join(:voting_locations, :id => :location_id) \
             .order(:dist.asc) \
             .first
 
         raise "no fixed early voting places" unless fixed
         raise "cannot find location for early voting place id #{fixed[:id]}" unless fixed[:geometry]
 
-        is_open = db[:travis_co_tx_us_voting_schedules_by_type] \
-          .filter(:type => fixed[:schedule_type]) \
+        rs = db[:voting_schedule_entries] \
+          .filter(:schedule_id => fixed[:schedule_id]) \
           .filter{opens <= now} \
-          .filter{closes > now} \
-          .count != 0
+          .filter{closes > now}
+	is_open = (rs.count > 0)
 
         ret << new(:origin => origin,
           :location => FindIt::Location.from_geometry(db, fixed[:geometry]),
@@ -169,13 +164,13 @@ module VoteATX
           :is_open => is_open,
           :marker => place_marker(:EARLY_VOTING_FIXED, is_open))
 
-        mobiles = db[:travis_co_tx_us_voting_evmobile_places] \
-          .select_all(:travis_co_tx_us_voting_evmobile_places, :travis_co_tx_us_voting_locations) \
+        mobiles = db[:voting_places] \
+	  .filter(:place_type => "EARLY_MOBILE") \
+          .select_all(:voting_places, :voting_locations, :voting_schedule_entries) \
           .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
-          .select_append{((opens <= now) & (closes > now)).as(:is_open)} \
-          .distinct \
-          .join(:travis_co_tx_us_voting_locations, :id => :travis_co_tx_us_voting_evmobile_places__location_id) \
-          .join(:travis_co_tx_us_voting_evmobile_schedules, :place_id => :travis_co_tx_us_voting_evmobile_places__id) \
+          .join(:voting_locations, :id => :location_id) \
+	  .join(:voting_schedules, :id => :voting_places__schedule_id) \
+	  .join(:voting_schedule_entries, :schedule_id => :id) \
           .filter{dist < fixed[:dist]} \
           .filter{closes > now} \
           .order(:opens.asc, :dist.asc) \
@@ -183,7 +178,7 @@ module VoteATX
           .all
 
         mobiles.each do |place|
-          is_open = (place[:is_open] == 1)
+	  is_open = (now >= place[:opens])
           ret << new(:origin => origin,
             :location => FindIt::Location.from_geometry(db, p[:geometry]),
             :type => :EARLY_VOTING_MOBILE,
