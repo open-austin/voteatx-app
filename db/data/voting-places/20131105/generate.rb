@@ -27,7 +27,7 @@ RANGE_LAT = Range.new(30.088999, 30.572025)
 
 ELECTION_DESCRIPTION = "for the Nov 5, 2013 general election in Travis County"
 
-ELECTION_INFO = %q{<b>Note:</b> Voting places are in effect for this election.  That means
+ELECTION_INFO = %q{<b>Note:</b> Voting centers are in effect for this election.  That means
 on election day you can vote at <em>any</em> open Travis County polling
 place, not just your home precinct.
 
