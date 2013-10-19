@@ -201,7 +201,7 @@ module VoteATX
 
 	mobiles = search_query(db, :place_type => "EARLY_MOBILE") \
 	  .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
-          .filter{dist < fixed[:dist]} \
+          .filter{dist < 1.5*fixed[:dist]} \
           .filter{closes > now} \
           .order(:opens.asc, :dist.asc) \
           .limit(3) \
