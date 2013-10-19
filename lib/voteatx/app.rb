@@ -13,7 +13,7 @@ module VoteATX
   class App
 
     # Default path to the VoteATX database.
-    DATABASE = VoteATX::BASEDIR + '/db/voteatx.db'
+    DATABASE = "db/voteatx.db"
 
     # Default max distance (in miles) from current location.
     #

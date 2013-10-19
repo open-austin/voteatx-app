@@ -2,11 +2,9 @@ require 'rubygems'
 require 'sinatra'
 require './lib/voteatx'
 
-root_dir = File.dirname(__FILE__)
 
 set :environment, :production
-set :root,  root_dir
-#set :app_file, "#{root_dir}/lib/voteatx.rb"
+set :root,  File.dirname(__FILE__)
 disable :run
 enable :logging
 

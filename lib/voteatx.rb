@@ -2,20 +2,31 @@ require 'rubygems'
 require 'bundler/setup' 
 require 'sinatra/base'
 require 'sinatra/jsonp'
-
-module VoteATX
-  BASEDIR = File.dirname(__FILE__) + '/..'
-end
-
-require_relative './voteatx/app.rb'
+require_relative 'voteatx/app'
 
 module VoteATX
 
   class Service < Sinatra::Base   
 
-    @@app = VoteATX::App.new
+    configure :development, :test do
+      set :root, File.dirname(__FILE__) + "/.."
+    end
 
-    set :public_folder, BASEDIR + '/public'
+    # for :production, set :root in config.ru
+
+    configure do
+      $stderr.puts "Starting #{self.name} ..."
+      $stderr.puts "CONFIGURE: environment = #{settings.environment}"
+      $stderr.puts "CONFIGURE: root = #{settings.root}"
+
+      set :public_folder, "#{settings.root}/public"
+      $stderr.puts "CONFIGURE: public_folder = #{settings.public_folder}"
+
+      database = "#{settings.root}/voteatx.db"
+      $stderr.puts "CONFIGURE: database = #{database}"
+
+      @@app = VoteATX::App.new(:database => database)
+    end
 
     helpers do  
       helpers Sinatra::Jsonp
@@ -46,6 +57,8 @@ module VoteATX
       lng = @params['longitude']
       send_result @@app.search(lat.to_f, lng.to_f)
     end
+
+    run! if app_file == $0
 
   end # Service
 end # VoteATX
