@@ -161,7 +161,7 @@ FindIt.methods = {
   displayMapAtLocation : function(loc, address) {
 
     var that = this;
-    console.log("displayMapAtLocation called, loc=", loc, " address=", address);
+    console.log("displayMapAtLocation entered: loc=", loc, "address=", address);
 
     if (this.map) {
     	
@@ -330,6 +330,7 @@ FindIt.methods = {
     req.send(data);
 
     var nearby_features = eval('(' + req.responseText + ')');
+    console.log("searchNearby: response=", nearby_features);
     
     if (nearby_features.length == 0) {
       this.send_event("NO_FEATURES");  
@@ -338,7 +339,7 @@ FindIt.methods = {
 
     for (var i = 0 ; i < nearby_features.length ; ++i) {
       var o = nearby_features[i];
-      console.log("searchNearby: feature ", i, " = ", o);
+      console.log("searchNearby: creating marker n=", i, "feature=", o);
       this.feature_markers.push(this.makeMarker(o));
     }
 
@@ -371,6 +372,8 @@ FindIt.methods = {
    */
   makeMarker : function(params) {    
 
+    console.log("makeMarker: entered, params=", params);
+
     var marker = new google.maps.Marker({
       map: this.map,
       position: params.position || new google.maps.LatLng(params.latitude, params.longitude),
@@ -383,10 +386,12 @@ FindIt.methods = {
     this.addOverlayMethods(marker);
     
     if (params.info != null) {
+      console.log("makeMarker: adding info window overlay to marker");
       marker.add_overlay(this.makeInfoWindow(params.info));
     }
     
     if (params.region != null) {
+      console.log("makeMarker: adding polygon overlay to marker");
       marker.add_overlay(this.makePolygon(params.region));
     }
     
@@ -530,7 +535,7 @@ FindIt.methods = {
   makePolygon : function(params) {    
     var path = new Array();
     for (var i = 0 ; i < params.coordinates.length ; ++i) {
-      path.push(new google.maps.LatLng(params.coordinates[i][1], params.coordinates[i][0]));        
+      path.push(new google.maps.LatLng(params.coordinates[i][1], params.coordinates[i][0]));
     }
     
     return new google.maps.Polygon({

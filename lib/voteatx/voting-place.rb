@@ -148,7 +148,7 @@ module VoteATX
           :info => format_info(place),
           :is_open => is_open,
           :marker => place_marker(:ELECTION_DAY, is_open),
-          :region => FindIt::Asset::MapRegion.new(district[:region]))
+          :region => FindIt::Asset::MapRegion.from_geojson(district[:region]))
       end  # search
 
     end # ElectionDay
