@@ -1,28 +1,43 @@
-= Find It Nearby
+= VoteATX
 
-The "Find It Nearby" application identifies features in Austin, TX
-that are closest to you. The features it knows about are:
+VoteATX is a web application that locates best places to vote.
 
-* Fire Station
-* Police Station
-* Post Office
-* Library
-* Moon Tower
-* Voting Place
+It was designed for Travis County elections.
 
-The "Find It Nearby" package includes:
+You can view the application running at: http://voteatx.us/
 
-* a mobile-friendly web application
-* a RESTful web service
-* tools for acquiring and processing public datasets
+The source code is published at: https://github.com/chip-rosenthal/voteatx
 
-You can view the application running at: http://nearby.webatx.us/
+This package has been tested with Ruby 1.9.3. It requires Sqlite3 database
+with Spatialite extensions.
 
-The source code is published at: https://github.com/chip-rosenthal/findit
+For more information on setting up Spatialite on your system, see:
+https://github.com/chip-rosenthal/findit-support#spatialite-support
 
-This application was created to demonstrate the value of open
-government data, and the sorts of tools that can be build on
-public datasets. This is based on work from the Code for America
-Hack-a-Thon in Austin, TX on Feb 25, 2012.
+Once the package is downloaded (and Spatialite has been installed), run:
 
-Chip Rosenthal | chip@unicom.com | http://www.unicom.com
+    bundle install
+
+For development, you can run the application from the command line:
+
+    $ bin/voteatx-svc 
+    [2013-10-19 11:48:55] INFO  WEBrick 1.3.1
+    [2013-10-19 11:48:55] INFO  ruby 1.9.3 (2012-04-20) [x86_64-linux]
+    == Sinatra/1.4.3 has taken the stage on 4567 for development with backup from WEBrick
+    [2013-10-19 11:48:55] INFO  WEBrick::HTTPServer#start: pid=5291 port=4567
+
+Then, browse http://localhost:4567 to see the running application.
+
+The application has been deployed using Phusion Passenger (mod_rails) under Apache.
+The "config.ru" file is used in production.
+
+The database must be regenerated for each election. See the "db/data" directory
+for the source data used to build the database.
+
+Please report any problems or feedback through the issue tracker for this
+project: https://github.com/chip-rosenthal/voteatx/issues
+
+-- 
+Chip Rosenthal
+<chip@unicom.com>
+http://www.unicom.com/
