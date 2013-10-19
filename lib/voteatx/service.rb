@@ -2,14 +2,14 @@ require 'rubygems'
 require 'bundler/setup' 
 require 'sinatra/base'
 require 'sinatra/jsonp'
-require_relative 'voteatx/app'
+require_relative '../voteatx.rb'
 
 module VoteATX
 
   class Service < Sinatra::Base   
 
     configure :development, :test do
-      set :root, File.dirname(__FILE__) + "/.."
+      set :root, ENV['APP_ROOT'] || File.dirname(__FILE__) + "/../.."
     end
 
     # for :production, set :root in config.ru

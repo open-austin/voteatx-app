@@ -1,7 +1,4 @@
-require 'rubygems'
-require 'sinatra'
-require './lib/voteatx'
-
+require 'lib/voteatx/service'
 
 set :environment, :production
 set :root,  File.dirname(__FILE__)
