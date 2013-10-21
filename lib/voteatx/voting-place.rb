@@ -3,13 +3,30 @@ require 'findit-support'
 module VoteATX
   module VotingPlace
 
+    # Base class for a voting place.
+    #
+    # This class should not be accessed directly. Instead, a derived class such
+    # as ::ElectionDay or ::Early should be used.
+    #
     class Base
 
       attr_reader :origin, :type, :title, :location, :is_open, :precinct, :region, :marker, :info
 
+      # Create a new voting place instance.
+      #
+      # Parameters:
+      # * :type - one of: :ELECTION_DAY, :EARLY_VOTING_FIXED, :EARLY_VOTING_MOBILE.
+      # * :title - description of what kind of voting place this is.
+      # * :location - a row from the "voting_locations" table.
+      # * :is_open - true if this voting place is open right now, else false.
+      # * :info - text may be inserted into an "information window" for this place
+      # * :precinct - precinct number for :ELECTION_DAY place, else undefined
+      # * :region - GeoJSON region of voting precinct for :ELECTION_DAY place, else undefined
+      #
+      # XXX - Is it possible to generate the :info value in this constructor?
+      #
       def initialize(params)
         p = params.dup
-        @origin = p.delete(:origin) or raise "required VoteATX::VotingPlace attribute \":origin\" not specified"
         @type = p.delete(:type) or raise "required VoteATX::VotingPlace attribute \":type\" not specified"
         @title = p.delete(:title) or raise "required VoteATX::VotingPlace attribute \":title\" not specified"
         @location = p.delete(:location) or raise "required VoteATX::VotingPlace attribute \":location\" not specified"
@@ -62,6 +79,7 @@ module VoteATX
 	:EARLY_VOTING_MOBILE => "_mobile",
       }.freeze
 
+      # Generate a FindIt::Asset::MapMarker for given voting place type.
       def self.place_marker(type, is_open)
         p = ELECTION_TYPE_MARKER_SUFFIX[type] or raise "unknown voting place type \"#{type}\""
         oc = (is_open ? "" : "_closed")
@@ -70,6 +88,7 @@ module VoteATX
       end
 
 
+      # Generate content for an info window from database record for a voting place.
       def self.format_info(place)
 	info = []
 	info << "<b>" + place[:title].escape_html + "</b>"
@@ -90,6 +109,12 @@ module VoteATX
 	info.join("\n")
       end
 
+
+      # Convenience function to create a search query for a voting place.
+      #
+      # This is used in the #search methods to create a Sequel result set
+      # for a query against the "voting_places" table.
+      #
       def self.search_query(db, *conditions)
 
 	# Grab the election definitions for later use, if we haven't already
@@ -107,6 +132,7 @@ module VoteATX
 	  .join(:voting_schedule_entries, :schedule_id => :id)
       end
 
+      # A derived class must override this method.
       def self.search(db, origin, options = {})
 	raise "must override the search method in the derived class"
       end
@@ -114,12 +140,15 @@ module VoteATX
 
     end
 
+
+    # Implementation of a voting place for election day.
     class ElectionDay < Base
+
+      # Return the voting place for the voting district that contains the indicated location.
       def self.search(db, origin, options = {})
 
         now = options[:time] || Time.now
 
-        # Find the voting precinct that contains the origin point.
         district = db[:voting_districts] \
           .select(:p_vtd) \
           .select_append{AsGeoJSON(ST_Transform(:geometry, 4326)).as(:region)} \
@@ -129,24 +158,23 @@ module VoteATX
         precinct = district[:P_VTD].to_i
 
 	place = search_query(db, :place_type => "ELECTION_DAY", :precinct => precinct).first
-
         raise "cannot find election day voting place for precinct \"#{precinct}\"" unless place
         raise "cannot find election day voting location for precinct \"#{precinct}\"" unless place[:geometry]
 
-        new(:origin => origin,
-          :type => :ELECTION_DAY,
+        new(:type => :ELECTION_DAY,
           :title => "Your voting place (precinct #{precinct})",
 	  :precinct => precinct,
           :region => FindIt::Asset::MapRegion.from_geojson(district[:region]),
 	  :location => place,
           :is_open => (now >= place[:opens] && now < place[:closes]),
           :info => format_info(place))
-      end  # search
+      end
 
     end # ElectionDay
 
-    class Early < Base
 
+    # Implementation of an early voting place.
+    class Early < Base
 
       # Return a list of early voting places for this given location.
       #
@@ -180,8 +208,7 @@ module VoteATX
           .filter{closes > now}
 	is_open = (rs.count > 0)
 
-        ret << new(:origin => origin,
-          :type => :EARLY_VOTING_FIXED,
+        ret << new(:type => :EARLY_VOTING_FIXED,
           :title => "Early voting location",
 	  :location => early_place,
           :is_open => is_open,
@@ -197,8 +224,7 @@ module VoteATX
 
         mobile_places.each do |place|
 	  is_open = (now >= place[:opens])
-          ret << new(:origin => origin,
-            :type => :EARLY_VOTING_MOBILE,
+          ret << new(:type => :EARLY_VOTING_MOBILE,
             :title => "Mobile early voting location",
 	    :location => place,
             :is_open => is_open,
