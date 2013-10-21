@@ -36,12 +36,27 @@ Then, browse http://localhost:4567 to see the running application.
 The application has been deployed using Phusion Passenger (mod_rails) under Apache.
 The "config.ru" file is used in production.
 
-The database must be regenerated for each election. See the "db/data" directory
+
+== Porting and Update
+
+There is nothing in the application or libraries that needs to be changed when
+porting to another location or updating for another election.
+
+What's required for porting or updating is:
+
+* Generate a new database.
+* Update the "public/about.html" page.
+
+The database must be regenerated for each election. See the "data" directory
 for the source data used to build the database.
+
+See the data/README.txt for information on database generation.
+
+
+== Feedback
 
 Please report any problems or feedback through the issue tracker for this
 project: https://github.com/chip-rosenthal/voteatx/issues
-
 
     -- 
     Chip Rosenthal
