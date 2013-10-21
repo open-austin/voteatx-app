@@ -1,6 +1,7 @@
 require 'findit-support'
+require 'cgi' # for escape_html
+require_relative './voting-place.rb'
 
-require 'cgi'
 class String
   def escape_html
     CGI.escape_html(self)
@@ -12,8 +13,6 @@ class NilClass
     true
   end
 end
-
-require_relative './voting-place.rb'
 
 
 module VoteATX
@@ -29,7 +28,9 @@ module VoteATX
 
   # Implementation of the VoteATX application.
   #
-  #    require "voteatx/finder"
+  # Example usage:
+  #
+  #    require 'voteatx'
   #    finder = VoteATX::Finder.new
   #    voting_places = finder.search(latitude, longitude))
   #
@@ -38,9 +39,15 @@ module VoteATX
     # Construct a new VoteATX app instance.
     #
     # Options:
-    # * :database
-    # * :max_distance
-    # * :max_places
+    # * :database - Path to the VoteATX database. If not specified, the
+    #   value defined by VoteATX::DATABASE is used.
+    # * :max_distance - Do not select voting places that are further than
+    #   this distance (in miles) from the current location. If not specified,
+    #   the value defined by VoteATX::MAX_DISTANCE is used. This value may be
+    #   overridden in a #search call.
+    # * :max_places - Select at most this number of early voting places. If
+    #   not specified, the value defined by VoteATX::MAX_PLACES is used. This
+    #   value may be overridden in a #search call.
     #
     def initialize(options = {})
       @search_opts = {}
@@ -55,29 +62,41 @@ module VoteATX
     # Search for features near a given location.
     #
     # Parameters:
+    # * lat - the latitude (degrees) of the location, as a Float.
+    # * lng - the longitude (degrees) of the location, as a Float.
     #
-    # * lat -- the latitude (degrees) of the location, as a Float.
+    # Options:
+    # * :max_distance - Override :max_distance specified for constructor.
+    # * :max_locations - Override :max_locations specified for constructor.
+    # * :time - A date/time string that is parsed and used for the current time.
+    #   This is intended for use in testing.
     #
-    # * lng -- the longitude (degrees) of the location, as a Float.
-    #
-    # Returns: A list of FindIt::BaseFeature instances.
+    # Returns: A list of FindIt::VotingPlace instances.
     #
     def search(lat, lng, options = {})
       origin = FindIt::Location.new(lat, lng, :DEG)
 
-      search_opts = @search_opts.dup
-      unless options[:time].empty?
-        begin
-	  search_opts[:time] = Time.parse(options[:time])
-	rescue ArgumentError
-	  # ignore
-	end
+      search_options = {}
+      options.each do |k, v|
+        next if v.nil? || v.empty?
+        case k
+        when :time
+          begin
+            search_options[k] = Time.parse(v)
+          rescue ArgumentError
+            # ignore
+          end
+        when :max_distance, :max_locations
+          search_options[k] = v
+        else
+          raise "bad option \"#{k}\" specified"
+        end
       end
 
       places = []
-      a = VoteATX::VotingPlace::ElectionDay.search(@db, origin, search_opts)
+      a = VoteATX::VotingPlace::ElectionDay.search(@db, origin, search_options)
       places << a if a
-      places += VoteATX::VotingPlace::Early.search(@db, origin, search_opts)
+      places += VoteATX::VotingPlace::Early.search(@db, origin, search_options)
       return places
     end
 
