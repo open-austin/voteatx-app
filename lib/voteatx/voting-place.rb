@@ -1,16 +1,4 @@
 require 'findit-support'
-require 'cgi'
-
-class String
-  def escape_html
-    CGI.escape_html(self)
-  end
-end
-class NilClass
-  def empty?
-    true
-  end
-end
 
 module VoteATX
   module VotingPlace
@@ -98,26 +86,27 @@ module VoteATX
 	info.join("\n")
       end
 
+      def self.search_query(db, *conditions)
 
-    def self.search_query(db, *conditions)
+	# Grab the election definitions for later use, if we haven't already
+	@election_description ||= db[:election_defs][:name => "ELECTION_DESCRIPTION"][:value]
+	@election_info ||= db[:election_defs][:name => "ELECTION_INFO"][:value]
 
-      # Grab the election definitions for later use, if we haven't already
-      @election_description ||= db[:election_defs][:name => "ELECTION_DESCRIPTION"][:value]
-      @election_info ||= db[:election_defs][:name => "ELECTION_INFO"][:value]
-
-      db[:voting_places] \
-	.select_append(:voting_locations__formatted.as(:location_formatted)) \
-	.select_append(:voting_schedules__formatted.as(:schedule_formatted)) \
-	.filter(conditions) \
-	.join(:voting_locations, :id => :location_id) \
-	.join(:voting_schedules, :id => :voting_places__schedule_id) \
-	.join(:voting_schedule_entries, :schedule_id => :id)
-    end
+	db[:voting_places] \
+	  .select_append(:voting_locations__formatted.as(:location_formatted)) \
+	  .select_append(:voting_schedules__formatted.as(:schedule_formatted)) \
+	  .filter(conditions) \
+	  .join(:voting_locations, :id => :location_id) \
+	  .join(:voting_schedules, :id => :voting_places__schedule_id) \
+	  .join(:voting_schedule_entries, :schedule_id => :id)
+      end
 
     end
 
     class ElectionDay < Base
       def self.search(db, origin, options = {})
+
+        now = options[:time] || Time.now
 
         # Find the voting precinct that contains the origin point.
         district = db[:voting_districts] \
@@ -133,7 +122,6 @@ module VoteATX
         raise "cannot find election day voting place for precinct \"#{precinct}\"" unless place
         raise "cannot find election day voting location for precinct \"#{precinct}\"" unless place[:geometry]
 
-        now = options[:time] || Time.now
 	is_open = (now >= place[:opens] && now < place[:closes])
 
         new(:origin => origin,
@@ -170,44 +158,47 @@ module VoteATX
       def self.search(db, origin, options = {})
 
         now = options[:time] || Time.now
+	max_places = options[:max_places] || VoteATX::MAX_PLACES
+	max_distance = options[:max_distance] || VoteATX::MAX_DISTANCE
         ret = []
 
-	fixed = search_query(db, :place_type => "EARLY_FIXED") \
+	early_place = search_query(db, :place_type => "EARLY_FIXED") \
 	  .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
+	  .filter{dist <= max_distance} \
 	  .order(:dist.asc) \
 	  .first
 
-        raise "no fixed early voting places" unless fixed
-        raise "cannot find location for early voting place id #{fixed[:id]}" unless fixed[:geometry]
+	return [] unless early_place
+	require "pp" ; pp early_place
 
         rs = db[:voting_schedule_entries] \
-          .filter(:schedule_id => fixed[:schedule_id]) \
+          .filter(:schedule_id => early_place[:schedule_id]) \
           .filter{opens <= now} \
           .filter{closes > now}
 	is_open = (rs.count > 0)
 
         ret << new(:origin => origin,
-          :location => FindIt::Location.from_geometry(db, fixed[:geometry]),
+          :location => FindIt::Location.from_geometry(db, early_place[:geometry]),
           :type => :EARLY_VOTING_FIXED,
           :title => "Early voting location",
-          :name => fixed[:name],
-          :address => fixed[:street],
-          :city => fixed[:city],
-          :state => fixed[:state],
-          :zip => fixed[:zip],
-          :info => format_info(fixed),
+          :name => early_place[:name],
+          :address => early_place[:street],
+          :city => early_place[:city],
+          :state => early_place[:state],
+          :zip => early_place[:zip],
+          :info => format_info(early_place),
           :is_open => is_open,
           :marker => place_marker(:EARLY_VOTING_FIXED, is_open))
 
-	mobiles = search_query(db, :place_type => "EARLY_MOBILE") \
+	mobile_places = search_query(db, :place_type => "EARLY_MOBILE") \
 	  .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
-          .filter{dist < 1.5*fixed[:dist]} \
+          .filter{dist < 1.5*early_place[:dist]} \
           .filter{closes > now} \
           .order(:opens.asc, :dist.asc) \
-          .limit(3) \
+          .limit(max_places - 1) \
           .all
 
-        mobiles.each do |place|
+        mobile_places.each do |place|
 	  is_open = (now >= place[:opens])
           ret << new(:origin => origin,
             :location => FindIt::Location.from_geometry(db, place[:geometry]),

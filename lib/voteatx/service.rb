@@ -1,5 +1,6 @@
 require 'sinatra/base'
 require 'sinatra/jsonp'
+require 'logger'
 require_relative '../voteatx.rb'
 
 module VoteATX
@@ -18,7 +19,8 @@ module VoteATX
       database = "#{settings.root}/voteatx.db"
       $stderr.puts "CONFIGURE: database = #{database}"
 
-      @@app = VoteATX::App.new(:database => database)
+      @log = Logger.new($stderr)
+      @@app = VoteATX::App.new(:database => database, :log => @log)
     end
 
     helpers do  
@@ -42,13 +44,13 @@ module VoteATX
     get '/svc/search' do
       lat = @params['latitude']
       lng = @params['longitude']
-      send_result @@app.search(lat.to_f, lng.to_f)
+      send_result @@app.search(lat.to_f, lng.to_f, :time => @params[:time])
     end
 
     post '/svc/search' do
       lat = @params['latitude']
       lng = @params['longitude']
-      send_result @@app.search(lat.to_f, lng.to_f)
+      send_result @@app.search(lat.to_f, lng.to_f, :time => @params[:time])
     end
 
     run! if app_file == $0

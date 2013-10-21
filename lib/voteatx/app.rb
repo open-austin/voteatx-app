@@ -4,6 +4,15 @@ require_relative './voting-place.rb'
 
 module VoteATX
 
+  # Default path to the VoteATX database.
+  DATABASE = "db/voteatx.db"
+
+  # Default maxmum distance (miles) of early voting places to consider.
+  MAX_DISTANCE = 12
+
+  # Default maximum number of early voting places to display.
+  MAX_PLACES = 4
+
   # Implementation of the VoteATX application.
   #
   #    require "voteatx/app"
@@ -11,19 +20,6 @@ module VoteATX
   #    voting_places = app.search(latitude, longitude))
   #
   class App
-
-    # Default path to the VoteATX database.
-    DATABASE = "db/voteatx.db"
-
-    # Default max distance (in miles) from current location.
-    #
-    # Results will include only voting places within this distance.
-    #
-    MAX_DISTANCE = 12
-
-    # FIXME - this is not properly implemented yet
-    #
-    MAX_PLACES = 3
 
     # Construct a new VoteATX app instance.
     #
@@ -33,10 +29,12 @@ module VoteATX
     # * :max_places
     #
     def initialize(options = {})
-      @max_distance = options[:max_distance] || MAX_DISTANCE
-      @max_places = options[:max_places] || MAX_PLACES
-      @database = options[:database] || DATABASE
-      @db = Sequel.spatialite(@database)
+      @search_opts = {}
+      @search__opts[:max_places] = options[:max_places] unless options[:max_places].empty?
+      @search__opts[:max_distance] = options[:max_distance] unless options[:max_distance].empty?
+      @db = Sequel.spatialite(options[:database] || DATABASE)
+      @db.logger = options[:log] if options.has_key?(:log)
+      @db.sql_log_level = :debug
     end
 
 
@@ -52,12 +50,21 @@ module VoteATX
     #
     def search(lat, lng, options = {})
       origin = FindIt::Location.new(lat, lng, :DEG)
-      t = options[:time] || Time.now
-      ret = []
-      a = VoteATX::VotingPlace::ElectionDay.search(@db, origin, :max_distance => @max_distance, :time => t)
-      ret << a if a
-      ret += VoteATX::VotingPlace::Early.search(@db, origin, :max_distance => @max_distance, :max_places => @max_places, :time => t)
-      ret
+
+      search_opts = @search_opts.dup
+      unless options[:time].empty?
+        begin
+	  search_opts[:time] = Time.parse(options[:time])
+	rescue ArgumentError
+	  # ignore
+	end
+      end
+
+      places = []
+      a = VoteATX::VotingPlace::ElectionDay.search(@db, origin, search_opts)
+      places << a if a
+      places += VoteATX::VotingPlace::Early.search(@db, origin, search_opts)
+      return places
     end
 
   end # module App
