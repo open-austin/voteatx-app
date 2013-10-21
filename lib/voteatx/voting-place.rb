@@ -5,66 +5,70 @@ module VoteATX
 
     class Base
 
-      attr_reader :origin, :location, :type, :title, :name, :address,
-        :city, :state, :zip, :info, :is_open, :marker, :region
+      attr_reader :origin, :type, :title, :location, :is_open, :precinct, :region, :marker, :info
 
       def initialize(params)
         p = params.dup
         @origin = p.delete(:origin) or raise "required VoteATX::VotingPlace attribute \":origin\" not specified"
-        @location = p.delete(:location) or raise "required VoteATX::VotingPlace attribute \":location\" not specified"
         @type = p.delete(:type) or raise "required VoteATX::VotingPlace attribute \":type\" not specified"
         @title = p.delete(:title) or raise "required VoteATX::VotingPlace attribute \":title\" not specified"
-        @name = p.delete(:name) or raise "required VoteATX::VotingPlace attribute \":name\" not specified"
-        @address = p.delete(:address) or raise "required VoteATX::VotingPlace attribute \":address\" not specified"
-        @city = p.delete(:city) or raise "required VoteATX::VotingPlace attribute \":city\" not specified"
-        @state = p.delete(:state) or raise "required VoteATX::VotingPlace attribute \":state\" not specified"
-        @zip = p.delete(:zip) or raise "required VoteATX::VotingPlace attribute \":zip\" not specified"
+        @location = p.delete(:location) or raise "required VoteATX::VotingPlace attribute \":location\" not specified"
+        @is_open = !! p.delete(:is_open)
         @info = p.delete(:info) or raise "required VoteATX::VotingPlace attribute \":info\" not specified"
-        @is_open = p.delete(:is_open)
-        @marker = p.delete(:marker) or raise "required VoteATX::VotingPlace attribute \":marker\" not specified"
-        @region = p.delete(:region)
+
+	case @type
+	when :ELECTION_DAY
+	  @precinct = p.delete(:precinct) or raise "required VoteATX::VotingPlace attribute \":precinct\" not specified"
+	  @region = p.delete(:region) or raise "required VoteATX::VotingPlace attribute \":region\" not specified"
+	when :EARLY_VOTING_FIXED, :EARLY_VOTING_MOBILE
+	  # nop
+	else
+	  raise "unknown voting place type \"#{@type}\""
+	end
+
+	raise "unknown initialization parameter(s) specified: #{p.keys.join(', ')}" unless p.empty?
+
+        @marker = self.class.place_marker(@type, @is_open)
+
       end
 
       def to_h
         h = {
-          :latitude => @location.lat,
-          :longitude => @location.lng,
           :type => @type,
           :title => @title,
-          :name => @name,
-          :address => @address,
-          :city => @city,
-          :state => @state,
-          :zip => @zip,
-          :info => @info,
+	  :precinct => @precinct,
+	  :region => (@region ? @region.to_h : nil),
+	  :location => {
+	    :name => @location[:name],
+	    :address => @location[:address],
+	    :city => @location[:city],
+	    :state => @location[:state],
+	    :zip => @location[:zip],
+	    :latitude => @location[:latitude],
+	    :longitude => @location[:longitude],
+	  },
+          :marker => {
+	    :icon => @marker.marker.to_h,
+            :shadow => @marker.shadow.to_h,
+	  },
           :is_open => @is_open,
-          :marker => @marker.marker.to_h,
-          :shadow => @marker.shadow.to_h,
+          :info => @info,
         }
-        h[:region] = @region.to_h if @region
-        h
       end
 
+      ELECTION_TYPE_MARKER_SUFFIX = {
+	:ELECTION_DAY => "",
+	:EARLY_VOTING_FIXED => "_early",
+	:EARLY_VOTING_MOBILE => "_mobile",
+      }.freeze
 
       def self.place_marker(type, is_open)
-
-        ptype = case type
-        when :ELECTION_DAY
-          ""
-        when :EARLY_VOTING_FIXED
-          "_early"
-        when :EARLY_VOTING_MOBILE
-          "_mobile"
-        else
-          raise "unknown voting place type \"#{type}\""
-        end
-
+        p = ELECTION_TYPE_MARKER_SUFFIX[type] or raise "unknown voting place type \"#{type}\""
         oc = (is_open ? "" : "_closed")
-
-        graphic = "/mapicons/icon_vote#{ptype}#{oc}.png"
-
+        graphic = "/mapicons/icon_vote#{p}#{oc}.png"
         FindIt::Asset::MapMarker.new(graphic, :shadow => "icon_vote_shadow.png")
       end
+
 
       def self.format_info(place)
 	info = []
@@ -95,11 +99,18 @@ module VoteATX
 	db[:voting_places] \
 	  .select_append(:voting_locations__formatted.as(:location_formatted)) \
 	  .select_append(:voting_schedules__formatted.as(:schedule_formatted)) \
+          .select_append{ST_X(:voting_locations__geometry).as(:longitude)} \
+          .select_append{ST_Y(:voting_locations__geometry).as(:latitude)} \
 	  .filter(conditions) \
 	  .join(:voting_locations, :id => :location_id) \
 	  .join(:voting_schedules, :id => :voting_places__schedule_id) \
 	  .join(:voting_schedule_entries, :schedule_id => :id)
       end
+
+      def self.search(db, origin, options = {})
+	raise "must override the search method in the derived class"
+      end
+
 
     end
 
@@ -122,21 +133,14 @@ module VoteATX
         raise "cannot find election day voting place for precinct \"#{precinct}\"" unless place
         raise "cannot find election day voting location for precinct \"#{precinct}\"" unless place[:geometry]
 
-	is_open = (now >= place[:opens] && now < place[:closes])
-
         new(:origin => origin,
-          :location => FindIt::Location.from_geometry(db, place[:geometry]),
           :type => :ELECTION_DAY,
           :title => "Your voting place (precinct #{precinct})",
-          :name => place[:name],
-          :address => place[:street],
-          :city => place[:city],
-          :state => place[:state],
-          :zip => place[:zip],
-          :info => format_info(place),
-          :is_open => is_open,
-          :marker => place_marker(:ELECTION_DAY, is_open),
-          :region => FindIt::Asset::MapRegion.from_geojson(district[:region]))
+	  :precinct => precinct,
+          :region => FindIt::Asset::MapRegion.from_geojson(district[:region]),
+	  :location => place,
+          :is_open => (now >= place[:opens] && now < place[:closes]),
+          :info => format_info(place))
       end  # search
 
     end # ElectionDay
@@ -169,7 +173,6 @@ module VoteATX
 	  .first
 
 	return [] unless early_place
-	require "pp" ; pp early_place
 
         rs = db[:voting_schedule_entries] \
           .filter(:schedule_id => early_place[:schedule_id]) \
@@ -178,17 +181,11 @@ module VoteATX
 	is_open = (rs.count > 0)
 
         ret << new(:origin => origin,
-          :location => FindIt::Location.from_geometry(db, early_place[:geometry]),
           :type => :EARLY_VOTING_FIXED,
           :title => "Early voting location",
-          :name => early_place[:name],
-          :address => early_place[:street],
-          :city => early_place[:city],
-          :state => early_place[:state],
-          :zip => early_place[:zip],
-          :info => format_info(early_place),
+	  :location => early_place,
           :is_open => is_open,
-          :marker => place_marker(:EARLY_VOTING_FIXED, is_open))
+          :info => format_info(early_place))
 
 	mobile_places = search_query(db, :place_type => "EARLY_MOBILE") \
 	  .select_append{ST_Distance(geometry, MakePoint(origin.lng, origin.lat, 4326)).as(:dist)} \
@@ -201,17 +198,11 @@ module VoteATX
         mobile_places.each do |place|
 	  is_open = (now >= place[:opens])
           ret << new(:origin => origin,
-            :location => FindIt::Location.from_geometry(db, place[:geometry]),
             :type => :EARLY_VOTING_MOBILE,
             :title => "Mobile early voting location",
-            :name => place[:name],
-            :address => place[:street],
-            :city => place[:city],
-            :state => place[:state],
-            :zip => place[:zip],
-            :info => format_info(place),
+	    :location => place,
             :is_open => is_open,
-            :marker => place_marker(:EARLY_VOTING_MOBILE, is_open))
+	    :info => format_info(place))
         end
 
         ret

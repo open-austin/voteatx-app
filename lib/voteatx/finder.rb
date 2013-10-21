@@ -1,6 +1,20 @@
 require 'findit-support'
 
+require 'cgi'
+class String
+  def escape_html
+    CGI.escape_html(self)
+  end
+end
+
+class NilClass
+  def empty?
+    true
+  end
+end
+
 require_relative './voting-place.rb'
+
 
 module VoteATX
 
@@ -15,11 +29,11 @@ module VoteATX
 
   # Implementation of the VoteATX application.
   #
-  #    require "voteatx/app"
-  #    app = VoteATX::App.new
-  #    voting_places = app.search(latitude, longitude))
+  #    require "voteatx/finder"
+  #    finder = VoteATX::Finder.new
+  #    voting_places = finder.search(latitude, longitude))
   #
-  class App
+  class Finder
 
     # Construct a new VoteATX app instance.
     #
@@ -67,5 +81,5 @@ module VoteATX
       return places
     end
 
-  end # module App
+  end # module Finder
 end # module VoteATX

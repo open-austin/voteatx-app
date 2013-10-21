@@ -252,14 +252,16 @@ FindIt.methods = {
     var marker = this.makeMarker({
       position: loc,
       marker: {
-        url: "http://maps.google.com/mapfiles/ms/micons/red-dot.png",
-        height: 32,
-        width: 32,      
-      },
-      shadow: {
-        url: "http://maps.google.com/mapfiles/ms/micons/msmarker.shadow.png",
-        height: 32,
-        width: 59,        
+	icon: {
+	  url: "http://maps.google.com/mapfiles/ms/micons/red-dot.png",
+	  height: 32,
+	  width: 32,      
+	},
+	shadow: {
+	  url: "http://maps.google.com/mapfiles/ms/micons/msmarker.shadow.png",
+	  height: 32,
+	  width: 59,        
+	},
       },
       draggable: true,
       title: "You are here.",
@@ -355,10 +357,10 @@ FindIt.methods = {
    * @return A google.maps.Marker instance.
    * 
    * Parameters:
-   * * position -- A google.maps.LatLng instance.
-   * * latitude, longitude -- Must be specified if "position" not defined.
-   * * marker -- Arguments to makeMarkerIcon().
-   * * shadow -- Arguments to makeMarkerShadow().
+   * * position -- If specified, a google.maps.LatLng instance where marker is placed.
+   * * location.latitude, location.longitude -- Must be specified if "position" not defined.
+   * * marker.icon -- Arguments to makeMarkerIcon().
+   * * shadow.shadow -- Arguments to makeMarkerShadow().
    * * title -- Text message to display when hover over the marker.
    * * draggable -- If true, marker will be draggable.
    * * info -- If specified, text message to be placed in an infoWindow.
@@ -376,9 +378,9 @@ FindIt.methods = {
 
     var marker = new google.maps.Marker({
       map: this.map,
-      position: params.position || new google.maps.LatLng(params.latitude, params.longitude),
-      icon: this.makeMarkerIcon(params.marker),
-      shadow: this.makeMarkerShadow(params.shadow, params.marker),
+      position: params.position || new google.maps.LatLng(params.location.latitude, params.location.longitude),
+      icon: this.makeMarkerIcon(params.marker.icon),
+      shadow: this.makeMarkerShadow(params.marker.shadow, params.marker.icon),
       title: params.title,
       draggable: params.draggable || false,
     });
