@@ -6,6 +6,8 @@ require_relative '../voteatx.rb'
 module VoteATX
 
   class Service < Sinatra::Base   
+
+    # Initialization performed at service start-up.
     configure do
       @log = Logger.new($stderr)
       log_level = (ENV['APP_DEBUG'] ? "DEBUG" : "INFO")
@@ -29,34 +31,54 @@ module VoteATX
       @log.info "initialization successful"
     end
 
+
+    # Helper methods for request handling.
+    helpers Sinatra::Jsonp
     helpers do  
-      helpers Sinatra::Jsonp
-      def send_result(result)
+
+      def search(params)
+        lat = nil
+        lng = nil
+        query_opts = {}
+
+        params.each do |k, v|
+          k = k.to_sym
+          case k
+          when :latitude
+            lat = v.to_f
+          when :longitude
+            lng = v.to_f
+          when :time, :max_distance, :max_locations
+            query_opts[k] = v
+          end
+        end
+
+        result = @@app.search(lat, lng, query_opts)
+
         content_type :json
         jsonp result.map{|e| e.to_h}
       end
+
     end
+
 
     before do
       @params = {}
       @params.merge!(request.env['rack.request.form_hash'] || {})
       @params.merge!(request.env['rack.request.query_hash'] || {})
     end
+
        
     get '/' do
       redirect to('/index.html')
     end
 
     get '/svc/search' do
-      lat = @params['latitude']
-      lng = @params['longitude']
-      send_result @@app.search(lat.to_f, lng.to_f, :time => @params[:time])
+      search(@params)
     end
 
     post '/svc/search' do
-      lat = @params['latitude']
-      lng = @params['longitude']
-      send_result @@app.search(lat.to_f, lng.to_f, :time => @params[:time])
+      search(@params)
     end
 
     run! if app_file == $0

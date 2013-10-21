@@ -327,7 +327,7 @@ FindIt.methods = {
     var data = "latitude=" + loc.lat() + "&longitude=" + loc.lng();
 
     var req = new XMLHttpRequest();
-    req.open("POST", this.svc_endpoint, false);
+    req.open("POST", this.svc_endpoint + location.search, false);
     req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     req.send(data);
 
