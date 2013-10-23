@@ -513,7 +513,7 @@ FindIt.methods = {
    */
   makeInfoWindow : function(content) {
     var s = content.split("\n").join("<br />\n");
-    return new google.maps.InfoWindow({content: s});
+    return new google.maps.InfoWindow({content: s, maxWidth: 400});
   },
   
   
