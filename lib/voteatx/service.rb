@@ -9,9 +9,10 @@ module VoteATX
 
     # Initialization performed at service start-up.
     # 
-    # Environment parameters:
+    # Environment parameters to override configuration settings:
     #
     # APP_ROOT - Root directory of the application.
+    # APP_DATABASE - Path to database file.
     # APP_DEBUG - If set, logging set to DEBUG level, which logs SQL operations.
     #
     configure do
@@ -29,7 +30,7 @@ module VoteATX
       set :public_folder, "#{settings.root}/public"
       log.info "public_folder=#{settings.public_folder}"
 
-      database = "#{settings.root}/voteatx.db"
+      database = ENV['APP_DATABASE'] || "#{settings.root}/voteatx.db"
       log.info "database=#{database}"
       @@app = VoteATX::Finder.new(:database => database, :log => log)
 
