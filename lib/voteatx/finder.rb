@@ -53,7 +53,11 @@ module VoteATX
       @search_opts = {}
       @search__opts[:max_places] = options[:max_places] unless options[:max_places].empty?
       @search__opts[:max_distance] = options[:max_distance] unless options[:max_distance].empty?
-      @db = Sequel.spatialite(options[:database] || DATABASE)
+
+      database = options[:database] || DATABASE
+      raise "database \"#{database}\" not found" unless File.exist?(database)
+
+      @db = Sequel.spatialite(database)
       @db.logger = options[:log] if options.has_key?(:log)
       @db.sql_log_level = :debug
     end
