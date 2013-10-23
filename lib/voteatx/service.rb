@@ -8,27 +8,32 @@ module VoteATX
   class Service < Sinatra::Base   
 
     # Initialization performed at service start-up.
+    # 
+    # Environment parameters:
+    #
+    # APP_ROOT - Root directory of the application.
+    # APP_DEBUG - If set, logging set to DEBUG level, which logs SQL operations.
+    #
     configure do
-      @log = Logger.new($stderr)
+      log = Logger.new($stderr)
+      log.progname = self.name
       log_level = (ENV['APP_DEBUG'] ? "DEBUG" : "INFO")
-      @log.level = Logger.const_get(log_level)
+      log.level = Logger.const_get(log_level)
 
-      @log.info "starting #{self.name}"
-      @log.info "set environment #{settings.environment}"
+      log.info "environment=#{settings.environment}"
+      log.info "log level=#{log_level}"
 
       set :root, ENV['APP_ROOT'] || File.dirname(__FILE__) + "/../.."
-      @log.info "set root #{settings.root}"
+      log.info "root=#{settings.root}"
 
       set :public_folder, "#{settings.root}/public"
-      @log.info "set public_folder #{settings.public_folder}"
+      log.info "public_folder=#{settings.public_folder}"
 
       database = "#{settings.root}/voteatx.db"
-      @log.info "set database #{database}"
+      log.info "database=#{database}"
+      @@app = VoteATX::Finder.new(:database => database, :log => log)
 
-      @log.info "set log level #{log_level}"
-      @@app = VoteATX::Finder.new(:database => database, :log => @log)
-
-      @log.info "initialization successful"
+      log.info "configuration complete"
     end
 
 
@@ -64,8 +69,9 @@ module VoteATX
 
     before do
       @params = {}
-      @params.merge!(request.env['rack.request.form_hash'] || {})
-      @params.merge!(request.env['rack.request.query_hash'] || {})
+      env = request.env
+      @params.merge!(env['rack.request.form_hash']) unless env['rack.request.form_hash'].empty?
+      @params.merge!(env['rack.request.query_hash']) unless env['rack.request.query_hash'].empty?
     end
 
        
