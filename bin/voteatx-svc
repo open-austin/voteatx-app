@@ -1,6 +1,8 @@
 #!/bin/sh
-APP_ROOT="`dirname $0`/.."
-APP_ROOT=`cd $APP_ROOT && pwd`
+if [ -z "$APP_ROOT" ] ; then
+	APP_ROOT="`dirname $0`/.."
+	APP_ROOT=`cd $APP_ROOT && pwd`
+fi
 export APP_ROOT
 exec ruby $APP_ROOT/lib/voteatx/service.rb 
 
