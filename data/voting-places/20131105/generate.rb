@@ -38,7 +38,7 @@ module VoteATX
     attr_reader :log
     attr_reader :db
     attr_accessor :col_name
-    attr_accessor :range_lng, :range_lat
+    attr_accessor :valid_lng_range, :valid_lat_range, :valid_zip_regexp
     attr_accessor :election_description, :election_info
 
     def initialize(dbname, options = {})
@@ -53,14 +53,18 @@ module VoteATX
       @db.sql_log_level = :debug
 
       @col_name = DEFAULT_COL_NAMES.dup
-      @range_lng = -180 .. 180
-      @range_lat = -180 .. 180
+      @valid_lng_range = -180 .. 180
+      @valid_lat_range = -180 .. 180
+      @valid_zip_regexp = /^78[67]\d\d$/
 
       @log.info("loading database \"#{@dbname}\" ...")
     end
 
     def cleanup_row(row)
       row.each {|k,v| row[k] = v.cleanup}
+
+      # Convert "Combined @ 109 Parmer Lane Elementary School" -> "Parmer Lane Elementary School"
+      row[@col_name[:SITE_NAME]].sub!(/^Combined\s+@\s+\d+\s+/, "")
     end
 
     def ensure_not_empty(row, *cols)
@@ -93,10 +97,12 @@ module VoteATX
       Time.local(yyyy, mm, dd, start_hh, start_mm) .. Time.local(yyyy, mm, dd, end_hh, end_mm)
     end
 
+    # Determine if an open..close Time range is the indicator for a closed day (0:00 to 0:00).
     def is_closed_today(h)
       h.first == h.last && h.first.hour == 0 && h.first.min == 0
     end
 
+    # Given a list of open..close Time ranges, produce a display as a list of String values.
     def format_schedule(hours)
       sched = []
       curr = nil
@@ -130,6 +136,7 @@ module VoteATX
       sched
     end
 
+    # Given an open..close Time range, format the hours that day as a String
     def format_schedule_line(h)
       if is_closed_today(h)
         format_date(h.first) + ": closed"
@@ -138,14 +145,17 @@ module VoteATX
       end
     end
 
+    # Format the date portion of a Time value to a String
     def format_date(t)
       t.strftime("%a, %b %-d")
     end
 
+    # Format the time portion of a Time value to a String
     def format_time(t)
       t.strftime("%-l:%M%P").sub(/:00([ap]m)/, "\\1").sub(/12am/, 'midnight').sub(/12pm/, 'noon')
     end
 
+    # Initialize all the tables
     def create_tables
       @log.info("create_tables: creating database tables ...")
 
@@ -199,28 +209,34 @@ module VoteATX
     end
 
 
-    def make_location(row)
-      ensure_not_empty(row, "Name", "Address", "City", "Zipcode", "Longitude", "Latitude")
+    # Create an entry in the "voting_locations" table for this location, return row id.
+    #
+    # If the location already exists in the database, will return row id for existing row.
+    #
+    # The "values" list must define: "Name", "Address", "City", "Zipcode", "Longitude", "Latitude".
+    #
+    def make_location(values)
+      ensure_not_empty(values,
+        @col_name[:SITE_NAME],
+        @col_name[:LOCATION_ADDRESS],
+        @col_name[:LOCATION_CITY],
+        @col_name[:LOCATION_ZIP],
+        @col_name[:LOCATION_LONGITUDE],
+        @col_name[:LOCATION_LATITUDE])
 
-      name = row[@col_name[:SITE_NAME]].sub(/^Combined\s+@\s+\d+\s+/, "")
+      lng = values[@col_name[:LOCATION_LONGITUDE]].to_f
+      raise "longitude \"#{lng}\" outside of expected range (#{@valid_lng_range}): #{values}" unless @valid_lng_range.include?(lng)
 
-      v = row[@col_name[:LOCATION_LONGITUDE]]
-      raise "required column \"#{"Longitude"}\" not defined: #{row}" if v.empty?
-      lng = v.to_f
-      raise "longitude \"#{lng}\" outside of expected range (#{@range_lng}): #{row}" unless @range_lng.include?(lng)
+      lat = values[@col_name[:LOCATION_LATITUDE]].to_f
+      raise "latitude \"#{lat}\" outside of expected range (#{@valid_lat_range}): #{values}" unless @valid_lat_range.include?(lat)
 
-      v = row[@col_name[:LOCATION_LATITUDE]]
-      raise "required column \"#{"Latitude"}\" not defined: #{row}" if v.empty?
-      lat = v.to_f
-      raise "latitude \"#{lat}\" outside of expected range (#{@range_lat}): #{row}" unless @range_lat.include?(lat)
-
-      zip = row[@col_name[:LOCATION_ZIP]]
-      raise "bad zip value \"Zipcode\": #{zip}" unless zip =~ /^78[67]\d\d$/
+      zip = values[@col_name[:LOCATION_ZIP]]
+      raise "bad zip value \"Zipcode\": #{zip}" unless zip =~ @valid_zip_regexp
 
       rec = {
-        :name => name,
-        :street => row[@col_name[:LOCATION_ADDRESS]],
-        :city => row[@col_name[:LOCATION_CITY]],
+        :name => values[@col_name[:SITE_NAME]],
+        :street => values[@col_name[:LOCATION_ADDRESS]],
+        :city => values[@col_name[:LOCATION_CITY]],
         :state => "TX",
         :zip => zip,
         :geometry => Sequel.function(:MakePoint, lng, lat, 4326),
@@ -283,6 +299,7 @@ module VoteATX
 
         cleanup_row(row)
 
+        ensure_not_empty(row, @col_name[:PCT])
         precinct = row[@col_name[:PCT]].to_i
         raise "failed to parse precinct from: #{row}" if precinct == 0
 
@@ -511,8 +528,8 @@ EARLY_VOTING_FIXED_HOURS = {
 
 }
 
-loader.range_lng = -98.057163 .. -97.407671
-loader.range_lat = 30.088999 .. 30.572025
+loader.valid_lng_range = -98.057163 .. -97.407671
+loader.valid_lat_range = 30.088999 .. 30.572025
 
 loader.create_tables
 loader.load_eday_places("20131105_WEBLoad_G13_FINAL_EDay.csv", ELECTION_DAY_HOURS)
