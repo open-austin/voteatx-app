@@ -24,7 +24,7 @@ module VoteATX
       log.info "environment=#{settings.environment}"
       log.info "log level=#{log_level}"
 
-      set :root, ENV['APP_ROOT'] || File.dirname(__FILE__) + "/../.."
+      set :root, ENV['APP_ROOT'] || VoteATX::BASEDIR
       log.info "root=#{settings.root}"
 
       set :public_folder, "#{settings.root}/public"
