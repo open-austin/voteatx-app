@@ -11,6 +11,7 @@ end
 module VoteATX
   class Loader
 
+    # Default mapping of data columns to spreadsheet column names
     DEFAULT_COL_NAMES = {
       :SITE_NAME => "Name",
       :PCT => "Pct",
@@ -26,14 +27,60 @@ module VoteATX
       :SCHEDULE_TIME_CLOSES => "End Time",
     }
 
+    # Name of the database we are creating
     attr_reader :dbname
-    attr_reader :debug
-    attr_reader :log
-    attr_reader :db
-    attr_accessor :col_name
-    attr_accessor :valid_lng_range, :valid_lat_range, :valid_zip_regexp
-    attr_accessor :election_description, :election_info
 
+    # True if loader instance was constructed with :debug flag
+    attr_reader :debug
+
+    # Logger instance
+    attr_reader :log
+
+    # Spatialite database instance
+    attr_reader :db
+
+    # Mapping of data columns to spreadsheet column names
+    attr_accessor :col_name
+
+    # Numeric range for valid longitude (degrees) values
+    attr_accessor :valid_lng_range
+
+    # Numeric range for valid latitude (degrees) values
+    attr_accessor :valid_lat_range
+
+    # Regexp to validate zipcode values
+    attr_accessor :valid_zip_regexp
+
+    # A one-line description of the election
+    #
+    # Example: "for the Nov 5, 2013 general election in Travis County"
+    #
+    # In the VoteATX app this is displayed below the title of the
+    # voting place (e.g. "Precinct 31415").
+    #
+    attr_accessor :election_description
+
+    # Additional information about the election.
+    #
+    # This is included near the bottom of the info window that is
+    # opened up for a voting place. Full HTML is supported. Line
+    # breaks automatically inserted.
+    #
+    # This would be a good place to put a link to the official
+    # county voting page for this election.
+    #
+    attr_accessor :election_info
+
+    # Create a new loader instance.
+    #
+    # The "dbname" is the name of the Spatialiate database to create. It
+    # must already exist and it must already be initialized with geospatial
+    # tables.
+    #
+    # Options:
+    # * :log - A Logger instance.
+    # * :debug - If true, database operations will be logged.
+    #
     def initialize(dbname, options = {})
       @dbname = dbname
       @debug = options.has_key?(:debug) ? options.delete(:debug) : false
@@ -53,6 +100,7 @@ module VoteATX
       @log.info("loading database \"#{@dbname}\" ...")
     end
 
+    # Cleanup a row of data read from the spreadsheet.
     def cleanup_row(row)
       row.each {|k,v| row[k] = v.cleanup}
 
@@ -60,6 +108,7 @@ module VoteATX
       row[@col_name[:SITE_NAME]].sub!(/^Combined\s+@\s+\d+\s+/, "")
     end
 
+    # Assert that the spreadsheet row has non-empty values for each of the specifieid columns.
     def ensure_not_empty(row, *cols)
       cols.each do |col|
         raise "required column \"#{col}\" not defined: #{row}" if row[col].empty?
