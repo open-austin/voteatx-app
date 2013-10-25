@@ -2,8 +2,6 @@ require 'findit-support'
 require 'logger'
 require 'csv'
 
-USAGE = "usage: #{$0} database\n"
-
 class NilClass
   def empty?
     true
