@@ -9,6 +9,12 @@ class NilClass
 end
 
 module VoteATX
+
+  # Load a Spatialite database with voting place information from spreadsheets.
+  #
+  # The database must already exist, and must already be initialized with
+  # the geospatial tables.
+  #
   class Loader
 
     # Default mapping of data columns to spreadsheet column names
@@ -73,7 +79,7 @@ module VoteATX
 
     # Create a new loader instance.
     #
-    # The "dbname" is the name of the Spatialiate database to create. It
+    # The "dbname" is the name of the Spatialiate database to load. It
     # must already exist and it must already be initialized with geospatial
     # tables.
     #
