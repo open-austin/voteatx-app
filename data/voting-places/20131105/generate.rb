@@ -10,13 +10,56 @@ dbname = ARGV[0]
 raise "database file \"#{dbname}\" does not exist\n" unless File.exist?(dbname)
 loader = VoteATX::Loader.new(dbname, :log => @log, :debug => false)
 
+
+#####
+#
+# A one-line description of the election
+#
+# Example: "for the Nov 5, 2013 general election in Travis County"
+#
+# In the VoteATX app this is displayed below the title of the
+# voting place (e.g. "Precinct 31415").
+#
+
 loader.election_description = "for the Nov 5, 2013 general election in Travis County"
+
+
+#####
+#
+# Additional information about the election.
+#
+# This is included near the bottom of the info window that is
+# opened up for a voting place. Full HTML is supported. Line
+# breaks automatically inserted.
+#
+# This would be a good place to put a link to the official
+# county voting page for this election.
+#
 
 loader.election_info = %q{<b>Note:</b> Voting centers are in effect for this election.  That means on election day you can vote at <em>any</em> open Travis County polling place, not just your home precinct.
 
 <i>(<a href="http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4">more information ...</a>)</i>}
 
+
+#####
+#
+# Hours voting places are open on election day.
+#
+# Define this as a range:  Time .. Time
+#
+
 ELECTION_DAY_HOURS = Time.new(2013, 11, 5, 7, 0) .. Time.new(2013, 11, 5, 19, 0)
+
+
+#####
+#
+# Hours for the fixed early voting places, indexed by schedule code.
+#
+# The fixed early voting places spreadsheet has a column with a schedule
+# code that identifies the schedule for that place.
+#
+# Define this as a map of schedule code to a list of open..close time ranges.
+#
 
 EARLY_VOTING_FIXED_HOURS = {
 
@@ -117,8 +160,21 @@ EARLY_VOTING_FIXED_HOURS = {
 
 }
 
+
+#####
+#
+# Some definitions used for input validation.
+#
+
 loader.valid_lng_range = -98.057163 .. -97.407671
 loader.valid_lat_range = 30.088999 .. 30.572025
+loader.valid_zip_regexp = /^78[67]\d\d$/
+
+
+#####
+#
+# Perform the load.
+#
 
 loader.create_tables
 loader.load_eday_places("20131105_WEBLoad_G13_FINAL_EDay.csv", ELECTION_DAY_HOURS)
@@ -126,4 +182,3 @@ loader.load_evfixed_places("20131105_WEBLoad_G13_FINAL_EVPerm.csv", EARLY_VOTING
 loader.load_evmobile_places("20131105_WEBLoad_G13_FINAL_EVMobile.csv")
 loader.log.info("done")
 
-# vim:autoindent:shiftwidth=2:tabstop=2:expandtab
