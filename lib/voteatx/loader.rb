@@ -101,7 +101,7 @@ module VoteATX
       @col_name = DEFAULT_COL_NAMES.dup
       @valid_lng_range = -180 .. 180
       @valid_lat_range = -180 .. 180
-      @valid_zip_regexp = /^78[67]\d\d$/
+      @valid_zip_regexp = /^\d\d\d\d\d(-\d\d\d\d)?$/
 
       @log.info("loading database \"#{@dbname}\" ...")
     end
