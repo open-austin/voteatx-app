@@ -39,18 +39,13 @@ The "config.ru" file is used in production.
 
 == Porting and Update
 
-There is nothing in the application or libraries that needs to be changed when
-porting to another location or updating for another election.
-
-What's required for porting or updating is:
+The application is designed to be portable. The process to deploy at a new location -- or
+update for a new election date -- should be:
 
 * Generate a new database.
 * Update the "public/about.html" page.
 
-The database must be regenerated for each election. See the "data" directory
-for the source data used to build the database.
-
-See the data/README.txt for information on database generation.
+The README-data.rdoc file provides additional information on setting up the database.
 
 
 == Feedback
@@ -58,7 +53,5 @@ See the data/README.txt for information on database generation.
 Please report any problems or feedback through the issue tracker for this
 project: https://github.com/chip-rosenthal/voteatx/issues
 
-    -- 
-    Chip Rosenthal
-    chip@unicom.com
-    http://www.unicom.com
+---
+Chip Rosenthal <chip@unicom.com>
