@@ -47,6 +47,8 @@ update for a new election date -- should be:
 
 The README-data.rdoc file provides additional information on setting up the database.
 
+Additional documentation can be produced by running: rake rdoc
+
 
 == Feedback
 
