@@ -4,7 +4,7 @@
 
 The database is generated from two sets of data:
 
-=== Voting Places ===
+=== Voting Places
 
 The Travis County Clerk has provided a spreadsheet with three tables,
 one each for the various voting place types (election day, early
@@ -14,7 +14,7 @@ files, and then use a loader utility to load the voting place table.
 This information is in the "data/voting-places/_YYYYMMDD_" subdirectory,
 where "_YYYYMMDD_" is the data of the election.
 
-=== Voting Districts ===
+=== Voting Districts
 
 This information is pretty stable, and changes only when redistricting occurs.
 
