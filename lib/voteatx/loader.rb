@@ -38,7 +38,6 @@ module VoteATX
     #     codepage: CP1252
     #     srid: 3081
     #
-    #
     def initialize(params)
       @database = params.delete(:database) or raise "required parameter \":database\" not specified"
       @table = params.delete(:table) or raise "required parameter \":table\" not specified"
@@ -58,6 +57,8 @@ module VoteATX
       end
     end
 
+
+    # Execute the shapefile import.
     def load
       @log.info("starting import of voting districts")
       @log.info("  source file: #{@shp['shapefile']}")
@@ -82,6 +83,11 @@ module VoteATX
       raise "command failed" unless system(*cmd)
     end
 
+
+    # Convenience for: 
+    #
+    #   new(params).load
+    #
     def self.load(params)
       new(params).load
     end
