@@ -1,73 +1,30 @@
 = VoteATX Database Generation
 
-== Overview of Database Tables
-
-Here is an overview of the key tables in the _VoteATX_ database:
-
-[voting_places]
-  A voting place of any kind (early, mobile, election day) for this
-  election. This is the table searched to find places to vote.
-
-[voting_locations]
-  A location where a voting place is.
-
-  _voting_places.location_id_ is a foreign key into this table.
-
-[voting_schedules]
-  A schedule of hours for a voting place.
-
-  _voting_places.schedule_id_ is a foreign key into this table.
-
-[voting_schedule_entries]
-  The line item details for a voting schedule.
-
-  Each row is the open and close times for a single day in a schedule.
-  The _schedule_id_ column is a foreign key into the _voting_schedules_
-  table.
-
-[voting_districts]
-  Boundaries of all the voting precincts.
-
-  This is made from a completely separate data source: the geospatial
-  "shape" file of voting districts. This is used to locate the precinct
-  number for a given location (longitude/latitude).
-
-[election_defs]
-  Defintions to customize results for this election are stored here.
-
-  The app should not require changes when updating to a new election. The
-  information that might change, such as the election description,
-  is stored here.
+== Data Sources
 
 The database is generated from two sets of data:
 
-[voting districts]
+=== Voting Places ===
 
-  The Travis County Clerk has provided a spreadsheet with three tables,
-  one each for the various voting place types (election day, early
-  fixed, early mobile). We manually convert them to individual CSV
-  files, and then use a loader utility to load the voting place table.
+The Travis County Clerk has provided a spreadsheet with three tables,
+one each for the various voting place types (election day, early
+fixed, early mobile). We manually convert them to individual CSV
+files, and then use a loader utility to load the voting place table.
 
-  This information is in the "data/voting-districts/_YYYY_" subdirectory,
-  where "YYYY" is the year in which the voting districts were drawn.
+This information is in the "data/voting-places/_YYYYMMDD_" subdirectory,
+where "_YYYYMMDD_" is the data of the election.
 
-[voting places]
+=== Voting Districts ===
 
-  The Travis County Tax Acessor-Collector office has provided a
-  geospatial "shape" file that defines the boundaries of all the
-  voting districts. We use "spatialite_tool" to load the SHP file
-  into the database.
+This information is pretty stable, and changes only when redistricting occurs.
 
-  This information is in the "data/voting-places/_YYYYMMDD_" subdirectory,
-  where "_YYYYMMDD_" is the data of the election.
+The Travis County Tax Acessor-Collector office has provided a geospatial
+"shape" file that defines the boundaries of all the voting districts. We
+use "spatialite_tool" to load the SHP file into the database.
 
+This information is in the "data/voting-districts/_YYYY_" subdirectory,
+where "YYYY" is the year in which the voting districts were drawn.
 
-Helpful Hint: The Firefox "SQLite Manager" plug-in is a great
-tool for exploring SQLite databases. It works fine for Spatialite
-databases, with the provision that _geometry_ columns should be
-treated as opaque blobs, and there will be a number of additional
-tables created by Spatialite for geospatial support.  More info here:
-https://code.google.com/p/sqlite-manager/
 
 == How to Create the Database
 
@@ -111,6 +68,53 @@ Here is the process I use to setup the data for a new election.
 
 * Make corrections to the data ("CSV" files) as needed, and re-run the
   creation script.
+
+
+== Overview of Database Tables
+
+Here is an overview of the key tables in the _VoteATX_ database:
+
+[voting_places]
+  A voting place of any kind (early, mobile, election day) for this
+  election. This is the table searched to find places to vote.
+
+[voting_locations]
+  A location where a voting place is.
+
+  _voting_places.location_id_ is a foreign key into this table.
+
+[voting_schedules]
+  A schedule of hours for a voting place.
+
+  _voting_places.schedule_id_ is a foreign key into this table.
+
+[voting_schedule_entries]
+  The line item details for a voting schedule.
+
+  Each row is the open and close times for a single day in a schedule.
+  The _schedule_id_ column is a foreign key into the _voting_schedules_
+  table.
+
+[voting_districts]
+  Boundaries of all the voting precincts.
+
+  This is made from a completely separate data source: the geospatial
+  "shape" file of voting districts. This is used to locate the precinct
+  number for a given location (longitude/latitude).
+
+[election_defs]
+  Defintions to customize results for this election are stored here.
+
+  The app should not require changes when updating to a new election. The
+  information that might change, such as the election description,
+  is stored here.
+
+Helpful Hint: The Firefox "SQLite Manager" plug-in is a great
+tool for exploring SQLite databases. It works fine for Spatialite
+databases, with the provision that _geometry_ columns should be
+treated as opaque blobs, and there will be a number of additional
+tables created by Spatialite for geospatial support.  More info here:
+https://code.google.com/p/sqlite-manager/
 
 
 == Problems and Feedback

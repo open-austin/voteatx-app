@@ -1,6 +1,7 @@
 require 'findit-support'
 require 'logger'
 require 'csv'
+require 'yaml'
 
 class NilClass
   def empty?
@@ -10,12 +11,89 @@ end
 
 module VoteATX
 
+
+  # Load a geospatial "shape" file with voting districts into a Spatialite database.
+  #
+  # Uses the "spatialite_tool" command to do the loading.
+  #
+  # Requires a parameters file with YAML definitions for: shapefile, codepage, srid
+  #
+  class VotingDistrictsLoader
+
+    REQUIRED_PARAMETERS = %w(shapefile codepage srid)
+    SPATIALITE_TOOL = "spatialite_tool"
+
+    # Construct a voting district loader.
+    #
+    # Supported parameters:
+    # * :database - Name of the database to load. Required.
+    # * :table - Name of the database table to create. Required.
+    # * :shp_defs - File that defines parameters for the import. Required.
+    # * :loader - Program to use for loading. Defaults to SPATIALITE_TOOL.
+    # * :log - A Logger instance. Default is to create a new one logging to stderr.
+    #
+    # Example "shp_defs" file:
+    #
+    #     shapefile: VTD2012a.shp
+    #     codepage: CP1252
+    #     srid: 3081
+    #
+    #
+    def initialize(params)
+      @database = params.delete(:database) or raise "required parameter \":database\" not specified"
+      @table = params.delete(:table) or raise "required parameter \":table\" not specified"
+      @shp_defs = params.delete(:shp_defs) or raise "required parameter \":shp_defs\" not specified"
+      @loader = params.delete(:loader) || SPATIALITE_TOOL
+      @log = params.delete(:log) || Logger.new($stderr)
+      raise "unknown parameter(s): #{params.keys.join(', ')}" unless params.empty?
+
+      @log.info("loading voting district parameters from \"#{@shp_defs}\" ...")
+      @shp = YAML.load_file(@shp_defs)
+      REQUIRED_PARAMETERS.each do |p|
+        raise "#{@shp_defs}: required parameter \"#{p}\" undefined" unless @shp.has_key?(p)
+      end
+
+      unless @shp["shapefile"] =~ %r{^/}
+        @shp["shapefile"].insert(0, File.dirname(@shp_defs) + "/")
+      end
+    end
+
+    def load
+      @log.info("starting import of voting districts")
+      @log.info("  source file: #{@shp['shapefile']}")
+      @log.info("  target database: #{@database}")
+      @log.info("  target table: #{@table}")
+
+      cmd = [
+        @loader,
+        "-i",
+        "-shp",
+        @shp['shapefile'].sub(/\.shp$/i, ''),
+        "-d",
+        @database,
+        "-t",
+        @table,
+        "-c",
+        @shp["codepage"],
+        "-s",
+        @shp["srid"],
+      ]
+      @log.info("executing: #{cmd.join(' ')}")
+      raise "command failed" unless system(*cmd)
+    end
+
+    def self.load(params)
+      new(params).load
+    end
+
+  end
+
   # Load a Spatialite database with voting place information from spreadsheets.
   #
   # The database must already exist, and must already be initialized with
   # the geospatial tables.
   #
-  class Loader
+  class VotingPlacesLoader
 
     # Default mapping of data columns to spreadsheet column names
     DEFAULT_COL_NAMES = {
@@ -442,7 +520,7 @@ module VoteATX
 end
 
 
-# Add #cleanup methods used by VoteATX::Loader#cleanup_row.
+# Add #cleanup methods used by VoteATX::VotingPlacesLoader#cleanup_row.
 
 class String
   def cleanup

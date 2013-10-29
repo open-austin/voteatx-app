@@ -19,6 +19,5 @@ if [ -f "$DATABASE" ] ; then
 fi
 
 set -e
-../../voting-districts/2012/load_vtd2012a.sh $DATABASE voting_districts
 ruby generate.rb $DATABASE
 
