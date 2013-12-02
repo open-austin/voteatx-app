@@ -115,8 +115,13 @@ input#address_field {
     /* adjust dimensions to exactly fit the display */
     $("body").css("width", $(window).width() - 6);
     $("#map_canvas").css("height", $(window).height() - $("#messages").height() - $("#controls").height() - 8);
-  
-    findit = new FindIt("map_canvas", {event_handler : findItEventCallBack});
+
+    findit = new FindIt({
+      'map_id' : 'map_canvas',
+      'event_handler' : findItEventCallBack,
+      'fallback_latitude' : 30.2649,
+      'fallback_longitude' : -97.7470,
+    });
     findit.start();
   }
 

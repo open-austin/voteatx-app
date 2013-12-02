@@ -1,10 +1,9 @@
 /**
  * Class FindIt: find and map features around town.
  *
- * @param map_id - The HTML DOM id of the division in which the map will be placed.
- * @param options
+ * Parameters:
  *
- * Options:
+ *  * map_id - The HTML DOM id of the division in which the map will be placed.
  *
  *  * event_handler - Callback that is invoked as events are processed.
  *    See the send_event() method for more information.
@@ -16,57 +15,60 @@
  *  * latitude, longitude - Location to use if automatic geolocation
  *    fails.
  */
-function FindIt(map_id, opts) {
+function FindIt(params) {
   
   r = inherit(FindIt.methods);
 
-  /**
+  /*
    * The id of the DOM element where the map will be placed.
    */
-  r.dom_map_elem = document.getElementById(map_id);
-  if (! r.dom_map_elem) throw "cannot locate element id \"" + opts.map_id + "\" in page";
+  if (! params.map_id) throw "required parameter \"map_id\" not specified";
+  r.dom_map_elem = document.getElementById(params.map_id);
+  if (! r.dom_map_elem) throw "cannot locate element id \"" + params.map_id + "\" in page";
 
-  /**
+  /*
+   * Initial location to use if automatic geolocation fails.
+   */
+  if (! params.fallback_latitude) throw "required parameter \"fallback_latitude\" not specified";
+  r.fallback_latitude = params.fallback_latitude;
+  if (! params.fallback_longitude) throw "required parameter \"fallback_longitude\" not specified";
+  r.fallback_longitude = params.fallback_longitude;
+
+  /*
    * Callback for FindIt events.  See send_event() for information.
    */
-  r.event_handler = opts.event_handler;
+  r.event_handler = params.event_handler;
 
-  /**
+  /*
    * REST endpoint for the Find It Nearby web service.
    */
-  r.svc_endpoint = opts.svc_endpoint || (document.URL.replace(/\/[^\/]*$/, "") + "/svc/search");
+  r.svc_endpoint = params.svc_endpoint || (document.URL.replace(/\/[^\/]*$/, "") + "/svc/search");
 
-  /**
+  /*
    * The google.maps.Map we are building.
    */
   r.map = null;
   
-  /**
+  /*
    * An OverlappingMarkerSpiderfier instance, to handle "spiderifying" of markers that
    * are too close together.
    */
   r.oms = null;
 
-  /**
+  /*
    * The google.maps.Marker on the map that shows where I am.
    */
   r.marker_me = null;
   
-  /**
+  /*
    * List of google.maps.Marker instances for all the features placed on the map.
    */
   r.feature_markers = [];
 
-  /**
+  /*
    * The google.maps.Marker that was most recently activated (clicked on).
    */
   r.last_opened_marker = null;
-
-  /**
-   * Initial location to use if automatic geolocation fails.
-   */
-  r.default_latitude = opts.latitude || 30.2649;
-  r.default_longitude = opts.longitude || -97.7470;
 
   return r;
 }
@@ -133,7 +135,7 @@ FindIt.methods = {
     
     if (! navigator.geolocation) {
       this.send_event("GEOLOCATION_UNSUPPORTED");
-      this.displayMapAtLocation(new google.maps.LatLng(this.default_latitude, this.default_longitude));
+      this.displayMapAtLocation(new google.maps.LatLng(this.fallback_latitude, this.fallback_longitude));
       return;
     }
 
@@ -146,7 +148,7 @@ FindIt.methods = {
 
     var failCallBack = function(error) {
       that.send_event("GEOLOCATION_FAILED", {'error' : error});
-      that.displayMapAtLocation(new google.maps.LatLng(that.default_latitude, that.default_longitude));
+      that.displayMapAtLocation(new google.maps.LatLng(that.fallback_latitude, that.fallback_longitude));
     };
 
     var opts = {
