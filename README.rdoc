@@ -8,15 +8,15 @@ You can view the application running at: http://voteatx.us/
 
 The source code is published at: https://github.com/chip-rosenthal/voteatx
 
-This package has been tested with Ruby 1.9.3. It requires Sqlite3 database
-with Spatialite extensions.
+This package has been tested with Ruby vesions 1.9.3 and 2.0. It requires
+Sqlite3 database with Spatialite extensions.
 
-For more information on setting up Spatialite on your system, see:
-https://github.com/chip-rosenthal/findit-support#spatialite-support
+*Important:* For more information on setting up Spatialite on your system,
+see: https://github.com/chip-rosenthal/findit-support#spatialite-support
 
 Once the package is downloaded (and Spatialite has been installed), run:
 
-    bundle install
+    $ bundle install
 
 For development, you can run the application from the command line:
 
@@ -30,6 +30,16 @@ For development, you can run the application from the command line:
     [2013-10-19 16:24:20] INFO  ruby 1.9.3 (2012-04-20) [x86_64-linux]
     == Sinatra/1.4.3 has taken the stage on 4567 for development with backup from WEBrick
     [2013-10-19 16:24:20] INFO  WEBrick::HTTPServer#start: pid=4838 port=4567
+
+If you get an error such as:
+
+    SQLite3::SQLException: libspatialite.so: cannot open shared object file: No such file or directory (Sequel::DatabaseError)
+
+that means your Spatialite library could not be located. You will need to
+specify the Spatialite library location when you start up the service. Use
+a command such as:
+
+    $ SPATIALITE=/usr/lib64/libspatialite.so.5.1.0 bin/voteatx-svc 
 
 Then, browse http://localhost:4567 to see the running application.
 
