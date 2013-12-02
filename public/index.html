@@ -77,10 +77,10 @@ input#address_field {
       displayEventMessage("info", "Stand by while I find your current location ...");
       break;
     case "GEOLOCATION_UNSUPPORTED":
-      displayEventMessage("error", "Sorry ... your browser does not support automatic geolocation. (Enter an address at bottom.");
+      displayEventMessage("error", "Sorry ... your browser does not support automatic geolocation. Placing marker downtown.");
       break;
     case "GEOLOCATION_FAILED":
-      displayEventMessage("error", "Automatic geolocation failed: " + escapeHTML(args.error.message) + "(Enter an address at bottom.)");
+      displayEventMessage("error", "Sorry ... automatic geolocation failed. Placing marker downtown. (" + escapeHTML(args.error.message) + ")");
       break;
     case "GEOLOCATION_SUCCEEDED":
       displayEventMessage("info", "");

@@ -12,6 +12,9 @@
  *  * svc_entpoint - URL of "Find It Nearby" web service endpoint. As
  *    distributed, this is calculated automatically, and should not need
  *    to be set.
+ *
+ *  * latitude, longitude - Location to use if automatic geolocation
+ *    fails.
  */
 function FindIt(map_id, opts) {
   
@@ -58,6 +61,12 @@ function FindIt(map_id, opts) {
    * The google.maps.Marker that was most recently activated (clicked on).
    */
   r.last_opened_marker = null;
+
+  /**
+   * Initial location to use if automatic geolocation fails.
+   */
+  r.default_latitude = opts.latitude || 30.2649;
+  r.default_longitude = opts.longitude || -97.7470;
 
   return r;
 }
@@ -124,7 +133,8 @@ FindIt.methods = {
     
     if (! navigator.geolocation) {
       this.send_event("GEOLOCATION_UNSUPPORTED");
-      return false;
+      this.displayMapAtLocation(new google.maps.LatLng(this.default_latitude, this.default_longitude));
+      return;
     }
 
     var that = this;
@@ -136,6 +146,7 @@ FindIt.methods = {
 
     var failCallBack = function(error) {
       that.send_event("GEOLOCATION_FAILED", {'error' : error});
+      that.displayMapAtLocation(new google.maps.LatLng(that.default_latitude, that.default_longitude));
     };
 
     var opts = {
@@ -146,8 +157,7 @@ FindIt.methods = {
 
     this.send_event("GEOLOCATION_RUNNING");
     navigator.geolocation.getCurrentPosition(successCallBack, failCallBack, opts);
-
-    return true;
+    return;
   },
 
 
