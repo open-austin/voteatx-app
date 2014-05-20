@@ -534,7 +534,7 @@ module VoteATX
 
         notes = nil
         unless row.field_by_id(:COMBINED_PCTS, :empty_ok => true).empty?
-          a = [precinct] + row.field_by_id(:COMBINED_PCTS).split(",").map {|s| s.to_i}
+          a = [precinct] + row.field_by_id(:COMBINED_PCTS).split(/[,:]/).map {|s| s.to_i}
           notes = "Combined precincts " + a.sort.join(", ")
         end
 
