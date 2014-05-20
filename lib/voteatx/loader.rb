@@ -108,11 +108,11 @@ module VoteATX
     #
     DEFAULT_COL_IDS = {
       :SITE_NAME => ["Name", "Site Name"],
-      :PCT => ["Pct"],
+      :PCT => ["Pct", "Pct."],
       :COMBINED_PCTS => ["Combined Pcts."],
       :LOCATION_ADDRESS => ["Address", "Site Address"],
       :LOCATION_CITY => ["City"],
-      :LOCATION_ZIP => ["Zipcode"],
+      :LOCATION_ZIP => ["Zipcode", "Zip Code"],
       :LOCATION_LONGITUDE => ["Longitude"],
       :LOCATION_LATITUDE => ["Latitude"],
       :SCHEDULE_CODE => ["Hours"],
