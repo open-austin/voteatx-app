@@ -21,6 +21,20 @@ loader = VoteATX::VotingPlacesLoader.new(dbname, :log => @log, :debug => false)
 
 #####
 #
+# Set true to create records for all the precincts
+# when a combined precinct is encountered.
+# 
+# If false (or undefined), there should be an entry in the
+# dataset for every precinct.
+#
+# If true, combined precincts are represented by a single
+# entry.
+#
+loader.explode_combined_precincts = true
+
+
+#####
+#
 # A one-line description of the election
 #
 # Example: "for the Nov 5, 2013 general election in Travis County"
@@ -29,7 +43,7 @@ loader = VoteATX::VotingPlacesLoader.new(dbname, :log => @log, :debug => false)
 # voting place (e.g. "Precinct 31415").
 #
 
-loader.election_description = "for the Mar 27, 2014 primary run-off election in Travis County"
+loader.election_description = "for the May 27, 2014 primary run-off election in Travis County"
 
 
 #####

@@ -189,6 +189,17 @@ module VoteATX
     #
     attr_accessor :election_info
 
+    # Create individual precinct records from a single combined
+    # precinct record.
+    #
+    # If false (the default), there should be an entry in the
+    # dataset for every precinct.
+    #
+    # If true, combined precincts are represented by a single
+    # entry.
+    #
+    attr_accessor :explode_combined_precincts
+
     # Create a new loader instance.
     #
     # The "dbname" is the name of the Spatialiate database to load. It
@@ -202,6 +213,9 @@ module VoteATX
     def initialize(dbname, options = {})
       @dbname = dbname
       @debug = options.has_key?(:debug) ? options.delete(:debug) : false
+
+      @explode_combined_precincts = options.has_key?(:explode_combined_precincts) ? options.delete(:explode_combined_precincts) : false
+
       @log = options.delete(:log) || Logger.new($stderr)
       @log.level = (@debug ? Logger::DEBUG : Logger::INFO)
 
@@ -527,9 +541,9 @@ module VoteATX
 
         cleanup_row(row)
 
-        p = row.field_by_id(:PCT).to_i
-        raise "failed to parse precinct from: #{row}" if p == 0
-        precincts = [p]
+        p0 = row.field_by_id(:PCT).to_i
+        raise "failed to parse precinct from: #{row}" if p0 == 0
+        precincts = [p0]
 
         location = make_location(row)
 
@@ -539,7 +553,7 @@ module VoteATX
           notes = "Combined precincts " + precincts.sort.join(", ")
         end
 
-        precincts.each do |precinct|
+	(@explode_combined_precincts ? precincts : [p0]).each do |precinct|
           @db[:voting_places] << {
             :place_type => "ELECTION_DAY",
             :title => "Precinct #{precinct}",
