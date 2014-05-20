@@ -527,26 +527,28 @@ module VoteATX
 
         cleanup_row(row)
 
-        precinct = row.field_by_id(:PCT).to_i
-        raise "failed to parse precinct from: #{row}" if precinct == 0
+        p = row.field_by_id(:PCT).to_i
+        raise "failed to parse precinct from: #{row}" if p == 0
+        precincts = [p]
 
         location = make_location(row)
 
         notes = nil
         unless row.field_by_id(:COMBINED_PCTS, :empty_ok => true).empty?
-          a = [precinct] + row.field_by_id(:COMBINED_PCTS).split(/[,:]/).map {|s| s.to_i}
-          notes = "Combined precincts " + a.sort.join(", ")
+          precincts += row.field_by_id(:COMBINED_PCTS).split(/[,:]/).map {|s| s.to_i}
+          notes = "Combined precincts " + precincts.sort.join(", ")
         end
 
-        @db[:voting_places] << {
-          :place_type => "ELECTION_DAY",
-          :title => "Precinct #{precinct}",
-          :precinct => precinct,
-          :location_id => location[:id],
-          :schedule_id => schedule[:id],
-          :notes => notes,
-        }
-
+        precincts.each do |precinct|
+          @db[:voting_places] << {
+            :place_type => "ELECTION_DAY",
+            :title => "Precinct #{precinct}",
+            :precinct => precinct,
+            :location_id => location[:id],
+            :schedule_id => schedule[:id],
+            :notes => notes,
+          }
+        end
       end
     end
 
