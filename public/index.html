@@ -1,99 +1,148 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<title>VoteATX.US</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<meta name="description" content="Web-based mobile application to find Travis County, TX voting places nearest to you. Free and non-commercial. Powered by open government data." />
-		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-		<link rel="icon" href="mapicons/favicon.png" type="image/png" />
-		<link rel="stylesheet" href="css/bootstrap.css">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.5.4/bootstrap-select.min.css">
-		<link rel="stylesheet" href="css/mappit.css">
-	</head>
-	<body>
-		<div class="panel" style="overflow:hidden;">
-			<form id="controls" role="form" class="form-inline" data-bind="submit: getDirections">
+<head>
+<title>VoteATX.US</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="description" content="Web-based mobile application to find Travis County, TX voting places nearest to you. Free and non-commercial. Powered by open government data." />
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<link rel="icon" href="mapicons/favicon.png" type="image/png" />
+<style type="text/css">
 
-				<select class="selectpicker" data-size="false" data-container="body">
-					<option>Election Day</option>
-					<option>Early Voting</option>
-				</select>
+body {font-size: 10pt; margin: 0; padding: 2px; font-family: sans-serif;}
 
-				<div class="input-group">
-					<span class="input-group-addon"><img src="icons/pin1.svg" height="15em"></span>
-					<input id="startLoc" type="text" class="form-control" placeholder="your location...">
-				</div>
+div#messages {height: 1em; margin-bottom: 2px;}
+div#messages .error {color: red; font-weight: bold;}
+div#messages .notice {color: blue;}
+div#messages .info {color: #333; font-style: italic;}
 
-				<div class="btn-group" data-bind="radio: transitMode">
-					<button type="button" class="btn btn-default" data-value="DRIVING">
-						<img src="icons/car63.svg" height="15em"/>
-					</button>
-					<button type="button" class="btn btn-default" data-value="TRANSIT">
-						<img src="icons/bus.svg" height="15em"/>
-					</button>
-					<button type="button" class="btn btn-default" data-value="BICYCLING">
-						<img src="icons/mountain24.svg" height="15em"/>
-					</button>
-					<button type="button" class="btn btn-default" data-value="WALKING">
-						<img src="icons/walking.svg" height="15em"/>
-					</button>
-					<button type="button" class="btn btn-default pop" data-value="UFO" data-container="body" data-toggle="popover" data-placement="bottom" data-html="true"
-					data-content="Howdy, Pardner!<br/> Google Maps does not yet support this transit mode,<b> but don't worry!</b> We've dispatched representatives in unmarked black helicopters to help you find your &ldquo;polling station.&rdquo; <img src='icons/helicopter8.svg' height='15em'>">
-						<img src="icons/unidentified.svg" height="15em"/>
-					</button>
-				</div>
-				<div class="input-group">
-					<span class="input-group-addon"><img src="icons/vote.svg" height="16em"></span>
-					<input id="endLoc" type="text" class="form-control" placeholder="your precinct #..." data-bind="value: psID">
-					<span class="input-group-btn">
-						<button class="btn btn-default" type="submit" data-loading-text="Loading...">
-							<img src="icons/navigate.svg" height="15em">
-						</button> </span>
-				</div>
-			</form>
-			<div id="map-canvas"></div>
-		</div>
+div#map_canvas {height: 480px; width: 100%; background: #ddd;}
 
-		<nav>
-			<a href="" id="menuToggle" title="show menu"> <span class="navClosed"><i>show menu</i></span> </a>
-			<a href="#" title="Item 1">Item 1</a>
-			<a href="#" title="Item 2">Item 2</a>
-			<a href="#" title="Item 3">Item 3</a>
-			<a href="#" title="Item 3">Item 4</a>
-		</nav>
-	</body>
-	<footer>
-		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-		<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js'></script>
-		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
-		<script type="text/javascript" src="js/bootstrap.min.js"></script>
-		<!--<script type="text/javascript" src="js/oms.min.js"></script>-->
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.5.4/bootstrap-select.min.js"></script>
-		<script type="text/javascript">
-			$(function() {
-				$(".tip").tooltip();
-				$('.pop').popover();
-				$('.selectpicker').selectpicker();
-			});
-		</script>
-		<script type="text/javascript">
-			(function($) {
-				$(document).ready(function() {
-					$('#menuToggle').click(function(e) {
-						var $parent = $(this).parent('nav');
-						$parent.toggleClass("open");
-						var navState = $parent.hasClass('open') ? "hide" : "show";
-						$(this).attr("title", navState + " navigation");
-						// Set the timeout to the animation length in the CSS.
-						setTimeout(function() {
-							console.log("timeout set");
-							$('#menuToggle > span').toggleClass("navClosed").toggleClass("navOpen");
-						}, 200);
-						e.preventDefault();
-					});
-				});
-			})(jQuery);
-		</script>
-		<script type="text/javascript" src="js/mappit.js"></script>
-	</footer>
+form#controls {position: relative; width: 100%; height: 1.5em;}
+
+a#about_link {
+  display: block;
+  position: absolute;  
+  top: 0;
+  right: 0;
+  color: black;
+  font-size: 8pt;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+a#about_link:hover {
+  background: #e8e8e8;
+}
+
+input#address_field {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 2px;
+  right: 5em;
+  border: solid black 1px;
+  /* color and font-style will be updated on first click */
+  color: #666;
+  font-style: italic;
+}
+
+</style>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=&sensor=true"></script>
+<script type="text/javascript" src="oms.min.js"></script>
+<script type="text/javascript" src="findit.js?v=2013120201"></script>
+<script type="text/javascript">
+
+  var current_event_level = 0;
+  
+  var event_level = {
+    "info" : 1,
+    "notice" : 2,
+    "error" : 3,
+  }
+  
+  function displayEventMessage(type, message) {
+    l = event_level[type]
+    if (l != null && l >= current_event_level) {
+      current_event_level = l;
+      $("#messages").html("<span class=\"" + type + "\">" + message + "</span>");
+    }
+  }
+
+  function findItEventCallBack(event_type, args) {        
+    switch (event_type) {
+    case "START":
+      current_event_level = 0;
+    case "GEOLOCATION_RUNNING":
+      displayEventMessage("info", "Stand by while I find your current location ...");
+      break;
+    case "GEOLOCATION_UNSUPPORTED":
+      displayEventMessage("error", "Sorry ... your browser does not support automatic geolocation. Placing marker downtown.");
+      break;
+    case "GEOLOCATION_FAILED":
+      displayEventMessage("error", "Sorry ... automatic geolocation failed. Placing marker downtown. (" + escapeHTML(args.error.message) + ")");
+      break;
+    case "GEOLOCATION_SUCCEEDED":
+      displayEventMessage("info", "");
+      break;
+    case "ADDRESS_GOOD":
+      displayEventMessage("notice", escapeHTML(args.address));
+      break;
+    case "ADDRESS_BAD":
+      displayEventMessage("error", "Cannot locate specified address: " + escapeHTML(args.error.message));
+      break;
+    case "NO_FEATURES":
+      displayEventMessage("error", "Sorry ... your location is outside the service area of this application.");
+      break;
+    case "COMPLETE":
+      break;
+    default:
+      throw "unknown event type: " + event_type;
+    }
+  }  
+  
+  function removePrompt(item) {
+    item.value = "";
+    item.style.color = "#000";
+    item.style.fontStyle = "normal";
+    item.onclick = null;
+  }  
+  
+  var findit = null;
+  
+  function startFindIt() {
+  
+    /* adjust dimensions to exactly fit the display */
+    $("body").css("width", $(window).width() - 6);
+    $("#map_canvas").css("height", $(window).height() - $("#messages").height() - $("#controls").height() - 8);
+
+    findit = new FindIt({
+      'map_id' : 'map_canvas',
+      'event_handler' : findItEventCallBack,
+      'fallback_latitude' : 30.2649,
+      'fallback_longitude' : -97.7470,
+    });
+    findit.start();
+  }
+
+</script>
+<script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-35808874-1']);
+_gaq.push(['_trackPageview']);
+(function() {
+var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+</head>
+<body onload="startFindIt()">
+<div id="messages"></div>
+<div id="map_canvas"></div>
+<form id="controls" action="#" onsubmit="findit.displayMapAtAddress(this.address_field.value); return false;">
+<a id="about_link" href="about.html">About</a>
+<input type="text" id="address_field" value="enter an address here" onclick="removePrompt(this)" />
+</form>
+</body>
 </html>
