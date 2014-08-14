@@ -6,34 +6,12 @@
 		<meta name="description" content="Web-based mobile application to find Travis County, TX voting places nearest to you. Free and non-commercial. Powered by open government data." />
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<link rel="icon" href="mapicons/favicon.png" type="image/png" />
-		<link rel="stylesheet" href="css/bootstrap.css">
+		<link rel="stylesheet" href="css/embed/bootstrap.min.css">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.5.4/bootstrap-select.min.css">
 		<link rel="stylesheet" href="css/mappit.css">
 	</head>
 	<body>
-		<div id="mobile" class="panel-group visible-xs">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h4 class="panel-title"><a data-toggle="collapse" data-parent="#mobile" href="#collapseInfo"> Info </a></h4>
-				</div>
-				<div id="collapseInfo" class="panel-collapse collapse">
-					<div class="input-group">
-					<span class="input-group-addon"><img src="icons/pin1.svg" height="15em"></span>
-					<input id="startLoc" type="text" class="form-control" placeholder="your location..." data-bind="value: myLoc">
-				</div>
-				</div>
-			</div>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h4 class="panel-title"><a data-toggle="collapse" data-parent="#mobile" href="#collapseMap"> Map </a></h4>
-				</div>
-				<div id="collapseMap" class="panel-collapse collapse in">
-					<div id="map-canvas"></div>
-				</div>
-			</div>
-		</div>
-
-		<div id="panelATX" class="panel hidden-xs" style="overflow:hidden;">
+		<div id="panelATX" class="panel" style="overflow:hidden;">
 			<form id="controls" role="form" class="form-inline" data-bind="submit: getDirections">
 
 				<div class="input-group">
@@ -54,9 +32,9 @@
 					<button type="button" class="btn btn-default" data-value="WALKING">
 						<img src="icons/walking.svg" height="15em"/>
 					</button>
-					<button id="ufo" type="button" class="btn btn-default pop" data-value="UFO" data-container="body" data-toggle="popover" data-placement="bottom"
+					<button id="ufo" type="button" class="btn btn-default pop" data-value="UFO" data-container="body" data-toggle="popover" data-placement="bottom" 
 					data-html="true" data-bind="click: modeUFO"
-					data-content="Howdy, Pardner!<br/> Google Maps does not yet support this transit mode,<b> but don't worry!</b> We've dispatched representatives in unmarked black helicopters to take you to your &ldquo;polling station.&rdquo; <img src='icons/helicopter8.svg' height='14em'><br/><i>#KeepAustinWeird</i>">
+					data-content="Howdy, Pardner!<br/> Google Maps does not yet support this transit mode,<b> but don't worry!</b> We've dispatched representatives in unmarked black helicopters to help you find your &ldquo;polling station.&rdquo; <img src='icons/helicopter8.svg' height='15em'>">
 						<img src="icons/unidentified.svg" height="15em"/>
 					</button>
 				</div>
@@ -69,9 +47,10 @@
 						</button> </span>
 				</div>
 			</form>
+			<div id="map-canvas"></div>
 		</div>
 
-		<nav id="map-panel" class="sideNav hidden-xs">
+		<nav id="map-panel" class="sideNav">
 			<a href="" id="menuToggle" title="show menu"> <span class="navClosed"><i>show menu</i></span> </a>
 			<div id="directions-panel"></div>
 		</nav>
@@ -79,12 +58,12 @@
 	<footer>
 		<script type="text/javascript">
 			// This enables (true) or disables (false) geolocation
-			var GEOLOCATION = true;
+			var GEOLOCATION = false;
 		</script>
 		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 		<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js'></script>
 		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
-		<script type="text/javascript" src="js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="js/embed/bootstrap.min.js"></script>
 		<!--<script type="text/javascript" src="js/oms.min.js"></script>-->
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.5.4/bootstrap-select.min.js"></script>
 		<script type="text/javascript">
@@ -93,10 +72,11 @@
 				$('.pop').popover();
 				$('.selectpicker').selectpicker();
 				$('html').on('click', function(e) {
-					if ( typeof $(e.target).data('original-title') == 'undefined' && !$(e.target).parents().is('.popover.in')) {
-						$('[data-original-title]').popover('hide');
-					}
-				});
+  if (typeof $(e.target).data('original-title') == 'undefined' &&
+     !$(e.target).parents().is('.popover.in')) {
+    $('[data-original-title]').popover('hide');
+  }
+});
 			});
 		</script>
 		<script type="text/javascript">

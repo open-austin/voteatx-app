@@ -31,6 +31,7 @@ $(document).ready(function() {
 
 		self.map = null;
 		self.marker = null;
+		self.mobile = true;
 
 		self.chosenLayer = ko.observable();
 
@@ -38,7 +39,7 @@ $(document).ready(function() {
 
 		self.transitMode = ko.observable("DRIVING");
 
-		self.myLoc = ko.observable("");
+		self.fallback = self.myLoc = ko.observable("");
 		self.psID = ko.observable("");
 		self.endDirections = null;
 
@@ -93,10 +94,35 @@ $(document).ready(function() {
 
 		// Transit Mode UFO
 		mappViewModel.prototype.modeUFO = function() {
-			setTimeout(function(){self.transitMode("DRIVING");});
-			$("#ufo").removeClass("btn-default").addClass("disabled");
+			setTimeout(function() {
+				self.transitMode("DRIVING");
+				$("#ufo").removeClass("btn-default").addClass("disabled");
+			}, 3000);
 			console.log("You come from France!");
 		};
+
+		function resizeMap() {
+			if (self.mobile && $(window).width() > 480) {
+				self.mobile = false;
+				$('#panelATX').append($('#map-canvas'));
+				$("#map-canvas").css("height", $(window).height() - $("#messages").height() - $("#controls").height() - 20);
+				$("#map-panel").css("height", $("#panelATX").height() + 2);
+				if (DEBUG)
+					console.log("resized for !mobile");
+			} else if (!self.mobile && $(window).width() < 481) {
+				self.mobile = true;
+				$("#map-canvas").css("height", "300px");
+				$('#collapseMap').append($('#map-canvas'));
+				if (DEBUG)
+					console.log("resized for mobile");
+			} else if($(window).width() < 481)  
+				$("#map-canvas").css("height", "300px");
+				self.map.panTo(self.marker.getPosition());
+		};
+
+		$(window).resize(function() {
+			resizeMap();
+		});
 
 		// Geolocation
 		function geo_success(position) {
@@ -151,6 +177,14 @@ $(document).ready(function() {
 			geocoder = new google.maps.Geocoder();
 			constructLayers();
 			initControls();
+			resizeMap();
+
+			google.maps.event.addListenerOnce(self.map, 'idle', function() {
+				//var center = self.map.getCenter();
+
+				//self.map.setCenter(center);
+				google.maps.event.trigger(self.map, "resize");
+			});
 		};
 		// Listener for initialize
 		google.maps.event.addDomListener(window, 'load', initialize);
