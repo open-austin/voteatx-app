@@ -5,6 +5,10 @@ label.btn > input[type='radio'] {
 	margin: 10px;
 }
 
+button.btn-default:hover {
+	background-color:#9999CC;
+}
+
 a { text-decoration: none; }
  
 a i {
@@ -12,19 +16,29 @@ a i {
   text-shadow: none;
   color: transparent;
 }
+
+#directions-panel {
+	margin-top: -40px;
+        height: 100%;
+        overflow: auto;
+      }
  
-nav {
-  background-color: rgba(0, 0, 0, 0.6);
-  height: 100%;
+.sideNav {
+  background-color: rgba(255,192,203, 0.85);
+  margin: 10px;
   position: fixed;
-  right: -300px;
+  right: -310px;
   top: 0;
   -moz-transition: right 0.2s linear;
   -o-transition: right 0.2s linear;
   -webkit-transition: right 0.2s linear;
-  transition: right 0.2s linear;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  transition: right 0.5s linear;
   width: 300px;
   z-index: 9001;/* IT'S OVER 9000! */
+ -webkit-transition-delay: 0.5s; /* Safari */
+    transition-delay: 0.5s;
 }
  
 nav #menuToggle {
@@ -32,9 +46,11 @@ nav #menuToggle {
   display: block;
   position: relative;
   height: 40px;
-  left: -50px;
+  left: -20px;
   top: 75px;
-  width: 50px;
+  width: 20px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
 }
  
 nav #menuToggle span {

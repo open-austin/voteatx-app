@@ -12,6 +12,7 @@ $(document).ready(function() {
 		var MAIN_LAYER = "json/ps.json";
 
 		$("#map-canvas").css("height", $(window).height() - $("#messages").height() - $("#controls").height() - 20);
+		$("#map-panel").css("height", $("#panelATX").height() + 2);
 		var blue = [{
 			featureType : "all",
 			stylers : [{
@@ -37,12 +38,15 @@ $(document).ready(function() {
 
 		self.transitMode = ko.observable("DRIVING");
 
-		self.myLoc = null;
+		self.myLoc = ko.observable("");
 		self.psID = ko.observable("");
 		self.endDirections = null;
 
 		self.preMap = [];
 
+		self.svc_endpoint = "http://voteatx.us/svc/search";
+
+		var geocoder;
 		var directionsDisplay;
 		var directionsService = new google.maps.DirectionsService();
 
@@ -63,13 +67,13 @@ $(document).ready(function() {
 					self.psID(address);
 					if (DEBUG) {
 						console.log("Address: " + address);
-						console.log("My Location: " + self.myLoc);
+						console.log("My Location: " + self.myLoc());
 					};
 				} // TODO: Add Bootstrap Alert about Precinct not found
 			}// TODO: Proper form validation
 			if (self.transitMode() !== null | "UFO") {
 				var request = {
-					origin : self.myLoc,
+					origin : self.myLoc(),
 					destination : address,
 					travelMode : self.transitMode()
 				};
@@ -80,14 +84,50 @@ $(document).ready(function() {
 				});
 			}
 
+			// If the side panel is not open, transition it to display directions
+			if (!$('#map-panel').hasClass('open')) {
+				$('#menuToggle').focus();
+				$('#menuToggle').click();
+			};
 		};
 
-		// Transit Mode UFlOlz
+		// Transit Mode UFO
 		mappViewModel.prototype.modeUFO = function() {
-
+			setTimeout(function(){self.transitMode("DRIVING");});
+			$("#ufo").removeClass("btn-default").addClass("disabled");
+			console.log("You come from France!");
 		};
 
-		// Geolocation Removed
+		// Geolocation
+		function geo_success(position) {
+			var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+			setPosition(latlng);
+			geocoder.geocode({
+				'latLng' : latlng
+			}, function(results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {
+					if (results[1]) {
+						self.myLoc(results[1].formatted_address);
+						console.log("located");
+					}
+				} else {
+					alert("Geocoder failed due to: " + status);
+				}
+			});
+		}
+
+		function geo_error() {
+			console.log("Sorry, no position available.");
+		}
+
+		var geo_options = {
+			enableHighAccuracy : true,
+			maximumAge : 30000,
+			timeout : 27000
+		};
+		if (GEOLOCATION) {
+			navigator.geolocation.getCurrentPosition(geo_success, geo_error, geo_options);
+		};
 
 		// Google Maps Methods
 		function initialize() {
@@ -100,6 +140,7 @@ $(document).ready(function() {
 			self.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 			directionsDisplay = new google.maps.DirectionsRenderer();
 			directionsDisplay.setMap(self.map);
+			directionsDisplay.setPanel(document.getElementById('directions-panel'));
 
 			self.marker = new google.maps.Marker({
 				position : self.map.getCenter(),
@@ -107,6 +148,7 @@ $(document).ready(function() {
 				draggable : false
 			});
 
+			geocoder = new google.maps.Geocoder();
 			constructLayers();
 			initControls();
 		};
@@ -148,7 +190,7 @@ $(document).ready(function() {
 					var marker = new google.maps.Marker({
 						position : mLatLng,
 						map : self.map,
-						icon : icon, //new google.maps.MarkerImage('icons/vote.svg', null, null, null, new google.maps.Size(36, 36)),
+						icon : icon,
 						draggable : false,
 					});
 
@@ -202,7 +244,7 @@ $(document).ready(function() {
 			google.maps.event.addListener(autocomplete, 'place_changed', function() {
 				var place = autocomplete.getPlace();
 				setPosition(place.geometry.location);
-				self.myLoc = place.formatted_address;
+				self.myLoc(place.formatted_address);
 			});
 		};
 
