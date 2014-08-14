@@ -1,6 +1,0 @@
-# Used by the loader to import the voting districts.
-# See VoteATX::VotingDistrictsLoader class for documentation.
-
-shapefile: VTD2012a.shp
-codepage: CP1252
-srid: "3081"

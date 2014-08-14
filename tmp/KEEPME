@@ -1,5 +1,0 @@
-In production, create a file "restart.txt" in this directory to force
-the Sinatra application to be reloaded.
-
-Be sure to remove that file once finished!
-
