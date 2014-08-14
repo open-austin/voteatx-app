@@ -220,7 +220,7 @@ FindIt.methods = {
       this.findAddress(loc);
     }
 
-    //this.searchNearby(loc);
+    this.searchNearby(loc);
   },
 
 

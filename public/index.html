@@ -11,17 +11,12 @@
 		<link rel="stylesheet" href="css/mappit.css">
 	</head>
 	<body>
-		<div class="panel" style="overflow:hidden;">
+		<div id="panelATX" class="panel" style="overflow:hidden;">
 			<form id="controls" role="form" class="form-inline" data-bind="submit: getDirections">
-
-				<select class="selectpicker" data-size="false" data-container="body">
-					<option>Election Day</option>
-					<option>Early Voting</option>
-				</select>
 
 				<div class="input-group">
 					<span class="input-group-addon"><img src="icons/pin1.svg" height="15em"></span>
-					<input id="startLoc" type="text" class="form-control" placeholder="your location...">
+					<input id="startLoc" type="text" class="form-control" placeholder="your location..." data-bind="value: myLoc">
 				</div>
 
 				<div class="btn-group" data-bind="radio: transitMode">
@@ -37,7 +32,8 @@
 					<button type="button" class="btn btn-default" data-value="WALKING">
 						<img src="icons/walking.svg" height="15em"/>
 					</button>
-					<button type="button" class="btn btn-default pop" data-value="UFO" data-container="body" data-toggle="popover" data-placement="bottom" data-html="true"
+					<button id="ufo" type="button" class="btn btn-default pop" data-value="UFO" data-container="body" data-toggle="popover" data-placement="bottom" 
+					data-html="true" data-bind="click: modeUFO"
 					data-content="Howdy, Pardner!<br/> Google Maps does not yet support this transit mode,<b> but don't worry!</b> We've dispatched representatives in unmarked black helicopters to help you find your &ldquo;polling station.&rdquo; <img src='icons/helicopter8.svg' height='15em'>">
 						<img src="icons/unidentified.svg" height="15em"/>
 					</button>
@@ -54,15 +50,16 @@
 			<div id="map-canvas"></div>
 		</div>
 
-		<nav>
+		<nav id="map-panel" class="sideNav">
 			<a href="" id="menuToggle" title="show menu"> <span class="navClosed"><i>show menu</i></span> </a>
-			<a href="#" title="Item 1">Item 1</a>
-			<a href="#" title="Item 2">Item 2</a>
-			<a href="#" title="Item 3">Item 3</a>
-			<a href="#" title="Item 3">Item 4</a>
+			<div id="directions-panel"></div>
 		</nav>
 	</body>
 	<footer>
+		<script type="text/javascript">
+			// This enables (true) or disables (false) geolocation
+			var GEOLOCATION = true;
+		</script>
 		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 		<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js'></script>
 		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
@@ -74,6 +71,12 @@
 				$(".tip").tooltip();
 				$('.pop').popover();
 				$('.selectpicker').selectpicker();
+				$('html').on('click', function(e) {
+  if (typeof $(e.target).data('original-title') == 'undefined' &&
+     !$(e.target).parents().is('.popover.in')) {
+    $('[data-original-title]').popover('hide');
+  }
+});
 			});
 		</script>
 		<script type="text/javascript">
