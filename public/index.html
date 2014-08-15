@@ -19,7 +19,7 @@
 				<div id="collapseInfo" class="panel-collapse collapse">
 					<div class="input-group">
 					<span class="input-group-addon"><img src="icons/pin1.svg" height="15em"></span>
-					<input id="startLoc" type="text" class="form-control" placeholder="your location..." data-bind="value: myLoc">
+					<input id="test" type="text" class="form-control" placeholder="your location..." data-bind="value: myLoc">
 				</div>
 				</div>
 			</div>
@@ -37,10 +37,22 @@
 			<form id="controls" role="form" class="form-inline" data-bind="submit: getDirections">
 
 				<div class="input-group">
-					<span class="input-group-addon"><img src="icons/pin1.svg" height="15em"></span>
+					<span class="input-group-addon"><img src="icons/pin1.svg" height="15em" data-container="body" data-toggle="popover" data-placement="bottom" data-html="true"
+					data-content="Is "></span>
 					<input id="startLoc" type="text" class="form-control" placeholder="your location..." data-bind="value: myLoc">
 				</div>
-
+				
+				<div class="input-group"><p>Precinct <span class="badge" data-bind="text: psID"></span> Council District <span class="badge" data-bind="text: cdID"></p></div>
+				
+				<div class="input-group">
+					<span class="input-group-addon"><img src="icons/vote.svg" height="16em"></span>
+					<input id="endLoc" type="text" class="form-control" placeholder="polling station address..." data-bind="value: psName">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="submit">
+							<img src="icons/navigate.svg" height="15em">
+						</button> </span>
+				</div>
+				
 				<div class="btn-group" data-bind="radio: transitMode">
 					<button type="button" class="btn btn-default" data-value="DRIVING">
 						<img src="icons/car63.svg" height="15em"/>
@@ -60,14 +72,7 @@
 						<img src="icons/unidentified.svg" height="15em"/>
 					</button>
 				</div>
-				<div class="input-group">
-					<span class="input-group-addon"><img src="icons/vote.svg" height="16em"></span>
-					<input id="endLoc" type="text" class="form-control" placeholder="your precinct #..." data-bind="value: psID">
-					<span class="input-group-btn">
-						<button class="btn btn-default" type="submit" data-loading-text="Loading...">
-							<img src="icons/navigate.svg" height="15em">
-						</button> </span>
-				</div>
+					
 			</form>
 		</div>
 

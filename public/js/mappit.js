@@ -10,6 +10,8 @@ $(document).ready(function() {
 		 * Expected keys: Precinct, Combined Pcts., Name, Address, City, Zip Code, Start Time, End Time, Latitude, Longitude
 		 */
 		var MAIN_LAYER = "json/ps.json";
+		var SVC1 = "http://svc.voteatx.us/search?latitude=";
+		var SVC2 = "&longitude=";
 
 		$("#map-canvas").css("height", $(window).height() - $("#messages").height() - $("#controls").height() - 20);
 		$("#map-panel").css("height", $("#panelATX").height() + 2);
@@ -39,8 +41,13 @@ $(document).ready(function() {
 
 		self.transitMode = ko.observable("DRIVING");
 
-		self.fallback = self.myLoc = ko.observable("");
-		self.psID = ko.observable("");
+		self.myLoc = ko.observable("");
+		self.geoLoc = null;
+		
+		self.cdID = ko.observable("0");
+		self.psID = ko.observable("0");
+		self.psAd = ko.observable("");
+		self.psName = ko.observable("");
 		self.endDirections = null;
 
 		self.preMap = [];
@@ -61,21 +68,10 @@ $(document).ready(function() {
 			if (DEBUG)
 				console.log("psID: " + self.psID());
 
-			var i = null;
-			for ( i = 0; i < self.preMap.length; i++) {
-				if (self.preMap[i].precinct.toString() == self.psID().toString()) {
-					address = self.preMap[i].address;
-					self.psID(address);
-					if (DEBUG) {
-						console.log("Address: " + address);
-						console.log("My Location: " + self.myLoc());
-					};
-				} // TODO: Add Bootstrap Alert about Precinct not found
-			}// TODO: Proper form validation
 			if (self.transitMode() !== null | "UFO") {
 				var request = {
 					origin : self.myLoc(),
-					destination : address,
+					destination : self.psName(),
 					travelMode : self.transitMode()
 				};
 				directionsService.route(request, function(response, status) {
@@ -115,16 +111,16 @@ $(document).ready(function() {
 				$('#collapseMap').append($('#map-canvas'));
 				if (DEBUG)
 					console.log("resized for mobile");
-			} else if($(window).width() < 481)  
+			} else if ($(window).width() < 481)
 				$("#map-canvas").css("height", "300px");
-				self.map.panTo(self.marker.getPosition());
+			self.map.panTo(self.marker.getPosition());
 		};
 
 		$(window).resize(function() {
 			resizeMap();
 		});
 
-		// Geolocation
+		// Begin Geolocation
 		function geo_success(position) {
 			var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 			setPosition(latlng);
@@ -133,7 +129,8 @@ $(document).ready(function() {
 			}, function(results, status) {
 				if (status == google.maps.GeocoderStatus.OK) {
 					if (results[1]) {
-						self.myLoc(results[1].formatted_address);
+						self.geoLoc = results[1].formatted_address;
+						//self.myLoc(results[1].formatted_address);
 						console.log("located");
 					}
 				} else {
@@ -154,6 +151,7 @@ $(document).ready(function() {
 		if (GEOLOCATION) {
 			navigator.geolocation.getCurrentPosition(geo_success, geo_error, geo_options);
 		};
+		// End Geolocation
 
 		// Google Maps Methods
 		function initialize() {
@@ -175,14 +173,10 @@ $(document).ready(function() {
 			});
 
 			geocoder = new google.maps.Geocoder();
-			constructLayers();
 			initControls();
 			resizeMap();
 
 			google.maps.event.addListenerOnce(self.map, 'idle', function() {
-				//var center = self.map.getCenter();
-
-				//self.map.setCenter(center);
 				google.maps.event.trigger(self.map, "resize");
 			});
 		};
@@ -204,6 +198,7 @@ $(document).ready(function() {
 			if (self.map) {
 				self.map.panTo(loc);
 				self.marker.setPosition(loc);
+				phoneHome(loc);
 			} else {
 				console.log("Map not found! Check MAP_ID configuration.");
 			};
@@ -211,7 +206,6 @@ $(document).ready(function() {
 
 		// Build Map Layers
 		function constructLayers() {
-
 			// Construct the Main Layer (Election Day) array
 			var mainLayer = [];
 			$.getJSON(MAIN_LAYER, function(data) {
@@ -255,6 +249,55 @@ $(document).ready(function() {
 			if (DEBUG) {
 				console.log(mainLayer);
 			};
+		};
+
+		/*
+		 *  Server Request and Map Updating
+		 */
+		// Overloaded - phoneHome(latlng literal) or phoneHome(double lat, double lng)
+		function phoneHome(latlng, lng) {
+			var lat;
+			if ( typeof lng !== "undefined") {
+				lat = latlng;
+			} else {
+				lat = latlng.lat();
+				lng = latlng.lng();
+			}
+			var url = SVC1 + lat + SVC2 + lng;
+
+			// Service response here
+			function jsonpCallback(response) {
+				if(DEBUG)console.log(response);
+				
+				self.psID(response.districts.precinct.id);
+				self.cdID(response.districts.city_council.id);
+				self.psName(response.places[0].location.name);
+				
+				var places = [];
+				for(var i=0;i<response.places.length;i++)
+				{
+					places.push(response.places[i]);
+					var mLatLng = new google.maps.LatLng(places[i].location.latitude, places[i].location.longitude);
+					var icon = new google.maps.MarkerImage("mapicons/icon_vote_closed.png");
+					var marker = new google.maps.Marker({
+						position : mLatLng,
+						map : self.map,
+						icon : icon,
+						draggable : false,
+					});
+				}
+			}
+
+			// Use JSONP to avoid CORS
+			$.ajax({
+				url : url,
+				dataType : 'jsonp',
+				error : function(xhr, status, error) {
+					alert(error.message);
+				},
+				success : jsonpCallback
+			});
+			return false;
 		};
 
 		/*
