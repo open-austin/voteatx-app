@@ -43,7 +43,7 @@ $(document).ready(function() {
 
 		self.myLoc = ko.observable("");
 		self.geoLoc = null;
-		
+
 		self.cdID = ko.observable("0");
 		self.psID = ko.observable("0");
 		self.psAd = ko.observable("");
@@ -77,10 +77,13 @@ $(document).ready(function() {
 				directionsService.route(request, function(response, status) {
 					if (status == google.maps.DirectionsStatus.OK) {
 						directionsDisplay.setDirections(response);
+						openPanel();
 					}
 				});
 			}
+		};
 
+		function openPanel() {
 			// If the side panel is not open, transition it to display directions
 			if (!$('#map-panel').hasClass('open')) {
 				$('#menuToggle').focus();
@@ -129,8 +132,9 @@ $(document).ready(function() {
 			}, function(results, status) {
 				if (status == google.maps.GeocoderStatus.OK) {
 					if (results[1]) {
-						self.geoLoc = results[1].formatted_address;
-						//self.myLoc(results[1].formatted_address);
+						//self.geoLoc = results[1].formatted_address;
+						self.myLoc(results[1].formatted_address);
+						setTimeout(self.getDirections(), 50);
 						console.log("located");
 					}
 				} else {
@@ -204,56 +208,11 @@ $(document).ready(function() {
 			};
 		};
 
-		// Build Map Layers
-		function constructLayers() {
-			// Construct the Main Layer (Election Day) array
-			var mainLayer = [];
-			$.getJSON(MAIN_LAYER, function(data) {
-				if (DEBUG)
-					console.log(data);
-				// Iterate through the array of JSON objects and push them to the layer
-				$.each(data, function(index, val) {
-					var mLatLng = new google.maps.LatLng(val.Latitude, val.Longitude);
-					var icon = new google.maps.MarkerImage("mapicons/icon_vote.png");
-					var marker = new google.maps.Marker({
-						position : mLatLng,
-						map : self.map,
-						icon : icon,
-						draggable : false,
-					});
-
-					// Construct the Info Window
-					var regex = new RegExp(":", "g");
-					var contentString = '<div id="content">' + '<div id="siteNotice">' + '</div>' + '<h2 id="firstHeading" class="firstHeading">Precincts: ' + val.Precinct + ' ' + val.Combined_Pcts.replace(regex, " ") + '</h1>' + '<div id="bodyContent">' + '<p><b>Name:</b> ' + val.Name + '<br>' + '<b>Address:</b> ' + val.Address + '<br>' + '<b>Hours:</b> ' + val.Start_Time + ' - ' + val.End_Time + '<br>' + '</p></div>' + '</div>';
-
-					var infowindow = new google.maps.InfoWindow({
-						content : contentString
-					});
-
-					// Bind the Info Window to the Marker
-					google.maps.event.addListener(marker, 'click', function() {
-						infowindow.open(self.map, marker);
-					});
-
-					// Push the Marker to the Layer
-					mainLayer.push(marker);
-
-					var mapping = {
-						precinct : val.Precinct,
-						address : val.Address,
-						zip : val.Zip_Code
-					};
-					self.preMap.push(mapping);
-				});
-			});
-			if (DEBUG) {
-				console.log(mainLayer);
-			};
-		};
+		
 
 		/*
-		 *  Server Request and Map Updating
-		 */
+		*  Server Request and Map Updating
+		*/
 		// Overloaded - phoneHome(latlng literal) or phoneHome(double lat, double lng)
 		function phoneHome(latlng, lng) {
 			var lat;
@@ -267,25 +226,48 @@ $(document).ready(function() {
 
 			// Service response here
 			function jsonpCallback(response) {
-				if(DEBUG)console.log(response);
-				
+				if (DEBUG)
+					console.log(response);
+
 				self.psID(response.districts.precinct.id);
 				self.cdID(response.districts.city_council.id);
-				self.psName(response.places[0].location.name);
-				
-				var places = [];
-				for(var i=0;i<response.places.length;i++)
-				{
-					places.push(response.places[i]);
-					var mLatLng = new google.maps.LatLng(places[i].location.latitude, places[i].location.longitude);
-					var icon = new google.maps.MarkerImage("mapicons/icon_vote_closed.png");
+				self.psName(response.places[0].location.name + " " + response.places[0].location.zip);
+				var regex = new RegExp("\\n", "g");
+
+				$.each(response.places, function(index,val){
+					var mLatLng = new google.maps.LatLng(val.location.latitude, val.location.longitude);
+					var iconPath = "mapicons/icon_vote";
+					switch(val.type){
+						case "EARLY_VOTING_FIXED":
+							iconPath+="_early";
+							break;
+						case "EARLY_VOTING_MOBILE":
+							iconPath+="_mobile";
+							break;
+					}
+					
+					if(!val.is_open)
+						iconPath+="_closed";
+						
+					iconPath+=".png";
+					
+					var icon = new google.maps.MarkerImage(iconPath);
 					var marker = new google.maps.Marker({
 						position : mLatLng,
 						map : self.map,
 						icon : icon,
 						draggable : false,
 					});
-				}
+					var contentString = '<div id="content">' + '<h2 id="firstHeading" class="firstHeading">' + val.title + '</h1><br/>' + '<div id="bodyContent"><p>' + val.info.replace(regex, "<br/>") + '</p></div></div>';
+					var infowindow = new google.maps.InfoWindow({
+						content : contentString
+					});
+
+					// Bind the Info Window to the Marker
+					google.maps.event.addListener(marker, 'click', function() {
+						infowindow.open(self.map, marker);
+					});
+				});
 			}
 
 			// Use JSONP to avoid CORS
@@ -304,6 +286,14 @@ $(document).ready(function() {
 		 *  App Controls
 		 */
 		function initControls() {
+			// AutoComplete for Starting Location (You Are Here)
+			var input = document.getElementById('startLoc');
+			setupAutocomplete(input);
+			input = document.getElementById('mobileLoc');
+			setupAutocomplete(input);
+		};
+
+		function setupAutocomplete(input) {
 			// Bounds for AutoComplete
 			var defaultBounds = new google.maps.LatLngBounds(new google.maps.LatLng(30.2, -97.9), new google.maps.LatLng(30.5, -97.5));
 			var opts = {
@@ -314,8 +304,6 @@ $(document).ready(function() {
 				}
 			};
 
-			// AutoComplete for Starting Location (You Are Here)
-			var input = document.getElementById('startLoc');
 			var autocomplete = new google.maps.places.Autocomplete(input, opts);
 			// Listener to respond to AutoComplete
 			google.maps.event.addListener(autocomplete, 'place_changed', function() {
