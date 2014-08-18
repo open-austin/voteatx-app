@@ -120,14 +120,14 @@ $(document).ready(function() {
 		// Convert Precinct ID to Address and populate sidebar with Directions
 		// TODO: Deal with "Combined Precincts"
 		mappViewModel.prototype.getDirections = function() {
-			var address = null;
+			var address = self.psName()+" "+self.psAd();
 			if (DEBUG)
 				console.log("psID: " + self.psAd());
 
 			if (self.transitMode() !== null | "UFO") {
 				var request = {
 					origin : self.myLoc(),
-					destination : self.psAd(),
+					destination : address,
 					travelMode : self.transitMode()
 				};
 				directionsService.route(request, function(response, status) {
