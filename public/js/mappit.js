@@ -1,16 +1,65 @@
 $(document).ready(function() {
 
+	/*
+	 *  TODO: Use this to create a special select with pertinent information about polling stations
+	 * 		Open/Closed icon, Name of Stations, ETA (and eventually +wait)
+	 *  TODO: To achieve this, bootstrap-select must be forked and templating implemented,
+	 * 		preferably KO.js templating
+	 */
+	function PollingStation(val, open) {
+		var self = this;
+
+		self.name = val.name;
+		self.address = val.address;
+		self.isOpen = open;
+	};
+
+	/*
+	 * 	TODO: Controls to toggle Precint and City Council overlays on the map,
+	 * 		as well as bindings and event listeners
+	 */
+	function RegionOverlayControl(div, map) {
+		// Set CSS styles for the DIV containing the control
+		// Setting padding to 5 px will offset the control
+		// from the edge of the map
+		div.style.padding = '10px';
+
+		// Set CSS for the control border
+		var controlUI = document.createElement('div');
+		$(controlUI).addClass("mapCtrl");
+		controlUI.title = '';
+		div.appendChild(controlUI);
+
+		// Set CSS for the control interior
+		// TODO: Move to CSS file
+		var controlText = document.createElement('div');
+		controlText.style.fontFamily = 'Arial,sans-serif';
+		controlText.style.fontSize = '12px';
+		controlText.style.paddingLeft = '4px';
+		controlText.style.paddingRight = '4px';
+		controlText.innerHTML = '<b>  Regions  </b>';
+		controlUI.appendChild(controlText);
+
+		// Append inputs
+		var toggleUI = $("#regionOverlayChecks");
+		$(div).append(toggleUI);
+
+		// Hide/Show checkboxes on hover
+		$(div).hover(function() {
+			$(toggleUI).toggle();
+		});
+	};
+
 	function mappViewModel() {
-		// Configuration
+		/*
+		 *  Configuration
+		 */
 		var DEBUG = true;
 		var MAP_ID = 'map_canvas';
 		var FALLBACK_LAT = 30.2649;
 		var FALLBACK_LNG = -97.7470;
-		/* This is the path to the JSON file with data for the election day polling stations
-		 * Expected keys: Precinct, Combined Pcts., Name, Address, City, Zip Code, Start Time, End Time, Latitude, Longitude
-		 */
-		var MAIN_LAYER = "json/ps.json";
-		var SVC1 = "http://svc.voteatx.us/search?latitude=";
+		var SVC = "http://svc.voteatx.us/";
+		var SVC1 = "search?latitude=";
 		var SVC2 = "&longitude=";
 
 		$("#map-canvas").css("height", $(window).height() - $("#messages").height() - $("#controls").height() - 20);
@@ -25,7 +74,7 @@ $(document).ready(function() {
 				hue : '#0000BB'
 			}]
 		}];
-
+		// End Configuration
 		/*
 		 *  View Model Data
 		 */
@@ -34,10 +83,6 @@ $(document).ready(function() {
 		self.map = null;
 		self.marker = null;
 		self.mobile = true;
-
-		self.chosenLayer = ko.observable();
-
-		self.markers = ko.observableArray();
 
 		self.transitMode = ko.observable("DRIVING");
 
@@ -50,14 +95,22 @@ $(document).ready(function() {
 		self.psName = ko.observable("");
 		self.endDirections = null;
 
-		self.preMap = [];
+		self.locations = ko.observableArray([]);
+		self.selectedLocation = ko.observable();
 
-		self.svc_endpoint = "http://voteatx.us/svc/search";
+		self.preOverlay;
+		self.preCheck = ko.observable(false);
+		this.preCheck.subscribe(function(newValue) {
+			this.toggleOverlay(newValue);
+		}, this);
+		self.coCheck = ko.observable(false);
+
+		self.motd = ko.observable("Welcome to VoteATX!");
 
 		var geocoder;
 		var directionsDisplay;
 		var directionsService = new google.maps.DirectionsService();
-
+		// End View Model Data
 		/*
 		*  View Model Methods
 		*/
@@ -122,8 +175,10 @@ $(document).ready(function() {
 		$(window).resize(function() {
 			resizeMap();
 		});
-
-		// Begin Geolocation
+		// End ViewModel Methods
+		/*
+		 *  Geolocation
+		 */
 		function geo_success(position) {
 			var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 			setPosition(latlng);
@@ -134,7 +189,7 @@ $(document).ready(function() {
 					if (results[1]) {
 						//self.geoLoc = results[1].formatted_address;
 						self.myLoc(results[1].formatted_address);
-						setTimeout(self.getDirections(), 50);
+						//setTimeout(self.getDirections(), 50);
 						console.log("located");
 					}
 				} else {
@@ -156,13 +211,16 @@ $(document).ready(function() {
 			navigator.geolocation.getCurrentPosition(geo_success, geo_error, geo_options);
 		};
 		// End Geolocation
-
-		// Google Maps Methods
+		/*
+		*  Google Maps Methods
+		*/
+		// Initialize function. Muy Importante.
 		function initialize() {
 			var mapOptions = {
 				zoom : 13,
 				center : new google.maps.LatLng(FALLBACK_LAT, FALLBACK_LNG),
-				styles : blue
+				styles : blue,
+				mapTypeControl : false
 			};
 
 			self.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
@@ -180,9 +238,17 @@ $(document).ready(function() {
 			initControls();
 			resizeMap();
 
+			// TODO: Figure out if this is actually helpful
 			google.maps.event.addListenerOnce(self.map, 'idle', function() {
 				google.maps.event.trigger(self.map, "resize");
 			});
+
+			// Initialize custom controls
+			var regionOverlayDiv = document.createElement('div');
+			var regionOverlayControl = new RegionOverlayControl(regionOverlayDiv, self.map);
+
+			regionOverlayDiv.index = 1;
+			self.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(regionOverlayDiv);
 		};
 		// Listener for initialize
 		google.maps.event.addDomListener(window, 'load', initialize);
@@ -208,7 +274,16 @@ $(document).ready(function() {
 			};
 		};
 
-		
+		mappViewModel.prototype.toggleOverlay = function(bool) {
+			if(!bool){
+				self.preOverlay.setMap(null);
+				return;
+			}
+			var region = drawRegion("precinct", self.psID());
+			if (DEBUG)
+				console.log(region);
+		};
+		// End Google Maps Methods
 
 		/*
 		*  Server Request and Map Updating
@@ -222,35 +297,41 @@ $(document).ready(function() {
 				lat = latlng.lat();
 				lng = latlng.lng();
 			}
-			var url = SVC1 + lat + SVC2 + lng;
+			var url = SVC + SVC1 + lat + SVC2 + lng;
 
 			// Service response here
 			function jsonpCallback(response) {
 				if (DEBUG)
 					console.log(response);
 
+				self.motd(response.message.content);
+				switch(response.message.severity) {
+				case "WARNING":
+					$("#alerts").addClass("alert-warning").removeClass("alert-info");
+				}
+
 				self.psID(response.districts.precinct.id);
 				self.cdID(response.districts.city_council.id);
 				self.psName(response.places[0].location.name + " " + response.places[0].location.zip);
 				var regex = new RegExp("\\n", "g");
 
-				$.each(response.places, function(index,val){
+				$.each(response.places, function(index, val) {
 					var mLatLng = new google.maps.LatLng(val.location.latitude, val.location.longitude);
 					var iconPath = "mapicons/icon_vote";
-					switch(val.type){
-						case "EARLY_VOTING_FIXED":
-							iconPath+="_early";
-							break;
-						case "EARLY_VOTING_MOBILE":
-							iconPath+="_mobile";
-							break;
+					switch(val.type) {
+					case "EARLY_VOTING_FIXED":
+						iconPath += "_early";
+						break;
+					case "EARLY_VOTING_MOBILE":
+						iconPath += "_mobile";
+						break;
 					}
-					
-					if(!val.is_open)
-						iconPath+="_closed";
-						
-					iconPath+=".png";
-					
+
+					if (!val.is_open)
+						iconPath += "_closed";
+
+					iconPath += ".png";
+
 					var icon = new google.maps.MarkerImage(iconPath);
 					var marker = new google.maps.Marker({
 						position : mLatLng,
@@ -260,6 +341,7 @@ $(document).ready(function() {
 					});
 					var contentString = '<div id="content">' + '<h2 id="firstHeading" class="firstHeading">' + val.title + '</h1><br/>' + '<div id="bodyContent"><p>' + val.info.replace(regex, "<br/>") + '</p></div></div>';
 					var infowindow = new google.maps.InfoWindow({
+						maxWidth : 250,
 						content : contentString
 					});
 
@@ -267,10 +349,53 @@ $(document).ready(function() {
 					google.maps.event.addListener(marker, 'click', function() {
 						infowindow.open(self.map, marker);
 					});
+
+					// Now populate the array for the selects
+					self.locations.push(new PollingStation(val.location, val.is_open));
 				});
+				if (DEBUG)
+					console.log(self.locations());
 			}
 
 			// Use JSONP to avoid CORS
+			$.ajax({
+				url : url,
+				dataType : 'jsonp',
+				error : function(xhr, status, error) {
+					alert(error.message);
+				},
+				success : jsonpCallback
+			});
+			return false;
+		};
+
+		function drawRegion(type, id) {
+			var url = SVC + "/districts/" + type + "/" + id;
+
+			// Service response here
+			function jsonpCallback(response) {
+				if (DEBUG)
+					console.log(response);
+				var array = response.region.coordinates[0];
+				var polyCoords = [];
+				$.each(array, function(index, val) {
+					var LatLng = new google.maps.LatLng(val[1], val[0]);
+					polyCoords.push(LatLng);
+				});
+				if (DEBUG)
+					console.log(polyCoords);
+
+				self.preOverlay = new google.maps.Polygon({
+					paths : polyCoords,
+					strokeColor : '#FF0000',
+					strokeOpacity : 0.8,
+					strokeWeight : 2,
+					fillColor : '#FF0000',
+					fillOpacity : 0.35
+				});
+				self.preOverlay.setMap(self.map);
+			};
+
 			$.ajax({
 				url : url,
 				dataType : 'jsonp',

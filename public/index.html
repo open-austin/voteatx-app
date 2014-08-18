@@ -18,9 +18,24 @@
 				</div>
 				<div id="collapseInfo" class="panel-collapse collapse">
 					<div class="input-group">
-					<span class="input-group-addon"><img src="icons/pin1.svg" height="15em"></span>
-					<input id="mobileLoc" type="text" class="form-control" placeholder="your location..." data-bind="value: myLoc">
-				</div>
+						<span class="input-group-addon"><img src="icons/pin1.svg" height="15em" width="40px"></span>
+						<input id="mobileLoc" type="text" class="form-control" data-bind="value: myLoc">
+					</div>
+					<div class="input-group">
+						<span class="input-group-addon"><img src="icons/election4.svg" height="15em" width="40px"></span>
+						<input id="mobileEndLoc" type="text" class="form-control" data-bind="value: psName">
+						<span class="input-group-btn">
+							<button class="btn btn-default" type="submit">
+								<img src="icons/navigate.svg" height="15em">
+							</button> </span>
+					</div>
+					<div class="input-group">
+						<span class="select-addon"><img src="icons/election4.svg" height="15em" width="40px"></span>
+						<select class="selectpicker" data-width="100%">
+
+							<option data-content="<span data-bind='text: psID'></span>">>Hi</option>
+						</select>
+					</div>
 				</div>
 			</div>
 			<div class="panel panel-default">
@@ -33,17 +48,26 @@
 			</div>
 		</div>
 
+		<div id="alerts" class="alert alert-info" role="alert">
+			<button type="button" class="close" data-dismiss="alert">
+				<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+			</button><p data-bind="text: motd"></p>
+		</div>
 		<div id="panelATX" class="panel hidden-xs" style="overflow:hidden;">
 			<form id="controls" role="form" class="form-inline" data-bind="submit: getDirections">
 
 				<div class="input-group">
 					<span class="input-group-addon"><img src="icons/pin1.svg" height="15em" data-container="body" data-toggle="popover" data-placement="bottom" data-html="true"
-					data-content="Is "></span>
+						data-content="Is "></span>
 					<input id="startLoc" type="text" class="form-control" placeholder="your location..." data-bind="value: myLoc">
 				</div>
-				
-				<div class="input-group"><p>Precinct <span class="badge" data-bind="text: psID"></span> Council District <span class="badge" data-bind="text: cdID"></p></div>
-				
+
+				<div class="input-group">
+					<div class="vamid">
+						Precinct <span class="badge" data-bind="text: psID"></span> Council District <span class="badge" data-bind="text: cdID">
+					</div>
+				</div>
+
 				<div class="input-group">
 					<span class="input-group-addon"><img src="icons/election4.svg" height="16em"></span>
 					<input id="endLoc" type="text" class="form-control" placeholder="polling station address..." data-bind="value: psName">
@@ -52,7 +76,7 @@
 							<img src="icons/navigate.svg" height="15em">
 						</button> </span>
 				</div>
-				
+
 				<div class="btn-group" data-bind="radio: transitMode">
 					<button type="button" class="btn btn-default" data-value="DRIVING">
 						<img src="icons/car63.svg" height="15em"/>
@@ -72,21 +96,33 @@
 						<img src="icons/unidentified.svg" height="15em"/>
 					</button>
 				</div>
-					
+
 			</form>
 		</div>
 
+		<!-- Side Nav Slides in and Out to display additional info, like directions -->
 		<nav id="map-panel" class="sideNav hidden-xs">
 			<a href="" id="menuToggle" title="show menu"> <span class="navClosed"><i>show menu</i></span> </a>
 			<div id="directions-panel"></div>
 		</nav>
+
+		<!-- Custom Controls div for Google Maps to toggle Region Overlays on and off -->
+		<div id="regionOverlayChecks" style="display: none">
+			<div id="checkBoxes" class="mapChk">
+				<input type="checkbox" value="value" id="preCheck" name="name" data-bind="checked: preCheck"/>
+				<label for="preCheck">Precinct</label>
+				<br>
+				<input type="checkbox" value="value" id="coCheck" name="name"/>
+				<label for="coCheck">City Council</label>
+			</div>
+		</div>
 	</body>
 	<footer>
 		<script type="text/javascript">
 			// This enables (true) or disables (false) geolocation
 			var GEOLOCATION = true;
 		</script>
-		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
 		<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js'></script>
 		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
 		<script type="text/javascript" src="js/bootstrap.min.js"></script>
@@ -121,6 +157,9 @@
 					});
 				});
 			})(jQuery);
+		</script>
+		<script type="text/html" id="optionTemp">
+			<span data-bind="text: name">Hi</span>
 		</script>
 		<script type="text/javascript" src="js/mappit.js"></script>
 	</footer>
