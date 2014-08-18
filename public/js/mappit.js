@@ -15,8 +15,7 @@ $(document).ready(function() {
 	};
 
 	/*
-	 * 	TODO: Controls to toggle Precint and City Council overlays on the map,
-	 * 		as well as bindings and event listeners
+	 * 	Controls to toggle Precint and City Council overlays on the map
 	 */
 	function RegionOverlayControl(div, map) {
 		// Set CSS styles for the DIV containing the control
@@ -98,12 +97,16 @@ $(document).ready(function() {
 		self.locations = ko.observableArray([]);
 		self.selectedLocation = ko.observable();
 
-		self.preOverlay
+		self.preOverlay;
 		self.preCheck = ko.observable(false);
 		this.preCheck.subscribe(function(newValue) {
-			this.toggleOverlay(newValue);
+			this.toggleOverlay("precinct", newValue);
 		}, this);
+		self.coOverlay;
 		self.coCheck = ko.observable(false);
+		this.coCheck.subscribe(function(newValue) {
+			this.toggleOverlay("city_council", newValue);
+		}, this);
 
 		self.motd = ko.observable("Welcome to VoteATX!");
 
@@ -119,12 +122,12 @@ $(document).ready(function() {
 		mappViewModel.prototype.getDirections = function() {
 			var address = null;
 			if (DEBUG)
-				console.log("psID: " + self.psID());
+				console.log("psID: " + self.psAd());
 
 			if (self.transitMode() !== null | "UFO") {
 				var request = {
 					origin : self.myLoc(),
-					destination : self.psName(),
+					destination : self.psAd(),
 					travelMode : self.transitMode()
 				};
 				directionsService.route(request, function(response, status) {
@@ -133,6 +136,7 @@ $(document).ready(function() {
 						openPanel();
 					}
 				});
+				directionsDisplay.setMap(self.map);
 			}
 		};
 
@@ -271,29 +275,37 @@ $(document).ready(function() {
 			}
 			if (self.map) {
 				self.map.panTo(loc);
+				self.marker.setPosition(loc);
+				directionsDisplay.setMap(null);
 				phoneHome(loc);
 				geocoder.geocode({
-				'latLng' : loc
-			}, function(results, status) {
-				if (status == google.maps.GeocoderStatus.OK) {
-					if (results[1]) {
-						self.myLoc(results[1].formatted_address);
+					'latLng' : loc
+				}, function(results, status) {
+					if (status == google.maps.GeocoderStatus.OK) {
+						if (results[1]) {
+							self.myLoc(results[1].formatted_address);
+						}
+					} else {
+						console.log("Geocoder failed due to: " + status);
 					}
-				} else {
-					console.log("Geocoder failed due to: " + status);
-				}
-			});
+				});
 			} else {
 				console.log("Map not found! Check MAP_ID configuration.");
 			};
 		};
 
-		mappViewModel.prototype.toggleOverlay = function(bool) {
+		mappViewModel.prototype.toggleOverlay = function(type, bool) {
+			var region;
 			if (!bool) {
-				self.preOverlay.setMap(null);
-				return;
+				if(type === "precinct")
+					self.preOverlay.setMap(null);
+				else self.coOverlay.setMap(null);
+					
+					return;
 			}
-			var region = drawRegion("precinct", self.psID());
+			if(type === "precinct")
+				region = drawRegion(type, self.psID());
+			else region = drawRegion(type, self.cdID());
 			if (DEBUG)
 				console.log(region);
 		};
@@ -334,7 +346,6 @@ $(document).ready(function() {
 
 				self.psID(response.districts.precinct.id);
 				self.cdID(response.districts.city_council.id);
-				self.psName(response.places[0].location.name + " " + response.places[0].location.zip);
 				var regex = new RegExp("\\n", "g");
 
 				$.each(response.places, function(index, val) {
@@ -370,6 +381,8 @@ $(document).ready(function() {
 					// Bind the Info Window to the Marker
 					google.maps.event.addListener(marker, 'click', function() {
 						infowindow.open(self.map, marker);
+						self.psName(response.places[index].location.name);
+						self.psAd(response.places[index].location.address + ", " + response.places[index].location.city + ", " + response.places[index].location.state);
 					});
 
 					// Now populate the array for the selects
@@ -407,15 +420,28 @@ $(document).ready(function() {
 				if (DEBUG)
 					console.log(polyCoords);
 
-				self.preOverlay = new google.maps.Polygon({
-					paths : polyCoords,
-					strokeColor : '#FF0000',
-					strokeOpacity : 0.8,
-					strokeWeight : 2,
-					fillColor : '#FF0000',
-					fillOpacity : 0.35
-				});
-				self.preOverlay.setMap(self.map);
+				if (type === "precinct") {
+					self.preOverlay = new google.maps.Polygon({
+						paths : polyCoords,
+						strokeColor : '#FF0000',
+						strokeOpacity : 0.8,
+						strokeWeight : 2,
+						fillColor : '#FF0000',
+						fillOpacity : 0.35
+					});
+					self.preOverlay.setMap(self.map);
+				} else {
+					self.coOverlay = new google.maps.Polygon({
+						paths : polyCoords,
+						strokeColor : '#FFFFF',
+						strokeOpacity : 0.8,
+						strokeWeight : 2,
+						fillColor : '#FFFFFF',
+						fillOpacity : 0.35
+					});
+					self.coOverlay.setMap(self.map);
+				}
+				
 			};
 
 			$.ajax({
