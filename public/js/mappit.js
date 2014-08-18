@@ -87,7 +87,7 @@ $(document).ready(function() {
 		self.transitMode = ko.observable("DRIVING");
 
 		self.myLoc = ko.observable("");
-		self.geoLoc = null;
+		self.markers = [];
 
 		self.cdID = ko.observable("0");
 		self.psID = ko.observable("0");
@@ -98,7 +98,7 @@ $(document).ready(function() {
 		self.locations = ko.observableArray([]);
 		self.selectedLocation = ko.observable();
 
-		self.preOverlay;
+		self.preOverlay
 		self.preCheck = ko.observable(false);
 		this.preCheck.subscribe(function(newValue) {
 			this.toggleOverlay(newValue);
@@ -231,7 +231,13 @@ $(document).ready(function() {
 			self.marker = new google.maps.Marker({
 				position : self.map.getCenter(),
 				map : self.map,
-				draggable : false
+				draggable : true
+			});
+
+			google.maps.event.addListener(self.marker, "dragend", function(event) {
+
+				var point = self.marker.getPosition();
+				setPosition(point);
 			});
 
 			geocoder = new google.maps.Geocoder();
@@ -263,25 +269,40 @@ $(document).ready(function() {
 			} else {
 				loc = latlng;
 			}
-			if (DEBUG)
-				console.log(loc);
 			if (self.map) {
 				self.map.panTo(loc);
-				self.marker.setPosition(loc);
 				phoneHome(loc);
+				geocoder.geocode({
+				'latLng' : loc
+			}, function(results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {
+					if (results[1]) {
+						self.myLoc(results[1].formatted_address);
+					}
+				} else {
+					console.log("Geocoder failed due to: " + status);
+				}
+			});
 			} else {
 				console.log("Map not found! Check MAP_ID configuration.");
 			};
 		};
 
 		mappViewModel.prototype.toggleOverlay = function(bool) {
-			if(!bool){
+			if (!bool) {
 				self.preOverlay.setMap(null);
 				return;
 			}
 			var region = drawRegion("precinct", self.psID());
 			if (DEBUG)
 				console.log(region);
+		};
+
+		google.maps.Map.prototype.clearOverlays = function() {
+			for (var i = 0; i < self.markers.length; i++) {
+				self.markers[i].setMap(null);
+			}
+			self.markers = [];
 		};
 		// End Google Maps Methods
 
@@ -290,6 +311,7 @@ $(document).ready(function() {
 		*/
 		// Overloaded - phoneHome(latlng literal) or phoneHome(double lat, double lng)
 		function phoneHome(latlng, lng) {
+			self.map.clearOverlays();
 			var lat;
 			if ( typeof lng !== "undefined") {
 				lat = latlng;
@@ -351,7 +373,7 @@ $(document).ready(function() {
 					});
 
 					// Now populate the array for the selects
-					self.locations.push(new PollingStation(val.location, val.is_open));
+					self.markers.push(marker);
 				});
 				if (DEBUG)
 					console.log(self.locations());
