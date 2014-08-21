@@ -4,7 +4,7 @@
 		<title>VoteATX.US</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<meta name="description" content="Web-based mobile application to find Travis County, TX voting places nearest to you. Free and non-commercial. Powered by open government data." />
-		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 		<link rel="icon" href="mapicons/favicon.png" type="image/png" />
 		<link rel="stylesheet" href="css/bootstrap.css">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.5.4/bootstrap-select.min.css">
@@ -22,19 +22,19 @@
 						<input id="mobileLoc" type="text" class="form-control" data-bind="value: myLoc">
 					</div>
 					<div class="input-group">
-						<span class="input-group-addon"><img src="icons/election4.svg" height="15em" width="40px"></span>
-						<input id="mobileEndLoc" type="text" class="form-control" data-bind="value: psName">
+						<span class="select-addon"><img src="icons/election4.svg" height="15em" width="40px"></span>
+						<div class="btn-group btn-input clearfix">
+							<button type="button" class="btn btn-default dropdown-toggle form-control" data-toggle="dropdown">
+								<span data-bind="label">choose a polling station</span><span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu" data-bind="template: { name: 'ps-template',
+							foreach: locations,
+							as: 'station' }"></ul>
+						</div>
 						<span class="input-group-btn">
 							<button class="btn btn-default" type="submit">
 								<img src="icons/navigate.svg" height="15em">
 							</button> </span>
-					</div>
-					<div class="input-group">
-						<span class="select-addon"><img src="icons/election4.svg" height="15em" width="40px"></span>
-						<select class="selectpicker" data-width="100%">
-
-							<option data-content="<span data-bind='text: psID'></span>">>Hi</option>
-						</select>
 					</div>
 				</div>
 			</div>
@@ -42,8 +42,7 @@
 				<div class="panel-heading">
 					<h4 class="panel-title"><a data-toggle="collapse" data-parent="#mobile" href="#collapseMap"> Map </a></h4>
 				</div>
-				<div id="collapseMap" class="panel-collapse collapse in">
-				</div>
+				<div id="collapseMap" class="panel-collapse collapse in"></div>
 			</div>
 		</div>
 
@@ -53,49 +52,54 @@
 			</button><p data-bind="text: motd"></p>
 		</div>
 		<div id="panelATX" class="panel hidden-xs" style="overflow:hidden;">
+
 			<form id="controls" role="form" class="form-inline" data-bind="submit: getDirections">
-
-				<div class="input-group">
-					<span class="input-group-addon"><img src="icons/pin1.svg" height="15em" data-container="body" data-toggle="popover" data-placement="bottom" data-html="true"
-						data-content="Is "></span>
-					<input id="startLoc" type="text" class="form-control" placeholder="enter your address" data-bind="value: myLoc">
-				</div>
-
-				<div class="input-group">
-					<div class="vamid">
-						Precinct <span class="badge" data-bind="text: psID"></span> Council District <span class="badge" data-bind="text: cdID">
+				<div class="form-group">
+					<div class="input-group">
+						<span class="input-group-addon"><img src="icons/pin1.svg" height="16em"></span>
+						<input id="startLoc" type="text" class="form-control" placeholder="enter your address" data-bind="value: myLoc, hasFocus: myLoc.focused">
+					</div>
+					<div class="input-group hidden-sm">
+						<div class="vamid text-center">
+							Precinct <span class="badge" data-bind="text: preID"></span> City Council <span class="badge" data-bind="text: cdID">
+						</div>
 					</div>
 				</div>
-
-				<div class="input-group">
-					<span class="input-group-addon"><img src="icons/election4.svg" height="16em"></span>
-					<input id="endLoc" type="text" class="form-control" placeholder="click on a vote icon" data-bind="value: psName">
-					<span class="input-group-btn">
-						<button class="btn btn-default" type="submit">
-							<img src="icons/navigate.svg" height="15em">
-						</button> </span>
+				<div class="form-group">
+					<div class="input-group">
+						<span class="select-addon"><img src="icons/election4.svg" height="15em"></span>
+						<div class="btn-group btn-input clearfix">
+							<button type="button" class="btn btn-default dropdown-toggle form-control" data-toggle="dropdown">
+								<span data-bind="text: psName"></span><span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu" data-bind="template: { name: 'ps-template',
+								foreach: locations, as: 'station' }"></ul>
+						</div>
+						<span class="input-group-btn">
+							<button class="btn btn-default" type="submit">
+								<img src="icons/navigate.svg" height="15em">
+							</button> </span>
+					</div>
+					<div class="btn-group" data-bind="radio: transitMode">
+						<button type="button" class="btn btn-default" data-value="DRIVING">
+							<img src="icons/car63.svg" height="15em"/>
+						</button>
+						<button type="button" class="btn btn-default" data-value="TRANSIT">
+							<img src="icons/bus.svg" height="15em"/>
+						</button>
+						<button type="button" class="btn btn-default" data-value="BICYCLING">
+							<img src="icons/mountain24.svg" height="15em"/>
+						</button>
+						<button type="button" class="btn btn-default" data-value="WALKING">
+							<img src="icons/walking.svg" height="15em"/>
+						</button>
+						<button id="ufo" type="button" class="btn btn-default pop" data-value="UFO" data-container="body" data-toggle="popover" data-placement="bottom"
+						data-html="true" data-bind="click: modeUFO"
+						data-content="Howdy, Pardner!<br/> Google Maps does not yet support this transit mode,<b> but don't worry!</b> We've dispatched representatives in unmarked black helicopters to take you to your &ldquo;polling station.&rdquo; <img src='icons/helicopter8.svg' height='14em'><br/><i>#KeepAustinWeird</i>">
+							<img src="icons/unidentified.svg" height="15em"/>
+						</button>
+					</div>
 				</div>
-
-				<div class="btn-group" data-bind="radio: transitMode">
-					<button type="button" class="btn btn-default" data-value="DRIVING">
-						<img src="icons/car63.svg" height="15em"/>
-					</button>
-					<button type="button" class="btn btn-default" data-value="TRANSIT">
-						<img src="icons/bus.svg" height="15em"/>
-					</button>
-					<button type="button" class="btn btn-default" data-value="BICYCLING">
-						<img src="icons/mountain24.svg" height="15em"/>
-					</button>
-					<button type="button" class="btn btn-default" data-value="WALKING">
-						<img src="icons/walking.svg" height="15em"/>
-					</button>
-					<button id="ufo" type="button" class="btn btn-default pop" data-value="UFO" data-container="body" data-toggle="popover" data-placement="bottom"
-					data-html="true" data-bind="click: modeUFO"
-					data-content="Howdy, Pardner!<br/> Google Maps does not yet support this transit mode,<b> but don't worry!</b> We've dispatched representatives in unmarked black helicopters to take you to your &ldquo;polling station.&rdquo; <img src='icons/helicopter8.svg' height='14em'><br/><i>#KeepAustinWeird</i>">
-						<img src="icons/unidentified.svg" height="15em"/>
-					</button>
-				</div>
-
 			</form>
 		</div>
 
@@ -115,8 +119,12 @@
 				<label for="coCheck">City Council</label>
 			</div>
 		</div>
-		
-		<div id="map-canvas"></div>
+		<div id="responsiveInfo" class="mapCtrl visible-sm" style="width: 180px; margin-top:10px">
+			Precinct <span class="badge" data-bind="text: preID"></span> City Council <span class="badge" data-bind="text: cdID">
+		</div>
+
+		<div id="map-canvas" class="col-md-16"></div>
+
 	</body>
 	<footer>
 		<script type="text/javascript">
@@ -170,8 +178,13 @@
 				}
 			});
 		</script>
-		<script type="text/html" id="optionTemp">
-			<span data-bind="text: name">Hi</span>
+		<script type="text/html" id="ps-template">
+			<!--<span data-bind="html: display"></span>-->
+			<li class='selector'>
+				<a href='#' data-bind='click: $root.setDestination'>
+					<img src='icons/closed.svg' height='36em'><span class='ps' data-bind="text: name"></span> <span class='eta' data-bind="text: eta"></span>
+				</a>
+			</li>
 		</script>
 		<script type="text/javascript" src="js/mappit.js"></script>
 	</footer>
