@@ -19,10 +19,10 @@ $(document).ready(function() {
 		// TODO: Move to CSS file
 		var controlText = document.createElement('div');
 		controlText.style.fontFamily = 'Arial,sans-serif';
-		controlText.style.fontSize = '13px';
+		controlText.style.fontSize = '12px';
 		controlText.style.paddingLeft = '4px';
 		controlText.style.paddingRight = '4px';
-		controlText.innerHTML = '  Regions <span class="caret"></span> ';
+		controlText.innerHTML = '<b>  Regions  </b>';
 		controlUI.appendChild(controlText);
 
 		// Append inputs
@@ -47,7 +47,8 @@ $(document).ready(function() {
 		var SVC1 = "search?latitude=";
 		var SVC2 = "&longitude=";
 
-		$("#map-canvas").css("height", $(window).height() - 80);
+		$("#map-canvas").css("height", $(window).height() - $("#messages").height() - $("#controls").height() - 20);
+		$("#map-panel").css("height", $("#panelATX").height() + 2);
 		var blue = [{
 			featureType : "all",
 			stylers : [{
@@ -76,7 +77,7 @@ $(document).ready(function() {
 		self.cdID = ko.observable("0");
 		self.preID = ko.observable("0");
 		self.psAd = ko.observable("");
-		self.psName = ko.observable("nearby polling stations");
+		self.psName = ko.observable("choose a location");
 		self.psLatlng = null;
 
 		self.locations = ko.observableArray([]);
@@ -93,13 +94,136 @@ $(document).ready(function() {
 			this.toggleOverlay("city_council", newValue);
 		}, this);
 
-		self.motd = ko.observable("Welcome to VoteATX!  Note: It may take a moment for your info to load.");
+		self.motd = ko.observable("Welcome to VoteATX!");
 
 		var geocoder;
 		var directionsDisplay;
 		var directionsService = new google.maps.DirectionsService();
 		// End View Model Data
+		/*
+		 *  View Model Methods
+		 */
+		/*
+		 *  TODO: Use this to create a special select with pertinent information about polling stations
+		 * 		Open/Closed icon, Name of Stations, ETA (and eventually +wait)
+		 *  TODO: To achieve this, bootstrap-select must be forked and templating implemented,
+		 * 		preferably KO.js templating
+		 */
+		function PollingStation(val, open) {
+			var self = this;
 
+			self.name = val.name;
+			self.address = val.address;
+			self.latlng = new google.maps.LatLng(val.latitude, val.longitude);
+			self.isOpen = open;
+
+			self.eta = ko.observable("0");
+		};
+
+		// Convert Precinct ID to Address and populate sidebar with Directions
+		// TODO: Deal with "Combined Precincts"
+		mappViewModel.prototype.getDirections = function() {
+			var address = self.psName() + " " + self.psAd();
+			if (DEBUG)
+				console.log("psID: " + self.psAd());
+
+			if (self.transitMode() !== null | "UFO") {
+				var request = {
+					origin : self.myLoc(),
+					destination : self.psLatlng,
+					travelMode : self.transitMode()
+				};
+				directionsService.route(request, function(response, status) {
+					if (status == google.maps.DirectionsStatus.OK) {
+						directionsDisplay.setDirections(response);
+						openPanel();
+					}
+				});
+				directionsDisplay.setMap(self.map);
+			}
+		};
+
+		function openPanel() {
+			// If the side panel is not open, transition it to display directions
+			if (!$('#map-panel').hasClass('open')) {
+				$('#menuToggle').focus();
+				$('#menuToggle').click();
+			};
+		};
+
+		mappViewModel.prototype.setDestination = function(station) {
+			self.psName(station.name);
+			self.psAd(station.address);
+			self.psLatlng = station.latlng;
+		};
+
+		// Transit Mode UFO
+		mappViewModel.prototype.modeUFO = function() {
+			setTimeout(function() {
+				self.transitMode("DRIVING");
+				$("#ufo").removeClass("btn-default").addClass("disabled");
+			}, 3000);
+			console.log("You come from France!");
+		};
+
+		function resizeMap() {
+			if (self.mobile && $(window).width() > 480) {
+				self.mobile = false;
+				$('#panelATX').append($('#map-canvas'));
+				$("#map-canvas").css("height", $(window).height() - $("#messages").height() - $("#controls").height() - 20);
+				$("#map-panel").css("height", $("#panelATX").height() + 2);
+				if (DEBUG)
+					console.log("resized for !mobile");
+			} else if (!self.mobile && $(window).width() < 481) {
+				self.mobile = true;
+				$("#map-canvas").css("height", "300px");
+				$('#collapseMap').append($('#map-canvas'));
+				if (DEBUG)
+					console.log("resized for mobile");
+			} else if ($(window).width() < 481)
+				$("#map-canvas").css("height", "300px");
+			self.map.panTo(self.marker.getPosition());
+		};
+
+		$(window).resize(function() {
+			resizeMap();
+		});
+		// End ViewModel Methods
+		/*
+		 *  Geolocation
+		 */
+		function geo_success(position) {
+			var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+			setPosition(latlng);
+			geocoder.geocode({
+				'latLng' : latlng
+			}, function(results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {
+					if (results[1]) {
+						//self.geoLoc = results[1].formatted_address;
+						self.myLoc(results[1].formatted_address);
+						//setTimeout(self.getDirections(), 50);
+						console.log("located");
+					}
+				} else {
+					alert("Geocoder failed due to: " + status);
+				}
+			});
+		}
+
+		function geo_error() {
+			console.log("Sorry, no position available.");
+		}
+
+		var geo_options = {
+			enableHighAccuracy : true,
+			maximumAge : 30000,
+			timeout : 27000
+		};
+		if (GEOLOCATION) {
+			navigator.geolocation.getCurrentPosition(geo_success, geo_error, geo_options);
+		};
+		// End Geolocation
 		/*
 		*  Google Maps Methods
 		*/
@@ -109,13 +233,6 @@ $(document).ready(function() {
 				zoom : 13,
 				center : new google.maps.LatLng(FALLBACK_LAT, FALLBACK_LNG),
 				styles : blue,
-				panControl : false,
-				zoomControl : true,
-				zoomControlOptions : {
-					style : google.maps.ZoomControlStyle.SMALL,
-					position : google.maps.ControlPosition.LEFT_CENTER
-				},
-				streetViewControl : false,
 				mapTypeControl : false
 			};
 
@@ -124,12 +241,10 @@ $(document).ready(function() {
 			directionsDisplay.setMap(self.map);
 			directionsDisplay.setPanel(document.getElementById('directions-panel'));
 
-			var drag;
-			(DEBUG) ? drag = true : drag = false;
 			self.marker = new google.maps.Marker({
 				position : self.map.getCenter(),
 				map : self.map,
-				draggable : drag
+				draggable : true
 			});
 
 			google.maps.event.addListener(self.marker, "dragend", function(event) {
@@ -140,20 +255,22 @@ $(document).ready(function() {
 
 			geocoder = new google.maps.Geocoder();
 			initControls();
+			resizeMap();
 
+			// TODO: Figure out if this is actually helpful
+			google.maps.event.addListenerOnce(self.map, 'idle', function() {
+				google.maps.event.trigger(self.map, "resize");
+			});
 
 			// Initialize custom controls
 			var regionOverlayDiv = document.createElement('div');
 			var regionOverlayControl = new RegionOverlayControl(regionOverlayDiv, self.map);
 			var controlDiv = document.getElementById('responsiveInfo');
-			var startDiv = document.getElementById('pac-input');
 
 			regionOverlayDiv.index = 1;
 			self.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(regionOverlayDiv);
 			controlDiv.index = 1;
-			self.map.controls[google.maps.ControlPosition.TOP_LEFT].push(controlDiv);
-			startDiv.index = 1;
-			self.map.controls[google.maps.ControlPosition.LEFT_TOP].push(startDiv);
+			self.map.controls[google.maps.ControlPosition.TOP_CENTER].push(controlDiv);
 		};
 		// Listener for initialize
 		google.maps.event.addDomListener(window, 'load', initialize);
@@ -282,12 +399,15 @@ $(document).ready(function() {
 						infowindow.open(self.map, marker);
 						self.psName(loc.name);
 						self.psAd(loc.address + ", " + loc.city + ", " + loc.state);
-						self.psLatlng = new google.maps.LatLng(loc.latitude, loc.longitude);
 					});
 
 					// Now populate the arrays
 					self.markers.push(marker);
+					self.locations.push(new PollingStation(loc, val.is_open));
 				});
+
+				// Update the ETAs
+				setTimeout(doETA(), 500);
 
 				if (DEBUG)
 					console.log(self.locations());
@@ -303,6 +423,44 @@ $(document).ready(function() {
 				success : jsonpCallback
 			});
 			return false;
+		};
+
+		function doETA() {
+			var service = new google.maps.DistanceMatrixService();
+			//var origin = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=" + self.myLoc();
+			var destinations = [];
+
+			for (var i = 0; i < self.locations().length; i++) {
+				destinations.push(self.locations()[i].latlng);
+			};
+
+			service.getDistanceMatrix({
+				origins : ["801 W 5TH ST AUSTIN, TX"],
+				destinations : destinations,
+				travelMode : google.maps.TravelMode.DRIVING,
+				unitSystem : google.maps.UnitSystem.IMPERIAL,
+				avoidHighways : false,
+				avoidTolls : false
+			}, callback);
+
+			function callback(response, status) {
+				if (status != google.maps.DistanceMatrixStatus.OK) {
+					alert('Error was: ' + status);
+				} else {
+					//var origins = response.originAddresses;
+					var destinations = response.destinationAddresses;
+
+					console.log(response);
+
+					var results = response.rows[0].elements;
+
+					for (var i = 0; i < destinations.length; i++) {
+						self.locations()[i].eta(results[i].duration.text);
+						console.log(results[i].duration.text);
+					};
+				}
+			}
+
 		};
 
 		function drawRegion(type, id) {
@@ -361,7 +519,9 @@ $(document).ready(function() {
 		 */
 		function initControls() {
 			// AutoComplete for Starting Location (You Are Here)
-			var input = document.getElementById('pac-input');
+			var input = document.getElementById('startLoc');
+			setupAutocomplete(input);
+			input = document.getElementById('mobileLoc');
 			setupAutocomplete(input);
 		};
 
@@ -435,22 +595,6 @@ $(document).ready(function() {
 						$element.toggleClass("active", observable());
 					}
 				});
-			}
-		};
-
-		// Here's a custom Knockout binding that makes elements shown/hidden via jQuery's fadeIn()/fadeOut() methods
-		// Could be stored in a separate utility library
-		ko.bindingHandlers.fadeVisible = {
-			init : function(element, valueAccessor) {
-				// Initially set the element to be instantly visible/hidden depending on the value
-				var value = valueAccessor();
-				$(element).toggle(ko.unwrap(value));
-				// Use "unwrapObservable" so we can handle values that may or may not be observable
-			},
-			update : function(element, valueAccessor) {
-				// Whenever the value subsequently changes, slowly fade the element in or out
-				var value = valueAccessor();
-				ko.unwrap(value) ? $(element).fadeIn() : $(element).fadeOut();
 			}
 		};
 	};

@@ -19,8 +19,13 @@
 				<div id="collapseInfo" class="panel-collapse collapse">
 					<div class="input-group">
 						<span class="input-group-addon"><img src="icons/pin1.svg" height="15em" width="40px"></span>
-						<input id="mobileLoc" type="text" class="form-control" data-bind="value: myLoc">
+						<input id="mobileLoc" type="text" class="form-control" placeholder="enter your address" data-bind="value: myLoc">
 					</div>
+			<!-- --><div class="input-group pull-right">
+						<div class="vamid text-center" style="width: 100%">
+							Precinct <span class="badge" data-bind="text: preID"></span> City Council <span class="badge" data-bind="text: cdID">
+						</div>
+					</div>		
 					<div class="input-group">
 						<span class="select-addon"><img src="icons/election4.svg" height="15em" width="40px"></span>
 						<div class="btn-group btn-input clearfix">
@@ -42,7 +47,9 @@
 				<div class="panel-heading">
 					<h4 class="panel-title"><a data-toggle="collapse" data-parent="#mobile" href="#collapseMap"> Map </a></h4>
 				</div>
-				<div id="collapseMap" class="panel-collapse collapse in"></div>
+				<div id="collapseMap" class="panel-collapse collapse in">
+					<div id="map-canvas" class="col-md-16"></div>
+				</div>
 			</div>
 		</div>
 
@@ -65,7 +72,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="form-group">
+				<div class="form-group" data-bind="fadeVisible: showNav">
 					<div class="input-group">
 						<span class="select-addon"><img src="icons/election4.svg" height="15em"></span>
 						<div class="btn-group btn-input clearfix">
@@ -80,7 +87,7 @@
 								<img src="icons/navigate.svg" height="15em">
 							</button> </span>
 					</div>
-					<div class="btn-group" data-bind="radio: transitMode">
+					<div class="btn-group" data-bind="radio: transitMode, fadeVisible: showTransit">
 						<button type="button" class="btn btn-default" data-value="DRIVING">
 							<img src="icons/car63.svg" height="15em"/>
 						</button>
@@ -119,17 +126,15 @@
 				<label for="coCheck">City Council</label>
 			</div>
 		</div>
-		<div id="responsiveInfo" class="mapCtrl visible-sm" style="width: 180px; margin-top:10px">
+		<div id="responsiveInfo" class="mapCtrl visible-sm-block visible-xs-block" style="width: 180px; margin-top:10px">
 			Precinct <span class="badge" data-bind="text: preID"></span> City Council <span class="badge" data-bind="text: cdID">
 		</div>
-
-		<div id="map-canvas" class="col-md-16"></div>
 
 	</body>
 	<footer>
 		<script type="text/javascript">
 			// This enables (true) or disables (false) geolocation
-			var GEOLOCATION = true;
+			var GEOLOCATION = false;
 			// Set this to false for nonresponsive sites. (Does not turn responsive on/off!)
 			var RESPONSIVE = true;
 		</script>
