@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>VoteATX.US</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="description" content="Web-based mobile application to find Travis County, TX voting places nearest to you. Free and non-commercial. Powered by open government data." />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<link rel="icon" href="mapicons/favicon.png" type="image/png" />
+		<link rel="stylesheet" href="css/bootstrap.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.5.4/bootstrap-select.min.css">
+		<link rel="stylesheet" href="css/mappit.css">
+	</head>
+	<body>
+		<div id="place-holder"></div>
+		<div class="panel">
+			<div id="map-canvas" style="border: 10px"></div>
+		</div>
+		<div id="alerts" class="alert alert-info" role="alert">
+			<button type="button" class="close" data-dismiss="alert">
+				<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+			</button><p data-bind="text: motd"></p>
+		</div>
+
+		<!-- Custom Controls div for Google Maps to toggle Region Overlays on and off -->
+		<div id="regionOverlayChecks" style="display: none">
+			<div id="checkBoxes" class="mapChk">
+				<input type="checkbox" value="value" id="preCheck" name="name" data-bind="checked: preCheck"/>
+				<label for="preCheck">Precinct</label>
+				<br>
+				<input type="checkbox" value="value" id="coCheck" name="name" data-bind="checked: coCheck"/>
+				<label for="coCheck">City Council</label>
+			</div>
+		</div>
+		<div id="responsiveInfo" style="width: 240px; margin:10px">
+				<div class="mapCtrl" style="width: 200px; display: inline-block;"> Precinct <span class="badge" data-bind="text: preID"></span> City Council <span class="badge" data-bind="text: cdID">
+					</div>
+		</div>
+		
+		<input id="pac-input" class="controls" type="text" placeholder="enter your home address" data-bind="value: myLoc, hasFocus: myLoc.focused">
+
+	</body>
+	<footer>
+		<script type="text/javascript">
+			// This enables (true) or disables (false) geolocation
+			var GEOLOCATION = false;
+			// Set this to false for nonresponsive sites. (Does not turn responsive on/off!)
+			var RESPONSIVE = false;
+		</script>
+		<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js'></script>
+		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
+		<script type="text/javascript" src="js/bootstrap.min.js"></script>
+		<!--<script type="text/javascript" src="js/oms.min.js"></script>-->
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.5.4/bootstrap-select.min.js"></script>
+		<script type="text/javascript">
+			$(function() {
+				$(".tip").tooltip();
+				$('.pop').popover();
+				$('.selectpicker').selectpicker();
+				$('html').on('click', function(e) {
+					if ( typeof $(e.target).data('original-title') == 'undefined' && !$(e.target).parents().is('.popover.in')) {
+						$('[data-original-title]').popover('hide');
+					}
+				});
+			});
+		</script>
+		<script type="text/javascript">
+			(function($) {
+				$(document).ready(function() {
+					$('#menuToggle').click(function(e) {
+						var $parent = $(this).parent('nav');
+						$parent.toggleClass("open");
+						var navState = $parent.hasClass('open') ? "hide" : "show";
+						$(this).attr("title", navState + " navigation");
+						// Set the timeout to the animation length in the CSS.
+						setTimeout(function() {
+							console.log("timeout set");
+							$('#menuToggle > span').toggleClass("navClosed").toggleClass("navOpen");
+						}, 200);
+						e.preventDefault();
+					});
+				});
+			})(jQuery);
+		</script>
+		<script>
+			$('#controls').bind("keyup keypress", function(e) {
+				var code = e.keyCode || e.which;
+				if (code == 13) {
+					e.preventDefault();
+					return false;
+				}
+			});
+		</script>
+		<script type="text/html" id="ps-template">
+			<!--<span data-bind="html: display"></span>-->
+			<li class='selector'>
+			<a href='#' data-bind='click: $root.setDestination'>
+			<img src='icons/closed.svg' height='36em'><span class='ps' data-bind="text: name"></span> <span class='eta' data-bind="text: eta"></span>
+			</a>
+			</li>
+		</script>
+		<script type="text/javascript" src="js/mappit.js"></script>
+	</footer>
+</html>

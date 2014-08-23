@@ -35,6 +35,20 @@ $(document).ready(function() {
 		});
 	};
 
+	function RegionOverlayAlert() {
+		if (!document.getElementById('toggleAlert')) {
+			var alertUI = document.createElement('div');
+			var parent = document.getElementById('place-holder');
+			alertUI.innerHTML = 'You must enter an address before overlays can be displayed';
+			alertUI.className = "alert alert-danger";
+			$(alertUI).attr('id', 'toggleAlert');
+			parent.appendChild(alertUI);
+			setTimeout(function() {
+				$(alertUI).remove();
+			}, 3000);
+		}
+	}
+
 	function mappViewModel() {
 		/*
 		 *  Configuration
@@ -141,7 +155,6 @@ $(document).ready(function() {
 			geocoder = new google.maps.Geocoder();
 			initControls();
 
-
 			// Initialize custom controls
 			var regionOverlayDiv = document.createElement('div');
 			var regionOverlayControl = new RegionOverlayControl(regionOverlayDiv, self.map);
@@ -191,6 +204,12 @@ $(document).ready(function() {
 
 		mappViewModel.prototype.toggleOverlay = function(type, bool) {
 			var region;
+			if (true) {
+				RegionOverlayAlert();
+				self.preCheck(false);
+				self.coCheck(false);
+				return;
+			}
 			if (!bool) {
 				if (type === "precinct")
 					self.preOverlay.setMap(null);
@@ -198,13 +217,14 @@ $(document).ready(function() {
 					self.coOverlay.setMap(null);
 
 				return;
+			} else {
+				if (type === "precinct")
+					region = drawRegion(type, self.preID());
+				else
+					region = drawRegion(type, self.cdID());
+				if (DEBUG)
+					console.log(region);
 			}
-			if (type === "precinct")
-				region = drawRegion(type, self.preID());
-			else
-				region = drawRegion(type, self.cdID());
-			if (DEBUG)
-				console.log(region);
 		};
 
 		google.maps.Map.prototype.clearOverlays = function() {
@@ -306,7 +326,7 @@ $(document).ready(function() {
 		};
 
 		function drawRegion(type, id) {
-			var url = SVC + "/districts/" + type + "/" + id;
+			var url = SVC + "districts/" + type + "/" + id;
 
 			// Service response here
 			function jsonpCallback(response) {
