@@ -96,12 +96,12 @@ $(document).ready(function() {
 		self.locations = ko.observableArray([]);
 		self.selectedLocation = ko.observable();
 
-		self.preOverlay
+		self.preOverlay = null;
 		self.preCheck = ko.observable(false);
 		this.preCheck.subscribe(function(newValue) {
 			this.toggleOverlay("precinct", newValue);
 		}, this);
-		self.coOverlay
+		self.coOverlay = null;
 		self.coCheck = ko.observable(false);
 		this.coCheck.subscribe(function(newValue) {
 			this.toggleOverlay("city_council", newValue);
@@ -204,7 +204,7 @@ $(document).ready(function() {
 
 		mappViewModel.prototype.toggleOverlay = function(type, bool) {
 			var region;
-			if (true) {
+			if (self.myLoc() == "") {
 				RegionOverlayAlert();
 				self.preCheck(false);
 				self.coCheck(false);
