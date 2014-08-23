@@ -290,7 +290,7 @@ $(document).ready(function() {
 						icon : icon,
 						draggable : false,
 					});
-					var contentString = '<div id="content" style="max-height:300px; overflow: auto;">' +'<div id="bodyContent"><p>' + val.info.replace(regex, "<br/>") + '</p></div></div>';
+					var contentString = '<div id="content" style="max-height:300px; overflow: auto;">' + '<div id="bodyContent"><p>' + val.info.replace(regex, "<br/>") + '</p></div></div>';
 					var infowindow = new google.maps.InfoWindow({
 						maxWidth : 250,
 						content : contentString
@@ -334,9 +334,20 @@ $(document).ready(function() {
 					console.log(response);
 				var array = response.region.coordinates[0];
 				var polyCoords = [];
+				var LatLng;
 				$.each(array, function(index, val) {
-					var LatLng = new google.maps.LatLng(val[1], val[0]);
-					polyCoords.push(LatLng);
+
+					if (type === "precinct") {
+						LatLng = new google.maps.LatLng(val[1], val[0]);
+						polyCoords.push(LatLng);
+					} else {
+						var arrayNested = array[0];
+						$.each(arrayNested, function(i, pos) {
+
+							LatLng = new google.maps.LatLng(pos[1], pos[0]);
+							polyCoords.push(LatLng);
+						});
+					}
 				});
 				if (DEBUG)
 					console.log(polyCoords);
