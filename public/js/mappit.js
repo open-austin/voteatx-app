@@ -290,7 +290,7 @@ $(document).ready(function() {
 						icon : icon,
 						draggable : false,
 					});
-					var contentString = '<div id="content">' + '<h2 id="firstHeading" class="firstHeading">' + val.title + '</h1><br/>' + '<div id="bodyContent"><p>' + val.info.replace(regex, "<br/>") + '</p></div></div>';
+					var contentString = '<div id="content" style="max-height:300px; overflow: auto;">' +'<div id="bodyContent"><p>' + val.info.replace(regex, "<br/>") + '</p></div></div>';
 					var infowindow = new google.maps.InfoWindow({
 						maxWidth : 250,
 						content : contentString
