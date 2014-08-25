@@ -53,7 +53,7 @@ $(document).ready(function() {
 		/*
 		 *  Configuration
 		 */
-		var DEBUG = true;
+		var DEBUG = false;
 		var MAP_ID = 'map_canvas';
 		var FALLBACK_LAT = 30.2649;
 		var FALLBACK_LNG = -97.7470;
@@ -79,16 +79,17 @@ $(document).ready(function() {
 
 		self.map = null;
 		self.marker = null;
+		
+		// Visibility Bindings
 		self.spinner = ko.observable(false);
 		self.alert = ko.observable(false);
-
-		self.transitMode = ko.observable("DRIVING");
+		self.about = ko.observable(false);
 
 		self.myLoc = ko.observable("");
 		self.markers = [];
 
-		self.cdID = ko.observable("?");
-		self.preID = ko.observable("?");
+		self.cdID = ko.observable("<i class='fa fa-arrow-down'></i>");
+		self.preID = ko.observable('<i class="fa fa-arrow-circle-down"></i>');
 		self.psAd = ko.observable("");
 		self.psName = ko.observable("nearby polling stations");
 		self.psLatlng = null;
@@ -160,13 +161,19 @@ $(document).ready(function() {
 			var regionOverlayControl = new RegionOverlayControl(regionOverlayDiv, self.map);
 			var controlDiv = document.getElementById('responsiveInfo');
 			var startDiv = document.getElementById('pac-input');
+			var aboutDiv = document.getElementById('aboutIcon');
+			var logoDiv = document.getElementById('logo');
 
 			regionOverlayDiv.index = 1;
 			self.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(regionOverlayDiv);
+			aboutDiv.index = 1;
+			self.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(aboutDiv);
 			controlDiv.index = 1;
 			self.map.controls[google.maps.ControlPosition.TOP_LEFT].push(controlDiv);
 			startDiv.index = 1;
 			self.map.controls[google.maps.ControlPosition.LEFT_TOP].push(startDiv);
+			logoDiv.index = 1;
+			self.map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(logoDiv);
 		};
 		// Listener for initialize
 		google.maps.event.addDomListener(window, 'load', initialize);
@@ -244,8 +251,8 @@ $(document).ready(function() {
 		function phoneHome(latlng, lng) {
 			self.map.clearOverlays();
 			self.spinner(true);
-			self.preID("?");
-			self.cdID("?");
+			self.preID('?');
+			self.cdID('?');
 			var lat;
 			if ( typeof lng !== "undefined") {
 				lat = latlng;
@@ -307,6 +314,7 @@ $(document).ready(function() {
 						position : mLatLng,
 						map : self.map,
 						icon : icon,
+						title: val.title,
 						draggable : false,
 					});
 					var contentString = '<div id="content" style="max-height:300px; overflow: auto;">' + '<div id="bodyContent"><p>' + val.info.replace(regex, "<br/>") + '</p></div></div>';
@@ -415,6 +423,14 @@ $(document).ready(function() {
 		 */
 		mappViewModel.prototype.dismissAlert = function() {
 			self.alert(false);
+		};
+		
+		mappViewModel.prototype.showAbout = function() {
+			self.about(true);
+		};
+
+		mappViewModel.prototype.hideAbout = function() {
+			self.about(false);
 		};
 
 		function initControls() {
