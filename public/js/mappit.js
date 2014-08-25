@@ -61,7 +61,6 @@ $(document).ready(function() {
 		var SVC1 = "search?latitude=";
 		var SVC2 = "&longitude=";
 
-		$("#map-canvas").css("height", $(window).height() - 80);
 		var blue = [{
 			featureType : "all",
 			stylers : [{
@@ -80,15 +79,16 @@ $(document).ready(function() {
 
 		self.map = null;
 		self.marker = null;
-		self.mobile = true;
+		self.spinner = ko.observable(false);
+		self.alert = ko.observable(false);
 
 		self.transitMode = ko.observable("DRIVING");
 
 		self.myLoc = ko.observable("");
 		self.markers = [];
 
-		self.cdID = ko.observable("0");
-		self.preID = ko.observable("0");
+		self.cdID = ko.observable("?");
+		self.preID = ko.observable("?");
 		self.psAd = ko.observable("");
 		self.psName = ko.observable("nearby polling stations");
 		self.psLatlng = null;
@@ -107,7 +107,7 @@ $(document).ready(function() {
 			this.toggleOverlay("city_council", newValue);
 		}, this);
 
-		self.motd = ko.observable("Welcome to VoteATX!  Note: It may take a moment for your info to load.");
+		self.alertText = ko.observable("Welcome to VoteATX!");
 
 		var geocoder;
 		var directionsDisplay;
@@ -205,7 +205,8 @@ $(document).ready(function() {
 		mappViewModel.prototype.toggleOverlay = function(type, bool) {
 			var region;
 			if (self.myLoc() == "") {
-				RegionOverlayAlert();
+				self.alertText("You must enter an address before overlays can be displayed!");
+				self.alert(true);
 				self.preCheck(false);
 				self.coCheck(false);
 				return;
@@ -242,6 +243,9 @@ $(document).ready(function() {
 		// Overloaded - phoneHome(latlng literal) or phoneHome(double lat, double lng)
 		function phoneHome(latlng, lng) {
 			self.map.clearOverlays();
+			self.spinner(true);
+			self.preID("?");
+			self.cdID("?");
 			var lat;
 			if ( typeof lng !== "undefined") {
 				lat = latlng;
@@ -256,11 +260,26 @@ $(document).ready(function() {
 				if (DEBUG)
 					console.log(response);
 
-				self.motd(response.message.content);
+				self.alertText(response.message.content);
 				switch(response.message.severity) {
 				case "WARNING":
-					$("#alerts").addClass("alert-warning").removeClass("alert-info");
+					$("#alerts").addClass("alert-warning").removeClass("alert-info").removeClass("alert-danger");
+					break;
+				case "ERROR":
+					$("#alerts").addClass("alert-danger").removeClass("alert-info").removeClass("alert-warning");
+					break;
 				}
+
+				// Let user know their address is outside of the bounds. Need response from server indicating the error.
+				if (response.places.length == 1) {
+					self.alertText("Address is outside of Travis County!");
+					console.log("out of bounds");
+					self.alert(true);
+					self.spinner(false);
+					return;
+				};
+
+				self.alert(true);
 
 				self.preID(response.districts.precinct.id);
 				self.cdID(response.districts.city_council.id);
@@ -299,7 +318,9 @@ $(document).ready(function() {
 					var loc = response.places[index].location;
 					// Bind the Info Window to the Marker
 					google.maps.event.addListener(marker, 'click', function() {
-						$.each(self.markers, function(index, val){ self.markers[index].infowindow.close();});
+						$.each(self.markers, function(index, val) {
+							self.markers[index].infowindow.close();
+						});
 						marker.infowindow.open(self.map, marker);
 						self.psName(loc.name);
 						self.psAd(loc.address + ", " + loc.city + ", " + loc.state);
@@ -308,6 +329,7 @@ $(document).ready(function() {
 
 					// Now populate the arrays
 					self.markers.push(marker);
+					self.spinner(false);
 				});
 
 				if (DEBUG)
@@ -391,6 +413,10 @@ $(document).ready(function() {
 		/*
 		 *  App Controls
 		 */
+		mappViewModel.prototype.dismissAlert = function() {
+			self.alert(false);
+		};
+
 		function initControls() {
 			// AutoComplete for Starting Location (You Are Here)
 			var input = document.getElementById('pac-input');

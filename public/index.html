@@ -8,17 +8,18 @@
 		<link rel="icon" href="mapicons/favicon.png" type="image/png" />
 		<link rel="stylesheet" href="css/bootstrap.css">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.5.4/bootstrap-select.min.css">
+		<link rel="stylesheet" href="css/timer.css" type="text/css">
 		<link rel="stylesheet" href="css/mappit.css">
 	</head>
 	<body>
 		<div id="place-holder"></div>
-		<div class="panel">
-			<div id="map-canvas" style="border: 10px"></div>
+		<div class="panel" style="position: absolute;top: 0px;bottom: 0px;left: 0px;right: 0px;">
+			<div id="map-canvas" style="height: 100%;width: 100%;"></div>
 		</div>
-		<div id="alerts" class="alert alert-info" role="alert">
-			<button type="button" class="close" data-dismiss="alert">
+		<div id="alerts" class="alert alert-info alert-popup" role="alert" data-bind="visible: alert">
+			<button type="button" class="close" data-bind="click: dismissAlert">
 				<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
-			</button><p data-bind="text: motd"></p>
+			</button><p data-bind="text: alertText"></p>
 		</div>
 
 		<!-- Custom Controls div for Google Maps to toggle Region Overlays on and off -->
@@ -31,11 +32,16 @@
 				<label for="coCheck">City Council</label>
 			</div>
 		</div>
-		<div id="responsiveInfo" style="width: 240px; margin:10px">
-				<div class="mapCtrl" style="width: 200px; display: inline-block;"> Precinct <span class="badge" data-bind="text: preID"></span> City Council <span class="badge" data-bind="text: cdID">
-					</div>
+		<div id="responsiveInfo" style="width: 300px; margin:10px; display: inline-block;">
+			<div class="mapCtrl" style="width: 200px; display: inline-block;">
+				Precinct <span class="badge" data-bind="text: preID"></span><span>&#160;&#160;&#160;</span>
+				City Council <span class="badge" data-bind="text: cdID">
+			</div>
+			<div style="background-color: #fff; display: inline-block; vertical-align: middle;" class="timer" data-bind="visible: spinner">
+				Loading...
+			</div>
 		</div>
-		
+
 		<input id="pac-input" class="controls" type="text" placeholder="enter your home address" data-bind="value: myLoc, hasFocus: myLoc.focused">
 
 	</body>

@@ -1,3 +1,13 @@
+.alert-popup {
+	position: absolute;
+	margin: 0px 20px;
+	box-sizing:border-box;
+	z-index: 5;
+	left: 0px;
+	right: 0px;
+	top: 100px;
+}
+
 .controls {
 	margin-left: 10px;
 	border: 1px solid transparent;
@@ -48,11 +58,6 @@
 	border-radius: 4px;
 	cursor: pointer;
 	text-align: left;
-}
-
-#alerts {
-	margin-left: 10px;
-	margin-right: 10px;
 }
 
 .select-addon {
