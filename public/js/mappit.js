@@ -291,7 +291,7 @@ $(document).ready(function() {
 						draggable : false,
 					});
 					var contentString = '<div id="content" style="max-height:300px; overflow: auto;">' + '<div id="bodyContent"><p>' + val.info.replace(regex, "<br/>") + '</p></div></div>';
-					var infowindow = new google.maps.InfoWindow({
+					marker.infowindow = new google.maps.InfoWindow({
 						maxWidth : 250,
 						content : contentString
 					});
@@ -299,7 +299,8 @@ $(document).ready(function() {
 					var loc = response.places[index].location;
 					// Bind the Info Window to the Marker
 					google.maps.event.addListener(marker, 'click', function() {
-						infowindow.open(self.map, marker);
+						$.each(self.markers, function(index, val){ self.markers[index].infowindow.close();});
+						marker.infowindow.open(self.map, marker);
 						self.psName(loc.name);
 						self.psAd(loc.address + ", " + loc.city + ", " + loc.state);
 						self.psLatlng = new google.maps.LatLng(loc.latitude, loc.longitude);
@@ -359,17 +360,17 @@ $(document).ready(function() {
 						strokeOpacity : 0.8,
 						strokeWeight : 2,
 						fillColor : '#FF0000',
-						fillOpacity : 0.35
+						fillOpacity : 0.15
 					});
 					self.preOverlay.setMap(self.map);
 				} else {
 					self.coOverlay = new google.maps.Polygon({
 						paths : polyCoords,
-						strokeColor : '#FFFFF',
+						strokeColor : '#333',
 						strokeOpacity : 0.8,
 						strokeWeight : 2,
 						fillColor : '#FFFFFF',
-						fillOpacity : 0.35
+						fillOpacity : 0.5
 					});
 					self.coOverlay.setMap(self.map);
 				}
