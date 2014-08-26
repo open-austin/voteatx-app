@@ -32,10 +32,10 @@
 .alert-popup {
 	position: absolute;
 	margin: 0px 20px;
+	max-width: 400px;
 	box-sizing:border-box;
 	z-index: 5;
 	left: 0px;
-	right: 0px;
 	top: 100px;
 }
 

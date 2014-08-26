@@ -33,7 +33,7 @@
 			</div>
 		</div>
 		<div id="responsiveInfo" style="width: 300px; margin:10px; display: inline-block;">
-			<div class="mapCtrl" style="width: 200px; display: inline-block;">
+			<div class="mapCtrl" style="width: 220px; display: inline-block;">
 				Precinct <span class="badge" data-bind="html: preID"></span><span>&#160;&#160;&#160;</span>
 				City Council <span class="badge" data-bind="html: cdID">
 			</div>
@@ -42,7 +42,7 @@
 			</div>
 		</div>
 
-		<input id="pac-input" class="controls" type="text" placeholder="enter your home address" data-bind="value: myLoc, hasFocus: myLoc.focused">
+		<input id="pac-input" class="controls" type="text" placeholder="enter your home address" data-bind="value: homeLoc, hasFocus: homeLoc.focused">
 		<div id="aboutIcon" style="margin: 6px 0px; color: #FFFFFF" data-bind="event: { mouseover: showAbout, mouseout: hideAbout }">
 			<i class="fa fa-question-circle fa-3x"></i>
 			<div class="triangle" data-bind="visible: about"></div>
@@ -200,7 +200,7 @@
 	<footer>
 		<script type="text/javascript">
 			// This enables (true) or disables (false) geolocation
-			var GEOLOCATION = false;
+			var GEOLOCATION = true;
 			// Set this to false for nonresponsive sites. (Does not turn responsive on/off!)
 			var RESPONSIVE = false;
 		</script>

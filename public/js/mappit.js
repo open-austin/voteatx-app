@@ -78,24 +78,23 @@ $(document).ready(function() {
 		var self = this;
 
 		self.map = null;
-		self.marker = null;
-		
+
 		// Visibility Bindings
 		self.spinner = ko.observable(false);
 		self.alert = ko.observable(false);
 		self.about = ko.observable(false);
 
-		self.myLoc = ko.observable("");
-		self.markers = [];
+		self.homeLoc = ko.observable("");
+		self.homeMarker = null;
+		self.homeMarkers = [];
+		self.geoMarker = null;
+		self.geoMarkers = [];
 
 		self.cdID = ko.observable("<i class='fa fa-arrow-down'></i>");
 		self.preID = ko.observable('<i class="fa fa-arrow-circle-down"></i>');
 		self.psAd = ko.observable("");
 		self.psName = ko.observable("nearby polling stations");
 		self.psLatlng = null;
-
-		self.locations = ko.observableArray([]);
-		self.selectedLocation = ko.observable();
 
 		self.preOverlay = null;
 		self.preCheck = ko.observable(false);
@@ -139,20 +138,6 @@ $(document).ready(function() {
 			directionsDisplay.setMap(self.map);
 			directionsDisplay.setPanel(document.getElementById('directions-panel'));
 
-			var drag;
-			(DEBUG) ? drag = true : drag = false;
-			self.marker = new google.maps.Marker({
-				position : self.map.getCenter(),
-				map : self.map,
-				draggable : drag
-			});
-
-			google.maps.event.addListener(self.marker, "dragend", function(event) {
-
-				var point = self.marker.getPosition();
-				setPosition(point);
-			});
-
 			geocoder = new google.maps.Geocoder();
 			initControls();
 
@@ -190,20 +175,19 @@ $(document).ready(function() {
 			}
 			if (self.map) {
 				self.map.panTo(loc);
-				self.marker.setPosition(loc);
 				directionsDisplay.setMap(null);
 				phoneHome(loc);
-				geocoder.geocode({
-					'latLng' : loc
-				}, function(results, status) {
-					if (status == google.maps.GeocoderStatus.OK) {
-						if (results[1]) {
-							self.myLoc(results[1].formatted_address);
-						}
-					} else {
-						console.log("Geocoder failed due to: " + status);
-					}
-				});
+				/*geocoder.geocode({
+				 'latLng' : loc
+				 }, function(results, status) {
+				 if (status == google.maps.GeocoderStatus.OK) {
+				 if (results[1]) {
+				 self.homeLoc(results[1].formatted_address);
+				 }
+				 } else {
+				 console.log("Geocoder failed due to: " + status);
+				 }
+				 });*/
 			} else {
 				console.log("Map not found! Check MAP_ID configuration.");
 			};
@@ -211,7 +195,7 @@ $(document).ready(function() {
 
 		mappViewModel.prototype.toggleOverlay = function(type, bool) {
 			var region;
-			if (self.myLoc() == "") {
+			if (self.homeLoc() == "") {
 				self.alertText("You must enter an address before overlays can be displayed!");
 				self.alert(true);
 				self.preCheck(false);
@@ -235,12 +219,20 @@ $(document).ready(function() {
 			}
 		};
 
-		google.maps.Map.prototype.clearOverlays = function() {
-			for (var i = 0; i < self.markers.length; i++) {
-				self.markers[i].setMap(null);
+		google.maps.Map.prototype.clearOverlays = function(type) {
+			switch(type) {
+			case "HOME":
+				for (var i = 0; i < self.homeMarkers.length; i++) {
+					self.homeMarkers[i].setMap(null);
+				}
+				self.homeMarkers = [];
+				break;
+			default:
+				for (var i = 0; i < self.geoMarkers.length; i++) {
+					self.geoMarkers[i].setMap(null);
+				}
+				self.geoMarkers = [];
 			}
-			self.markers = [];
-			self.locations([]);
 		};
 		// End Google Maps Methods
 
@@ -248,18 +240,20 @@ $(document).ready(function() {
 		*  Server Request and Map Updating
 		*/
 		// Overloaded - phoneHome(latlng literal) or phoneHome(double lat, double lng)
-		function phoneHome(latlng, lng) {
-			self.map.clearOverlays();
+		function phoneHome(latlng, type) {
+			self.map.clearOverlays(type);
 			self.spinner(true);
-			self.preID('?');
-			self.cdID('?');
-			var lat;
-			if ( typeof lng !== "undefined") {
-				lat = latlng;
-			} else {
-				lat = latlng.lat();
-				lng = latlng.lng();
+
+			if (type === "HOME") {
+				self.preID('?');
+				self.cdID('?');
+				self.preCheck(false);
+				self.coCheck(false);
 			}
+
+			var lat = latlng.lat();
+			var lng = latlng.lng();
+
 			var url = SVC + SVC1 + lat + SVC2 + lng;
 
 			// Service response here
@@ -275,9 +269,12 @@ $(document).ready(function() {
 				case "ERROR":
 					$("#alerts").addClass("alert-danger").removeClass("alert-info").removeClass("alert-warning");
 					break;
+				default:
+					$("#alerts").addClass("alert-info").removeClass("alert-warning").removeClass("alert-danger");
 				}
 
-				// Let user know their address is outside of the bounds. Need response from server indicating the error.
+				// Let user know their address is outside of the bounds.
+				// Need response from server indicating the error. This is a hack!
 				if (response.places.length == 1) {
 					self.alertText("Address is outside of Travis County!");
 					console.log("out of bounds");
@@ -288,8 +285,12 @@ $(document).ready(function() {
 
 				self.alert(true);
 
-				self.preID(response.districts.precinct.id);
-				self.cdID(response.districts.city_council.id);
+				// Only get voter info for Home Address!
+				if (type === "HOME") {
+					self.preID(response.districts.precinct.id);
+					self.cdID(response.districts.city_council.id);
+				}
+
 				var regex = new RegExp("\\n", "g");
 
 				$.each(response.places, function(index, val) {
@@ -314,7 +315,7 @@ $(document).ready(function() {
 						position : mLatLng,
 						map : self.map,
 						icon : icon,
-						title: val.title,
+						title : val.title,
 						draggable : false,
 					});
 					var contentString = '<div id="content" style="max-height:300px; overflow: auto;">' + '<div id="bodyContent"><p>' + val.info.replace(regex, "<br/>") + '</p></div></div>';
@@ -326,8 +327,11 @@ $(document).ready(function() {
 					var loc = response.places[index].location;
 					// Bind the Info Window to the Marker
 					google.maps.event.addListener(marker, 'click', function() {
-						$.each(self.markers, function(index, val) {
-							self.markers[index].infowindow.close();
+						$.each(self.homeMarkers, function(index, val) {
+							self.homeMarkers[index].infowindow.close();
+						});
+						$.each(self.geoMarkers, function(index, val) {
+							self.geoMarkers[index].infowindow.close();
 						});
 						marker.infowindow.open(self.map, marker);
 						self.psName(loc.name);
@@ -336,12 +340,13 @@ $(document).ready(function() {
 					});
 
 					// Now populate the arrays
-					self.markers.push(marker);
+					if (type === "HOME") {
+						self.homeMarkers.push(marker);
+						self.spinner(false);
+					} else
+						self.geoMarkers.push(marker);
 					self.spinner(false);
 				});
-
-				if (DEBUG)
-					console.log(self.locations());
 			}
 
 			// Use JSONP to avoid CORS
@@ -424,7 +429,7 @@ $(document).ready(function() {
 		mappViewModel.prototype.dismissAlert = function() {
 			self.alert(false);
 		};
-		
+
 		mappViewModel.prototype.showAbout = function() {
 			self.about(true);
 		};
@@ -454,10 +459,83 @@ $(document).ready(function() {
 			// Listener to respond to AutoComplete
 			google.maps.event.addListener(autocomplete, 'place_changed', function() {
 				var place = autocomplete.getPlace();
-				setPosition(place.geometry.location);
-				self.myLoc(place.formatted_address);
+				self.map.panTo(place.geometry.location);
+				phoneHome(place.geometry.location, "HOME");
+				self.homeLoc(place.formatted_address);
+				if (self.homeMarker != null) {
+					self.homeMarker.setPosition(place.geometry.location);
+				} else {
+					var icon = "icons/home3.svg";
+					self.homeMarker = new google.maps.Marker({
+						position : place.geometry.location,
+						map : self.map,
+						icon : icon,
+						draggable : false,
+					});
+				}
 			});
 		};
+
+		/*
+		 *  Geolocation
+		 */
+		function geo_success(position) {
+			var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+			self.map.panTo(latlng);
+			phoneHome(latlng, "GEO");
+			geocoder.geocode({
+				'latLng' : latlng
+			}, function(results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {
+					if (results[1]) {
+						self.geoLoc = results[1].formatted_address;
+						console.log("located");
+						var icon = "icons/yay.svg";
+						var pinIcon = new google.maps.MarkerImage("icons/yay.svg", null, /* size is determined at runtime */
+						null, /* origin is 0,0 */
+						null, /* anchor is bottom center of the scaled image */
+						new google.maps.Size(42, 68));
+						self.geoMarker = new google.maps.Marker({
+							position : latlng,
+							map : self.map,
+							icon : pinIcon,
+							draggable : true,
+						});
+						// Listen for drags
+						google.maps.event.addListener(self.geoMarker, "dragend", function(event) {
+
+							var point = self.geoMarker.getPosition();
+							self.map.panTo(point);
+							phoneHome(point, "GEO");
+						});
+						// Listen for clicks
+						/*google.maps.event.addListener(self.map, "click", function(event) {
+
+							var point = event.latLng;
+							self.map.panTo(point);
+							phoneHome(point, "GEO");
+							self.geoMarker.setPosition(point);
+						});*/
+					}
+				} else {
+					alert("Geocoder failed due to: " + status);
+				}
+			});
+		}
+
+		function geo_error() {
+			console.log("Sorry, no position available.");
+		}
+
+		var geo_options = {
+			enableHighAccuracy : true,
+			maximumAge : 30000,
+			timeout : 27000
+		};
+		if (GEOLOCATION) {
+			navigator.geolocation.getCurrentPosition(geo_success, geo_error, geo_options);
+		};
+		// End Geolocation
 
 		// KOut+BStrap Integration
 		ko.bindingHandlers.radio = {
