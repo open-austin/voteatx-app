@@ -163,36 +163,6 @@ $(document).ready(function() {
 		// Listener for initialize
 		google.maps.event.addDomListener(window, 'load', initialize);
 
-		// Pans Map and positions YAH Marker
-		/* Overloaded to accept LatLng or (Lat, Lng) */
-		function setPosition(latlng, lng) {
-			var loc;
-
-			if ( typeof lng !== "undefined") {
-				loc = new google.maps.LatLng(latlng, lng);
-			} else {
-				loc = latlng;
-			}
-			if (self.map) {
-				self.map.panTo(loc);
-				directionsDisplay.setMap(null);
-				phoneHome(loc);
-				/*geocoder.geocode({
-				 'latLng' : loc
-				 }, function(results, status) {
-				 if (status == google.maps.GeocoderStatus.OK) {
-				 if (results[1]) {
-				 self.homeLoc(results[1].formatted_address);
-				 }
-				 } else {
-				 console.log("Geocoder failed due to: " + status);
-				 }
-				 });*/
-			} else {
-				console.log("Map not found! Check MAP_ID configuration.");
-			};
-		};
-
 		mappViewModel.prototype.toggleOverlay = function(type, bool) {
 			var region;
 			if (self.homeLoc() == "") {
@@ -289,6 +259,7 @@ $(document).ready(function() {
 				if (type === "HOME") {
 					self.preID(response.districts.precinct.id);
 					self.cdID(response.districts.city_council.id);
+					self.coCheck(true);
 				}
 
 				var regex = new RegExp("\\n", "g");
@@ -470,6 +441,7 @@ $(document).ready(function() {
 						position : place.geometry.location,
 						map : self.map,
 						icon : icon,
+						title : "You won 2nd place in a beauty contest!",
 						draggable : false,
 					});
 				}
@@ -491,14 +463,16 @@ $(document).ready(function() {
 						self.geoLoc = results[1].formatted_address;
 						console.log("located");
 						var icon = "icons/yay.svg";
-						var pinIcon = new google.maps.MarkerImage("icons/yay.svg", null, /* size is determined at runtime */
+						var icon = new google.maps.MarkerImage("icons/yay.svg", null, /* size is determined at runtime */
 						null, /* origin is 0,0 */
-						null, /* anchor is bottom center of the scaled image */
-						new google.maps.Size(42, 68));
+						new google.maps.Point(18, 45), /* anchor is bottom center of the scaled image */
+						new google.maps.Size(36, 60));
 						self.geoMarker = new google.maps.Marker({
 							position : latlng,
 							map : self.map,
-							icon : pinIcon,
+							icon : icon,
+							animation: google.maps.Animation.DROP,
+							title: "You can drag you!",
 							draggable : true,
 						});
 						// Listen for drags
