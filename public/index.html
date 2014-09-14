@@ -22,20 +22,12 @@
 			</button><p data-bind="text: alertText"></p>
 		</div>
 
-		<!-- Custom Controls div for Google Maps to toggle Region Overlays on and off -->
-		<div id="regionOverlayChecks" style="display: none">
-			<div id="checkBoxes" class="mapChk">
-				<input type="checkbox" value="value" id="preCheck" name="name" data-bind="checked: preCheck"/>
-				<label for="preCheck">Precinct</label>
-				<br>
-				<input type="checkbox" value="value" id="coCheck" name="name" data-bind="checked: coCheck"/>
-				<label for="coCheck">City Council</label>
-			</div>
-		</div>
-		<div id="responsiveInfo" style="width: 300px; margin:10px; display: inline-block;">
-			<div class="mapCtrl" style="width: 220px; display: inline-block;">
-				Precinct <span class="badge" data-bind="html: preID"></span><span>&#160;&#160;&#160;</span>
-				City Council <span class="badge" data-bind="html: cdID">
+		<div id="responsiveInfo" style="margin: 10px; display: inline-block;">
+			<div class="mapCtrl" style="width: 240px; display: inline-block;">
+				<input type="checkbox" value="value" id="preCheck" name="name" data-bind="checked: preCheck" title ="Enable this to see outline of your voting precinct on the map." />
+                                Precinct <span class="badge" data-bind="html: preID"></span><span>&#160;&#160;&#160;</span>
+				<input type="checkbox" value="value" id="coCheck" name="name" data-bind="checked: coCheck" title ="Enable this to see outline of your city council district on the map." />
+                                City Council <span class="badge" data-bind="html: cdID">
 			</div>
 			<div style="background-color: #fff; display: inline-block; vertical-align: middle;" class="timer" data-bind="visible: spinner">
 				Loading...
@@ -87,7 +79,6 @@
 					<td>
 						After entering your home address, you can turn overlays of your precinct or council district on or off by hovering over the Regions button.
 					</td><td>
-						<div class="mapCtrl" style="color:#000; float: right">  Regions <span class="caret"></span> </div>
 					</td>
 				</tr>
 				<tr>
