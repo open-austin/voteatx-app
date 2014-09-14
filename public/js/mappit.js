@@ -259,7 +259,6 @@ $(document).ready(function() {
 				if (type === "HOME") {
 					self.preID(response.districts.precinct.id);
 					self.cdID(response.districts.city_council.id);
-					self.coCheck(true);
 				}
 
 				var regex = new RegExp("\\n", "g");
