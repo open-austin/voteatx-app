@@ -1,40 +1,5 @@
 $(document).ready(function() {
 
-	/*
-	 * 	Controls to toggle Precint and City Council overlays on the map
-	 */
-	/*function RegionOverlayControl(div, map) {
-		// Set CSS styles for the DIV containing the control
-		// Setting padding to 5 px will offset the control
-		// from the edge of the map
-		div.style.padding = '10px';
-
-		// Set CSS for the control border
-		var controlUI = document.createElement('div');
-		$(controlUI).addClass("mapCtrl");
-		controlUI.title = '';
-		div.appendChild(controlUI);
-
-		// Set CSS for the control interior
-		// TODO: Move to CSS file
-		var controlText = document.createElement('div');
-		controlText.style.fontFamily = 'Arial,sans-serif';
-		controlText.style.fontSize = '13px';
-		controlText.style.paddingLeft = '4px';
-		controlText.style.paddingRight = '4px';
-		controlText.innerHTML = '  Regions <span class="caret"></span> ';
-		controlUI.appendChild(controlText);
-
-		// Append inputs
-		var toggleUI = $("#regionOverlayChecks");
-		$(div).append(toggleUI);
-
-		// Hide/Show checkboxes on hover
-		$(div).hover(function() {
-			$(toggleUI).toggle();
-		});
-	};*/
-
 	function RegionOverlayAlert() {
 		if (!document.getElementById('toggleAlert')) {
 			var alertUI = document.createElement('div');
