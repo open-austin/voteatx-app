@@ -25,6 +25,7 @@ $(document).ready(function() {
 		var SVC = "http://svc.voteatx.us/";
 		var SVC1 = "search?latitude=";
 		var SVC2 = "&longitude=";
+		var BOUNDS = new google.maps.LatLngBounds(new google.maps.LatLng(30.2, -97.9), new google.maps.LatLng(30.5, -97.5));
 
 		var blue = [{
 			featureType : "all",
@@ -377,9 +378,9 @@ $(document).ready(function() {
 
 		function setupAutocomplete(input) {
 			// Bounds for AutoComplete
-			var defaultBounds = new google.maps.LatLngBounds(new google.maps.LatLng(30.2, -97.9), new google.maps.LatLng(30.5, -97.5));
+			
 			var opts = {
-				bounds : defaultBounds,
+				bounds : BOUNDS,
 				rankBy : google.maps.places.RankBy.DISTANCE,
 				componentRestrictions : {
 					country : 'us'
