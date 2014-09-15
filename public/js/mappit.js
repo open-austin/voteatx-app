@@ -3,7 +3,7 @@ $(document).ready(function() {
 	/*
 	 * 	Controls to toggle Precint and City Council overlays on the map
 	 */
-	function RegionOverlayControl(div, map) {
+	/*function RegionOverlayControl(div, map) {
 		// Set CSS styles for the DIV containing the control
 		// Setting padding to 5 px will offset the control
 		// from the edge of the map
@@ -33,7 +33,7 @@ $(document).ready(function() {
 		$(div).hover(function() {
 			$(toggleUI).toggle();
 		});
-	};
+	};*/
 
 	function RegionOverlayAlert() {
 		if (!document.getElementById('toggleAlert')) {
@@ -142,15 +142,11 @@ $(document).ready(function() {
 			initControls();
 
 			// Initialize custom controls
-			var regionOverlayDiv = document.createElement('div');
-			var regionOverlayControl = new RegionOverlayControl(regionOverlayDiv, self.map);
 			var controlDiv = document.getElementById('responsiveInfo');
 			var startDiv = document.getElementById('pac-input');
 			var aboutDiv = document.getElementById('aboutIcon');
 			var logoDiv = document.getElementById('logo');
 
-			regionOverlayDiv.index = 1;
-			self.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(regionOverlayDiv);
 			aboutDiv.index = 1;
 			self.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(aboutDiv);
 			controlDiv.index = 1;
@@ -259,7 +255,6 @@ $(document).ready(function() {
 				if (type === "HOME") {
 					self.preID(response.districts.precinct.id);
 					self.cdID(response.districts.city_council.id);
-					self.coCheck(true);
 				}
 
 				var regex = new RegExp("\\n", "g");
