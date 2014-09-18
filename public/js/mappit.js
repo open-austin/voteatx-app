@@ -1,5 +1,25 @@
 $(document).ready(function() {
 
+        /*
+         * Decode URL query string into queryParams.
+         *
+         * For instance, query string: ?time=<val>...
+         * can be accessed as queryParams['time'].
+         *
+         * source: http://stackoverflow.com/a/2880929
+         */
+        var queryParams;
+        (window.onpopstate = function () {
+            var match,
+                pl     = /\+/g,  // Regex for replacing addition symbol with a space
+                search = /([^&=]+)=?([^&]*)/g,
+                decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+                query  = window.location.search.substring(1);
+            queryParams = {};
+            while (match = search.exec(query))
+               queryParams[decode(match[1])] = decode(match[2]);
+        })();
+
 	function RegionOverlayAlert() {
 		if (!document.getElementById('toggleAlert')) {
 			var alertUI = document.createElement('div');
@@ -202,6 +222,12 @@ $(document).ready(function() {
 			var lng = latlng.lng();
 
 			var url = SVC + SVC1 + lat + SVC2 + lng;
+
+                        // pass "time" query arg to webservice for test/debug
+                        if (queryParams["time"] != "") {
+                                url = url + "&time=" + queryParams["time"];
+                        }
+
 
 			// Service response here
 			function jsonpCallback(response) {
