@@ -49,6 +49,9 @@ $(document).ready(function() {
 		self.spinner = ko.observable(false);
 		self.alert = ko.observable(false);
 		self.about = ko.observable(false);
+		self.showBoxes = ko.pureComputed(function(){
+			return (self.homeLoc() != "");
+		}, this);
 
 		self.homeLoc = ko.observable("");
 		self.homeMarker = null;

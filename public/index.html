@@ -24,9 +24,9 @@
 
 		<div id="responsiveInfo" style="margin: 10px; display: inline-block;">
 			<div class="mapCtrl" style="width: 240px; display: inline-block;">
-				<input type="checkbox" value="value" id="preCheck" name="name" data-bind="checked: preCheck" title ="Enable this to see outline of your voting precinct on the map." />
+				<input type="checkbox" value="value" id="preCheck" name="name" data-bind="visible: showBoxes, checked: preCheck" title ="Enable this to see outline of your voting precinct on the map." />
                                 Precinct <span class="badge" data-bind="html: preID"></span><span>&#160;&#160;&#160;</span>
-				<input type="checkbox" value="value" id="coCheck" name="name" data-bind="checked: coCheck" title ="Enable this to see outline of your city council district on the map." />
+				<input type="checkbox" value="value" id="coCheck" name="name" data-bind="visible: showBoxes, checked: coCheck" title ="Enable this to see outline of your city council district on the map." />
                                 City Council <span class="badge" data-bind="html: cdID">
 
 			</div>
@@ -224,7 +224,7 @@
 			var RESPONSIVE = false;
 		</script>
 		<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
-		<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js'></script>
+		<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.2.0/knockout-min.js'></script>
 		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
 		<script type="text/javascript" src="js/bootstrap.min.js"></script>
 		<!--<script type="text/javascript" src="js/oms.min.js"></script>-->
