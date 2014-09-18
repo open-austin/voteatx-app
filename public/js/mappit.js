@@ -384,6 +384,12 @@ $(document).ready(function() {
 		mappViewModel.prototype.hideAbout = function() {
 			self.about(false);
 		};
+		
+		mappViewModel.prototype.toggleAbout = function() {
+			if(self.about() === false)
+				self.about(true);
+			else self.about(false);
+		};
 
 		function initControls() {
 			// AutoComplete for Starting Location (You Are Here)
@@ -459,13 +465,13 @@ $(document).ready(function() {
 							phoneHome(point, "GEO");
 						});
 						// Listen for clicks
-						/*google.maps.event.addListener(self.map, "click", function(event) {
+						google.maps.event.addListener(self.map, "click", function(event) {
 
 							var point = event.latLng;
 							self.map.panTo(point);
 							phoneHome(point, "GEO");
 							self.geoMarker.setPosition(point);
-						});*/
+						});
 					}
 				} else {
 					alert("Geocoder failed due to: " + status);

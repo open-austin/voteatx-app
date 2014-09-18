@@ -37,7 +37,7 @@
 
 		<input id="pac-input" class="controls" type="text" placeholder="enter your home address" data-bind="value: homeLoc, hasFocus: homeLoc.focused">
 		
-		<div id="aboutIcon" style="margin: 6px 40px 6px 0px; color: #FFFFFF" data-bind="event: { mouseover: showAbout, mouseout: hideAbout }">
+		<div id="aboutIcon" style="margin: 6px 40px 6px 0px; color: #FFFFFF" data-bind="click: toggleAbout">
 			<i class="fa fa-question-circle fa-3x"></i>
 			<div class="triangle" data-bind="visible: about"></div>
 		</div>
