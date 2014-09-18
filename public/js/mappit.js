@@ -87,11 +87,9 @@ $(document).ready(function() {
 		var queries = URL.split("?");
 		if(queries[1] != undefined){
 			var params = queries[1].split("&");
-			console.log(params[0]);
 			var query = params[0].split("=");
 			if(query[0] === "g" || "geo"){
 				var GEOLOCATION = query[1];
-				console.log(GEOLOCATION);
 			} 
 		}
 		// End View Model Data
@@ -126,7 +124,8 @@ $(document).ready(function() {
 			var controlDiv = document.getElementById('responsiveInfo');
 			var startDiv = document.getElementById('pac-input');
 			var aboutDiv = document.getElementById('aboutIcon');
-			var logoDiv = document.getElementById('logo');
+			var logoDiv = document.getElementById('oa-logo');
+			var atxDiv = document.getElementById('vatx-logo');
 
 			aboutDiv.index = 1;
 			self.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(aboutDiv);
@@ -136,6 +135,8 @@ $(document).ready(function() {
 			self.map.controls[google.maps.ControlPosition.LEFT_TOP].push(startDiv);
 			logoDiv.index = 1;
 			self.map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(logoDiv);
+			atxDiv.index = 1;
+			self.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(atxDiv);
 		};
 		// Listener for initialize
 		google.maps.event.addDomListener(window, 'load', initialize);

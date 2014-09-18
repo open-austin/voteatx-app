@@ -10,6 +10,8 @@
 		<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 		<link rel="stylesheet" href="css/timer.css" type="text/css">
 		<link rel="stylesheet" href="css/mappit.css">
+		<link rel="icon" href="/favicon.ico" type="image/x-icon"> 
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 	</head>
 	<body>
 		<div id="place-holder"></div>
@@ -42,17 +44,21 @@
 			<div class="triangle" data-bind="visible: about"></div>
 		</div>
 
-		<div id="logo" style="margin: 8px;">
+		<div id="oa-logo" style="margin: 8px;">
 			<a href="http://www.open-austin.org/" target="_blank"><img src="http://www.open-austin.org/wp-content/uploads/2013/04/copy-Open_Austin_Banner_400x80.png" style="height: 20px; width: 100px;" /></a>
+		</div>
+		<div id="vatx-logo" style="margin: 8px;">
+			<a href="http://www.voteatx.us/" target="_blank"><img src="icons/vote_atx_logo.png" style="height: 50px; width: 50px;" /></a>
 		</div>
 
 		<div id="about" class="about-popup" data-bind="visible: about, event: { mouseover: showAbout, mouseout: hideAbout }">
-			<h4>VoteATX.US</h4>
-			<p>
+			<table>
+			<tr><td><h4>VoteATX.US</h4></td><td rowspan="3"><img src="icons/vote_atx_logo.png" style="height: 100px; width: 100px;" /></td></tr>
+			<tr><td><p>
 				Elections in the City of Austin are administered by the Travis
 				County Clerk's Election Division.
-			</p>
-			<ul>
+			</p></td></tr>
+			<tr><td><ul>
 				<li>
 					<a href="http://www.traviscountyclerk.org/eclerk/Content.do?code=E.0" target="_blank">Travis County Elections home page</a>
 				</li>
@@ -62,7 +68,8 @@
 				<li>
 					<a href="http://www.traviscountyclerk.org/eclerk/Content.do?code=E.3" target="_blank">What's on the ballot?</a>
 				</li>
-			</ul>
+			</ul></td></tr>
+			</table>
 			<h4>Instructions</h4>
 			<table class="table table-bordered">
 				<tr>
