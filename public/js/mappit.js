@@ -26,8 +26,10 @@ $(document).ready(function() {
 		var SVC1 = "search?latitude=";
 		var SVC2 = "&longitude=";
 		var BOUNDS = new google.maps.LatLngBounds(new google.maps.LatLng(30.2, -97.9), new google.maps.LatLng(30.5, -97.5));
+		var URL = window.location.toString();
+		console.log("url: "+URL);
 
-		var blue = [{
+		var BLUE = [{
 			featureType : "all",
 			stylers : [{
 				saturation : 60
@@ -81,8 +83,18 @@ $(document).ready(function() {
 		var geocoder;
 		var directionsDisplay;
 		var directionsService = new google.maps.DirectionsService();
+		
+		var queries = URL.split("?");
+		if(queries[1] != undefined){
+			var params = queries[1].split("&");
+			console.log(params[0]);
+			var query = params[0].split("=");
+			if(query[0] === "g" || "geo"){
+				var GEOLOCATION = query[1];
+				console.log(GEOLOCATION);
+			} 
+		}
 		// End View Model Data
-
 		/*
 		*  Google Maps Methods
 		*/
@@ -91,7 +103,7 @@ $(document).ready(function() {
 			var mapOptions = {
 				zoom : 13,
 				center : new google.maps.LatLng(FALLBACK_LAT, FALLBACK_LNG),
-				styles : blue,
+				styles : BLUE,
 				panControl : false,
 				zoomControl : true,
 				zoomControlOptions : {
