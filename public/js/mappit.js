@@ -9,7 +9,7 @@ $(document).ready(function() {
          * source: http://stackoverflow.com/a/2880929
          */
         var queryParams;
-        (window.onpopstate = function () {
+        (function () {
             var match,
                 pl     = /\+/g,  // Regex for replacing addition symbol with a space
                 search = /([^&=]+)=?([^&]*)/g,
@@ -104,16 +104,6 @@ $(document).ready(function() {
 		var directionsDisplay;
 		var directionsService = new google.maps.DirectionsService();
 		
-		var queries = URL.split("?");
-		if(queries[1] != undefined){
-			var params = queries[1].split("&");
-			console.log(params[0]);
-			var query = params[0].split("=");
-			if(query[0] === "g" || "geo"){
-				var GEOLOCATION = query[1];
-				console.log(GEOLOCATION);
-			} 
-		}
 		// End View Model Data
 		/*
 		*  Google Maps Methods
@@ -514,7 +504,9 @@ $(document).ready(function() {
 			maximumAge : 30000,
 			timeout : 27000
 		};
-		if (GEOLOCATION) {
+
+                // suppresss geolocation if run with ?g=0
+                if (queryParams["g"] != "0") {
 			navigator.geolocation.getCurrentPosition(geo_success, geo_error, geo_options);
 		};
 		// End Geolocation
