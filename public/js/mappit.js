@@ -1,24 +1,23 @@
 $(document).ready(function() {
 
-        /*
-         * Decode URL query string into queryParams.
-         *
-         * For instance, query string: ?time=<val>...
-         * can be accessed as queryParams['time'].
-         *
-         * source: http://stackoverflow.com/a/2880929
-         */
-        var queryParams;
-        (function () {
-            var match,
-                pl     = /\+/g,  // Regex for replacing addition symbol with a space
-                search = /([^&=]+)=?([^&]*)/g,
-                decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
-                query  = window.location.search.substring(1);
-            queryParams = {};
-            while (match = search.exec(query))
-               queryParams[decode(match[1])] = decode(match[2]);
-        })();
+	/*
+	 * Decode URL query string into queryParams.
+	 *
+	 * For instance, query string: ?time=<val>...
+	 * can be accessed as queryParams['time'].
+	 *
+	 * source: http://stackoverflow.com/a/2880929
+	 */
+	var queryParams;
+	(function() {
+		var match, pl = /\+/g, // Regex for replacing addition symbol with a space
+		search = /([^&=]+)=?([^&]*)/g, decode = function(s) {
+			return decodeURIComponent(s.replace(pl, " "));
+		}, query = window.location.search.substring(1);
+		queryParams = {};
+		while ( match = search.exec(query))
+		queryParams[decode(match[1])] = decode(match[2]);
+	})();
 
 	function RegionOverlayAlert() {
 		if (!document.getElementById('toggleAlert')) {
@@ -47,7 +46,7 @@ $(document).ready(function() {
 		var SVC2 = "&longitude=";
 		var BOUNDS = new google.maps.LatLngBounds(new google.maps.LatLng(30.2, -97.9), new google.maps.LatLng(30.5, -97.5));
 		var URL = window.location.toString();
-		console.log("url: "+URL);
+		console.log("url: " + URL);
 
 		var BLUE = [{
 			featureType : "all",
@@ -71,7 +70,7 @@ $(document).ready(function() {
 		self.spinner = ko.observable(false);
 		self.alert = ko.observable(false);
 		self.about = ko.observable(false);
-		self.showBoxes = ko.pureComputed(function(){
+		self.showBoxes = ko.pureComputed(function() {
 			return (self.homeLoc() != "");
 		}, this);
 
@@ -103,18 +102,7 @@ $(document).ready(function() {
 		var geocoder;
 		var directionsDisplay;
 		var directionsService = new google.maps.DirectionsService();
-		
-<<<<<<< HEAD
-		var queries = URL.split("?");
-		if(queries[1] != undefined){
-			var params = queries[1].split("&");
-			var query = params[0].split("=");
-			if(query[0] === "g" || "geo"){
-				var GEOLOCATION = query[1];
-			} 
-		}
-=======
->>>>>>> 4be813b326d1aff864fe4a32d1240af6af34075c
+
 		// End View Model Data
 		/*
 		*  Google Maps Methods
@@ -227,11 +215,10 @@ $(document).ready(function() {
 
 			var url = SVC + SVC1 + lat + SVC2 + lng;
 
-                        // pass "time" query arg to webservice for test/debug
-                        if (queryParams["time"] != "") {
-                                url = url + "&time=" + queryParams["time"];
-                        }
-
+			// pass "time" query arg to webservice for test/debug
+			if (queryParams["time"] != "") {
+				url = url + "&time=" + queryParams["time"];
+			}
 
 			// Service response here
 			function jsonpCallback(response) {
@@ -414,11 +401,12 @@ $(document).ready(function() {
 		mappViewModel.prototype.hideAbout = function() {
 			self.about(false);
 		};
-		
+
 		mappViewModel.prototype.toggleAbout = function() {
-			if(self.about() === false)
+			if (self.about() === false)
 				self.about(true);
-			else self.about(false);
+			else
+				self.about(false);
 		};
 
 		function initControls() {
@@ -429,7 +417,7 @@ $(document).ready(function() {
 
 		function setupAutocomplete(input) {
 			// Bounds for AutoComplete
-			
+
 			var opts = {
 				bounds : BOUNDS,
 				rankBy : google.maps.places.RankBy.DISTANCE,
@@ -483,8 +471,8 @@ $(document).ready(function() {
 							position : latlng,
 							map : self.map,
 							icon : icon,
-							animation: google.maps.Animation.DROP,
-							title: "You can drag you!",
+							animation : google.maps.Animation.DROP,
+							title : "You can drag you!",
 							draggable : true,
 						});
 						// Listen for drags
@@ -519,8 +507,8 @@ $(document).ready(function() {
 			timeout : 27000
 		};
 
-                // suppresss geolocation if run with ?g=0
-                if (queryParams["g"] != "0") {
+		// suppresss geolocation if run with ?g=0
+		if (queryParams["g"] != false) {
 			navigator.geolocation.getCurrentPosition(geo_success, geo_error, geo_options);
 		};
 		// End Geolocation
