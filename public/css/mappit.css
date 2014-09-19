@@ -338,3 +338,15 @@ nav a:nth-child(n+2):hover:after {
 	-webkit-transition: top 0.2s linear, -webkit-transform 0.2s linear;
 	transition: top 0.2s linear, transform 0.2s linear;
 }
+#loading_screen {
+				position: absolute;
+				left: 0px;
+				top: 0px;
+				right: 0;
+				bottom: 0;
+				background-color: black;
+				color: white;
+				text-align: center;
+				padding-top: 100px;
+				z-index: 9001;
+			}

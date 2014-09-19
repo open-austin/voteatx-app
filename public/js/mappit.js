@@ -1,5 +1,25 @@
 $(document).ready(function() {
 
+        /*
+         * Decode URL query string into queryParams.
+         *
+         * For instance, query string: ?time=<val>...
+         * can be accessed as queryParams['time'].
+         *
+         * source: http://stackoverflow.com/a/2880929
+         */
+        var queryParams;
+        (function () {
+            var match,
+                pl     = /\+/g,  // Regex for replacing addition symbol with a space
+                search = /([^&=]+)=?([^&]*)/g,
+                decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+                query  = window.location.search.substring(1);
+            queryParams = {};
+            while (match = search.exec(query))
+               queryParams[decode(match[1])] = decode(match[2]);
+        })();
+
 	function RegionOverlayAlert() {
 		if (!document.getElementById('toggleAlert')) {
 			var alertUI = document.createElement('div');
@@ -84,6 +104,7 @@ $(document).ready(function() {
 		var directionsDisplay;
 		var directionsService = new google.maps.DirectionsService();
 		
+<<<<<<< HEAD
 		var queries = URL.split("?");
 		if(queries[1] != undefined){
 			var params = queries[1].split("&");
@@ -92,6 +113,8 @@ $(document).ready(function() {
 				var GEOLOCATION = query[1];
 			} 
 		}
+=======
+>>>>>>> 4be813b326d1aff864fe4a32d1240af6af34075c
 		// End View Model Data
 		/*
 		*  Google Maps Methods
@@ -203,6 +226,12 @@ $(document).ready(function() {
 			var lng = latlng.lng();
 
 			var url = SVC + SVC1 + lat + SVC2 + lng;
+
+                        // pass "time" query arg to webservice for test/debug
+                        if (queryParams["time"] != "") {
+                                url = url + "&time=" + queryParams["time"];
+                        }
+
 
 			// Service response here
 			function jsonpCallback(response) {
@@ -489,7 +518,9 @@ $(document).ready(function() {
 			maximumAge : 30000,
 			timeout : 27000
 		};
-		if (GEOLOCATION) {
+
+                // suppresss geolocation if run with ?g=0
+                if (queryParams["g"] != "0") {
 			navigator.geolocation.getCurrentPosition(geo_success, geo_error, geo_options);
 		};
 		// End Geolocation
