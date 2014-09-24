@@ -31,9 +31,9 @@
 		<div id="responsiveInfo" style="margin: 10px; display: inline-block;">
 			<div class="mapCtrl" style="width: 280px; display: inline-block;">
 				<input type="checkbox" value="value" id="preCheck" name="name" data-bind="visible: showBoxes, checked: preCheck" title ="Enable this to see outline of your voting precinct on the map." />
-				Precinct <span class="badge" data-bind="html: preID"></span><span>&#160;&#160;&#160;</span>
+				Precinct <span class="badge region-id" data-bind="html: preID"></span><span>&#160;&#160;&#160;</span>
 				<input type="checkbox" value="value" id="coCheck" name="name" data-bind="visible: showBoxes, checked: coCheck" title ="Enable this to see outline of your city council district on the map." />
-				City Council <span class="badge" data-bind="html: cdID">
+				City Council <span class="badge region-id" data-bind="html: cdID">
 			</div>
 			<div style="background-color: #fff; display: inline-block; vertical-align: middle;" class="timer" data-bind="visible: spinner">
 				Loading...
@@ -100,9 +100,9 @@
 					</p>
 					<div class="mapCtrl" style="width: 260px; display: inline-block; color: #333;">
 						<input type="checkbox" />
-						Precinct <span class="badge" data-bind="html: preID"></span><span>&#160;&#160;&#160;</span>
+						Precinct <span class="badge region-id" data-bind="html: preID"></span><span>&#160;&#160;&#160;</span>
 						<input type="checkbox" />
-						City Council <span class="badge" data-bind="html: cdID">
+						City Council <span class="badge region-id" data-bind="html: cdID">
 					</div></td>
 				</tr>
 				<tr>
