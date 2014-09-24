@@ -37,13 +37,11 @@ $(document).ready(function() {
 		/*
 		 *  Configuration
 		 */
-		var DEBUG = false;
+		var DEBUG = true; // FIXME
 		var MAP_ID = 'map_canvas';
 		var FALLBACK_LAT = 30.2649;
 		var FALLBACK_LNG = -97.7470;
-		var SVC = "http://svc.voteatx.us/";
-		var SVC1 = "search?latitude=";
-		var SVC2 = "&longitude=";
+		var VOTEATX_SVC = "http://svc.voteatx.us";
 		var BOUNDS = new google.maps.LatLngBounds(new google.maps.LatLng(30.2, -97.9), new google.maps.LatLng(30.5, -97.5));
 		var URL = window.location.toString();
 		console.log("url: " + URL);
@@ -71,14 +69,12 @@ $(document).ready(function() {
 		self.alert = ko.observable(false);
 		self.about = ko.observable(false);
 		self.showBoxes = ko.pureComputed(function() {
-			return (self.homeLoc() != "");
+			return (self.currentLocAddress() != "");
 		}, this);
 
-		self.homeLoc = ko.observable("");
-		self.homeMarker = null;
-		self.homeMarkers = [];
-		self.geoMarker = null;
-		self.geoMarkers = [];
+		self.currentLocAddress = ko.observable("");
+		self.currentLocMarker = null;
+		self.votingPlaceMarkers = [];
 
 		self.cdID = ko.observable("<i class='fa fa-arrow-down'></i>");
 		self.preID = ko.observable('<i class="fa fa-arrow-circle-down"></i>');
@@ -124,9 +120,16 @@ $(document).ready(function() {
 			};
 
 			self.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+                        google.maps.event.addListener(self.map, "click", function(event) {
+                                setCurrentLocation(event.latLng, null);
+                        });
+
+                        /* NOT USED (I think)
 			directionsDisplay = new google.maps.DirectionsRenderer();
 			directionsDisplay.setMap(self.map);
 			directionsDisplay.setPanel(document.getElementById('directions-panel'));
+                        */
 
 			geocoder = new google.maps.Geocoder();
 			initControls();
@@ -154,7 +157,7 @@ $(document).ready(function() {
 
 		mappViewModel.prototype.toggleOverlay = function(type, bool) {
 			var region;
-			if (self.homeLoc() == "") {
+			if (self.currentLocAddress() == "") {
 				self.alertText("You must enter an address before overlays can be displayed!");
 				self.alert(true);
 				self.preCheck(false);
@@ -178,47 +181,48 @@ $(document).ready(function() {
 			}
 		};
 
-		google.maps.Map.prototype.clearOverlays = function(type) {
-			switch(type) {
-			case "HOME":
-				for (var i = 0; i < self.homeMarkers.length; i++) {
-					self.homeMarkers[i].setMap(null);
-				}
-				self.homeMarkers = [];
-				break;
-			default:
-				for (var i = 0; i < self.geoMarkers.length; i++) {
-					self.geoMarkers[i].setMap(null);
-				}
-				self.geoMarkers = [];
-			}
-		};
+		google.maps.Map.prototype.clearOverlays = function() {
+                        for (var i = 0; i < self.votingPlaceMarkers.length; i++) {
+                                self.votingPlaceMarkers[i].setMap(null);
+                        }
+                        self.votingPlaceMarkers = [];
+                };
+
 		// End Google Maps Methods
+
+                function voteatxQueryURL(latlng) {
+                        var url = VOTEATX_SVC + "/search?latitude=" + latlng.lat() + "&longitude=" + latlng.lng();
+			if (queryParams["time"] != "") {
+				url = url + "&time=" + queryParams["time"];
+			}
+                        return url;
+                };
 
 		/*
 		*  Server Request and Map Updating
 		*/
-		// Overloaded - phoneHome(latlng literal) or phoneHome(double lat, double lng)
-		function phoneHome(latlng, type) {
-			self.map.clearOverlays(type);
+
+		function setCurrentLocation(latlng, address) {
+                        self.map.panTo(latlng);
+			self.map.clearOverlays();
 			self.spinner(true);
 
-			if (type === "HOME") {
-				self.preID('?');
-				self.cdID('?');
-				self.preCheck(false);
-				self.coCheck(false);
-			}
+                        self.preID('?');
+                        self.cdID('?');
+                        self.preCheck(false);
+                        self.coCheck(false);
 
-			var lat = latlng.lat();
-			var lng = latlng.lng();
-
-			var url = SVC + SVC1 + lat + SVC2 + lng;
-
-			// pass "time" query arg to webservice for test/debug
-			if (queryParams["time"] != "") {
-				url = url + "&time=" + queryParams["time"];
-			}
+                        if (self.currentLocMarker == null) {
+                                self.currentLocMarker = new google.maps.Marker({
+                                        position : latlng,
+                                        map : self.map,
+                                        // XXX - find a nice icon, using default map pin for now
+                                        //icon : "icons/home3.svg",
+                                        title : "You are here. Click map to change position.",
+                                });
+                        } else {
+                                self.currentLocMarker.setPosition(latlng);
+                        }
 
 			// Service response here
 			function jsonpCallback(response) {
@@ -240,7 +244,7 @@ $(document).ready(function() {
 				// Let user know their address is outside of the bounds.
 				// Need response from server indicating the error. This is a hack!
 				if (response.places.length == 1) {
-					self.alertText("Address is outside of Travis County!");
+					self.alertText("Address is outside of service area");
 					console.log("out of bounds");
 					self.alert(true);
 					self.spinner(false);
@@ -249,11 +253,8 @@ $(document).ready(function() {
 
 				self.alert(true);
 
-				// Only get voter info for Home Address!
-				if (type === "HOME") {
-					self.preID(response.districts.precinct.id);
-					self.cdID(response.districts.city_council.id);
-				}
+                                self.preID(response.districts.precinct.id);
+                                self.cdID(response.districts.city_council.id);
 
 				var regex = new RegExp("\\n", "g");
 
@@ -291,11 +292,8 @@ $(document).ready(function() {
 					var loc = response.places[index].location;
 					// Bind the Info Window to the Marker
 					google.maps.event.addListener(marker, 'click', function() {
-						$.each(self.homeMarkers, function(index, val) {
-							self.homeMarkers[index].infowindow.close();
-						});
-						$.each(self.geoMarkers, function(index, val) {
-							self.geoMarkers[index].infowindow.close();
+						$.each(self.votingPlaceMarkers, function(index, val) {
+							self.votingPlaceMarkers[index].infowindow.close();
 						});
 						marker.infowindow.open(self.map, marker);
 						self.psName(loc.name);
@@ -304,14 +302,12 @@ $(document).ready(function() {
 					});
 
 					// Now populate the arrays
-					if (type === "HOME") {
-						self.homeMarkers.push(marker);
-						self.spinner(false);
-					} else
-						self.geoMarkers.push(marker);
-					self.spinner(false);
+                                        self.votingPlaceMarkers.push(marker);
+                                        self.spinner(false);
 				});
 			}
+
+                        var url = voteatxQueryURL(latlng);
 
 			// Use JSONP to avoid CORS
 			$.ajax({
@@ -322,11 +318,28 @@ $(document).ready(function() {
 				},
 				success : jsonpCallback
 			});
+
+                        // update address text field
+                        if (!address || address == "") {
+
+                                // clear current address display while geocoding runs
+                                self.currentLocAddress(null);
+
+                                geocoder.geocode({'location' : latlng}, function(results, status) {
+                                        if (status === google.maps.GeocoderStatus.OK) {
+                                                self.currentLocAddress(results[0].formatted_address);
+                                        }
+                                });
+
+                        } else {
+                                self.currentLocAddress(address);
+                        }
+
 			return false;
 		};
 
 		function drawRegion(type, id) {
-			var url = SVC + "districts/" + type + "/" + id;
+			var url = VOTEATX_SVC + "/districts/" + type + "/" + id;
 
 			// Service response here
 			function jsonpCallback(response) {
@@ -427,25 +440,13 @@ $(document).ready(function() {
 			};
 
 			var autocomplete = new google.maps.places.Autocomplete(input, opts);
+                        //
 			// Listener to respond to AutoComplete
 			google.maps.event.addListener(autocomplete, 'place_changed', function() {
 				var place = autocomplete.getPlace();
-				self.map.panTo(place.geometry.location);
-				phoneHome(place.geometry.location, "HOME");
-				self.homeLoc(place.formatted_address);
-				if (self.homeMarker != null) {
-					self.homeMarker.setPosition(place.geometry.location);
-				} else {
-					var icon = "icons/home3.svg";
-					self.homeMarker = new google.maps.Marker({
-						position : place.geometry.location,
-						map : self.map,
-						icon : icon,
-						title : "You won 2nd place in a beauty contest!",
-						draggable : false,
-					});
-				}
-			});
+				setCurrentLocation(place.geometry.location, place.formatted_address);
+                        });
+
 		};
 
 		/*
@@ -453,52 +454,12 @@ $(document).ready(function() {
 		 */
 		function geo_success(position) {
 			var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-			self.map.panTo(latlng);
-			phoneHome(latlng, "GEO");
-			geocoder.geocode({
-				'latLng' : latlng
-			}, function(results, status) {
-				if (status == google.maps.GeocoderStatus.OK) {
-					if (results[1]) {
-						self.geoLoc = results[1].formatted_address;
-						console.log("located");
-						var icon = "icons/yay.svg";
-						var icon = new google.maps.MarkerImage("icons/yay.svg", null, /* size is determined at runtime */
-						null, /* origin is 0,0 */
-						new google.maps.Point(18, 45), /* anchor is bottom center of the scaled image */
-						new google.maps.Size(36, 60));
-						self.geoMarker = new google.maps.Marker({
-							position : latlng,
-							map : self.map,
-							icon : icon,
-							animation : google.maps.Animation.DROP,
-							title : "You can drag you!",
-							draggable : true,
-						});
-						// Listen for drags
-						google.maps.event.addListener(self.geoMarker, "dragend", function(event) {
-
-							var point = self.geoMarker.getPosition();
-							self.map.panTo(point);
-							phoneHome(point, "GEO");
-						});
-						// Listen for clicks
-						google.maps.event.addListener(self.map, "click", function(event) {
-
-							var point = event.latLng;
-							self.map.panTo(point);
-							phoneHome(point, "GEO");
-							self.geoMarker.setPosition(point);
-						});
-					}
-				} else {
-					alert("Geocoder failed due to: " + status);
-				}
-			});
+			setCurrentLocation(latlng, null);
 		}
 
-		function geo_error() {
-			console.log("Sorry, no position available.");
+
+		function geo_error(err) {
+			console.log("getCurrentPosition() failed: " + err.message);
 		}
 
 		var geo_options = {

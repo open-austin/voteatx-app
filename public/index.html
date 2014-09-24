@@ -29,7 +29,7 @@
 		</div>
 
 		<div id="responsiveInfo" style="margin: 10px; display: inline-block;">
-			<div class="mapCtrl" style="width: 240px; display: inline-block;">
+			<div class="mapCtrl" style="width: 280px; display: inline-block;">
 				<input type="checkbox" value="value" id="preCheck" name="name" data-bind="visible: showBoxes, checked: preCheck" title ="Enable this to see outline of your voting precinct on the map." />
 				Precinct <span class="badge" data-bind="html: preID"></span><span>&#160;&#160;&#160;</span>
 				<input type="checkbox" value="value" id="coCheck" name="name" data-bind="visible: showBoxes, checked: coCheck" title ="Enable this to see outline of your city council district on the map." />
@@ -40,7 +40,7 @@
 			</div>
 		</div>
 
-		<input id="pac-input" class="controls" type="text" placeholder="enter your home address" data-bind="value: homeLoc, hasFocus: homeLoc.focused">
+		<input id="pac-input" class="controls" type="text" placeholder="enter your home address" data-bind="value: currentLocAddress, hasFocus: currentLocAddress.focused">
 
 		<div id="aboutIcon" style="margin: 6px 40px 6px 0px; color: #FFFFFF" data-bind="click: toggleAbout">
 			<i class="fa fa-question-circle fa-3x"></i>
