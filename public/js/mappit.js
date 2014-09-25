@@ -76,17 +76,22 @@ $(document).ready(function() {
 		self.currentLocMarker = null;
 		self.votingPlaceMarkers = [];
 
-		self.cdID = ko.observable("<i class='fa fa-arrow-down'></i>");
-		self.preID = ko.observable('<i class="fa fa-arrow-circle-down"></i>');
+
+
 		self.psAd = ko.observable("");
 		self.psName = ko.observable("nearby polling stations");
 		self.psLatlng = null;
 
+		self.preID = ko.observable('<i class="fa fa-arrow-circle-down"></i>');
+                self.preIsValid = ko.pureComputed(function() { return self.preID() > 0; });
 		self.preOverlay = null;
 		self.preCheck = ko.observable(false);
 		this.preCheck.subscribe(function(newValue) {
 			this.toggleOverlay("precinct", newValue);
 		}, this);
+
+		self.coID = ko.observable("<i class='fa fa-arrow-down'></i>");
+                self.coIsValid = ko.pureComputed(function() { return self.coID() > 0; });
 		self.coOverlay = null;
 		self.coCheck = ko.observable(false);
 		this.coCheck.subscribe(function(newValue) {
@@ -100,6 +105,29 @@ $(document).ready(function() {
 		var directionsService = new google.maps.DirectionsService();
 
 		// End View Model Data
+
+		/*
+		 *  Geolocation
+		 */
+		function geo_success(position) {
+			var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+			setCurrentLocation(latLng, null);
+		}
+
+
+		function geo_error(err) {
+			console.log("getCurrentPosition() failed: " + err.message);
+		}
+
+		var geo_options = {
+			enableHighAccuracy : true,
+			maximumAge : 30000,
+			timeout : 27000
+		};
+
+		// End Geolocation
+
+
 		/*
 		*  Google Maps Methods
 		*/
@@ -125,12 +153,6 @@ $(document).ready(function() {
                                 setCurrentLocation(event.latLng, null);
                         });
 
-                        /* NOT USED (I think)
-			directionsDisplay = new google.maps.DirectionsRenderer();
-			directionsDisplay.setMap(self.map);
-			directionsDisplay.setPanel(document.getElementById('directions-panel'));
-                        */
-
 			geocoder = new google.maps.Geocoder();
 			initControls();
 
@@ -151,35 +173,114 @@ $(document).ready(function() {
 			self.map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(logoDiv);
 			atxDiv.index = 1;
 			self.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(atxDiv);
+
+                        // suppresss geolocation if run with ?g=0
+                        if (queryParams["g"] != false) {
+                                navigator.geolocation.getCurrentPosition(geo_success, geo_error, geo_options);
+                        };
+
 		};
+
 		// Listener for initialize
 		google.maps.event.addDomListener(window, 'load', initialize);
 
+                /*
+                 * Region overlay
+                 */
+
+                function displayRegionOverlay(type) {
+
+                        if (type === "precinct")
+                                id = self.preID();
+                        else
+                                id = self.coID();
+
+                        if (! id || id === "?") {
+                                console.log("Current location not within a region type = " + type);
+                                return false;
+                        }
+
+			var url = VOTEATX_SVC + "/districts/" + type + "/" + id;
+
+			// Service response here
+			function jsonpCallback(response) {
+                                if (DEBUG)
+                                        console.log("jsonpCallback()", {'response' : response});
+				var array = response.region.coordinates[0];
+				var polyCoords = [];
+				var LatLng;
+				$.each(array, function(index, val) {
+					if (type === "precinct") {
+						LatLng = new google.maps.LatLng(val[1], val[0]);
+						polyCoords.push(LatLng);
+					} else {
+						var arrayNested = array[0];
+						$.each(arrayNested, function(i, pos) {
+							LatLng = new google.maps.LatLng(pos[1], pos[0]);
+							polyCoords.push(LatLng);
+						});
+					}
+				});
+				if (DEBUG)
+					console.log(polyCoords);
+
+				if (type === "precinct") {
+					self.preOverlay = new google.maps.Polygon({
+						paths : polyCoords,
+						strokeColor : '#FF0000',
+						strokeOpacity : 0.8,
+						strokeWeight : 2,
+						fillColor : '#FF0000',
+						fillOpacity : 0.15
+					});
+					self.preOverlay.setMap(self.map);
+				} else {
+					self.coOverlay = new google.maps.Polygon({
+						paths : polyCoords,
+						strokeColor : '#333',
+						strokeOpacity : 0.8,
+						strokeWeight : 2,
+						fillColor : '#FFFFFF',
+						fillOpacity : 0.5
+					});
+					self.coOverlay.setMap(self.map);
+				}
+
+			};
+
+			$.ajax({
+				url : url,
+				dataType : 'jsonp',
+				error : function(xhr, status, error) {
+					alert(error.message);
+				},
+				success : jsonpCallback
+			});
+			return false;
+		};
+
+
+                function removeRegionOverlay(type) {
+                        if (type === "precinct") {
+                                if (self.preOverlay) {
+					self.preOverlay.setMap(null);
+                                }
+                        } else {
+                                if (self.coOverlay) {
+					self.coOverlay.setMap(null);
+                                }
+                        }
+                        return false;
+                };
+
 		mappViewModel.prototype.toggleOverlay = function(type, bool) {
 			var region;
-			if (self.currentLocAddress() == "") {
-				self.alertText("You must enter an address before overlays can be displayed!");
-				self.alert(true);
-				self.preCheck(false);
-				self.coCheck(false);
-				return;
-			}
-			if (!bool) {
-				if (type === "precinct")
-					self.preOverlay.setMap(null);
-				else
-					self.coOverlay.setMap(null);
-
-				return;
-			} else {
-				if (type === "precinct")
-					region = drawRegion(type, self.preID());
-				else
-					region = drawRegion(type, self.cdID());
-				if (DEBUG)
-					console.log(region);
-			}
-		};
+			if (bool) {
+                                displayRegionOverlay(type);
+                        } else {
+                                removeRegionOverlay(type);
+                        }
+                };
 
 		google.maps.Map.prototype.clearOverlays = function() {
                         for (var i = 0; i < self.votingPlaceMarkers.length; i++) {
@@ -190,8 +291,8 @@ $(document).ready(function() {
 
 		// End Google Maps Methods
 
-                function voteatxQueryURL(latlng) {
-                        var url = VOTEATX_SVC + "/search?latitude=" + latlng.lat() + "&longitude=" + latlng.lng();
+                function voteatxQueryURL(latLng) {
+                        var url = VOTEATX_SVC + "/search?latitude=" + latLng.lat() + "&longitude=" + latLng.lng();
 			if (queryParams["time"] != "") {
 				url = url + "&time=" + queryParams["time"];
 			}
@@ -202,63 +303,58 @@ $(document).ready(function() {
 		*  Server Request and Map Updating
 		*/
 
-		function setCurrentLocation(latlng, address) {
-                        self.map.panTo(latlng);
+		function setCurrentLocation(latLng, address) {
+                        if (DEBUG)
+                                console.log("setCurrentLocation()", {'latLng' : latLng, 'address' : address});
+                        self.map.panTo(latLng);
 			self.map.clearOverlays();
 			self.spinner(true);
 
                         self.preID('?');
-                        self.cdID('?');
+                        self.coID('?');
                         self.preCheck(false);
                         self.coCheck(false);
 
                         if (self.currentLocMarker == null) {
                                 self.currentLocMarker = new google.maps.Marker({
-                                        position : latlng,
+                                        position : latLng,
                                         map : self.map,
                                         // XXX - find a nice icon, using default map pin for now
                                         //icon : "icons/home3.svg",
                                         title : "You are here. Click map to change position.",
                                 });
                         } else {
-                                self.currentLocMarker.setPosition(latlng);
+                                self.currentLocMarker.setPosition(latLng);
                         }
 
 			// Service response here
 			function jsonpCallback(response) {
-				if (DEBUG)
-					console.log(response);
+                                if (DEBUG)
+                                        console.log("jsonpCallback()", {'response' : response});
 
-				self.alertText(response.message.content);
-				switch(response.message.severity) {
-				case "WARNING":
-					$("#alerts").addClass("alert-warning").removeClass("alert-info").removeClass("alert-danger");
-					break;
-				case "ERROR":
-					$("#alerts").addClass("alert-danger").removeClass("alert-info").removeClass("alert-warning");
-					break;
-				default:
-					$("#alerts").addClass("alert-info").removeClass("alert-warning").removeClass("alert-danger");
-				}
+                                self.spinner(false);
 
-				// Let user know their address is outside of the bounds.
-				// Need response from server indicating the error. This is a hack!
-				if (response.places.length == 1) {
-					self.alertText("Address is outside of service area");
-					console.log("out of bounds");
-					self.alert(true);
-					self.spinner(false);
-					return;
-				};
-
+                                if (response.message) {
+                                        self.alertText(response.message.content);
+                                        switch(response.message.severity) {
+                                        case "WARNING":
+                                                $("#alerts").addClass("alert-warning").removeClass("alert-info").removeClass("alert-danger");
+                                                break;
+                                        case "ERROR":
+                                                $("#alerts").addClass("alert-danger").removeClass("alert-info").removeClass("alert-warning");
+                                                break;
+                                        default:
+                                                $("#alerts").addClass("alert-info").removeClass("alert-warning").removeClass("alert-danger");
+                                        }
+                                }
 				self.alert(true);
 
-                                if (responses.districts) {
-                                        if (responses.districts.precinct) {
+                                if (response.districts) {
+                                        if (response.districts.precinct) {
                                                 self.preID(response.districts.precinct.id);
                                         }
-                                        if (responses.districts.city_council) {
-                                                self.cdID(response.districts.city_council.id);
+                                        if (response.districts.city_council) {
+                                                self.coID(response.districts.city_council.id);
                                         }
                                 }
 
@@ -309,11 +405,10 @@ $(document).ready(function() {
 
 					// Now populate the arrays
                                         self.votingPlaceMarkers.push(marker);
-                                        self.spinner(false);
 				});
 			}
 
-                        var url = voteatxQueryURL(latlng);
+                        var url = voteatxQueryURL(latLng);
 
 			// Use JSONP to avoid CORS
 			$.ajax({
@@ -331,7 +426,7 @@ $(document).ready(function() {
                                 // clear current address display while geocoding runs
                                 self.currentLocAddress(null);
 
-                                geocoder.geocode({'location' : latlng}, function(results, status) {
+                                geocoder.geocode({'location' : latLng}, function(results, status) {
                                         if (status === google.maps.GeocoderStatus.OK) {
                                                 self.currentLocAddress(results[0].formatted_address);
                                         }
@@ -341,68 +436,6 @@ $(document).ready(function() {
                                 self.currentLocAddress(address);
                         }
 
-			return false;
-		};
-
-		function drawRegion(type, id) {
-			var url = VOTEATX_SVC + "/districts/" + type + "/" + id;
-
-			// Service response here
-			function jsonpCallback(response) {
-				if (DEBUG)
-					console.log(response);
-				var array = response.region.coordinates[0];
-				var polyCoords = [];
-				var LatLng;
-				$.each(array, function(index, val) {
-
-					if (type === "precinct") {
-						LatLng = new google.maps.LatLng(val[1], val[0]);
-						polyCoords.push(LatLng);
-					} else {
-						var arrayNested = array[0];
-						$.each(arrayNested, function(i, pos) {
-
-							LatLng = new google.maps.LatLng(pos[1], pos[0]);
-							polyCoords.push(LatLng);
-						});
-					}
-				});
-				if (DEBUG)
-					console.log(polyCoords);
-
-				if (type === "precinct") {
-					self.preOverlay = new google.maps.Polygon({
-						paths : polyCoords,
-						strokeColor : '#FF0000',
-						strokeOpacity : 0.8,
-						strokeWeight : 2,
-						fillColor : '#FF0000',
-						fillOpacity : 0.15
-					});
-					self.preOverlay.setMap(self.map);
-				} else {
-					self.coOverlay = new google.maps.Polygon({
-						paths : polyCoords,
-						strokeColor : '#333',
-						strokeOpacity : 0.8,
-						strokeWeight : 2,
-						fillColor : '#FFFFFF',
-						fillOpacity : 0.5
-					});
-					self.coOverlay.setMap(self.map);
-				}
-
-			};
-
-			$.ajax({
-				url : url,
-				dataType : 'jsonp',
-				error : function(xhr, status, error) {
-					alert(error.message);
-				},
-				success : jsonpCallback
-			});
 			return false;
 		};
 
@@ -454,31 +487,6 @@ $(document).ready(function() {
                         });
 
 		};
-
-		/*
-		 *  Geolocation
-		 */
-		function geo_success(position) {
-			var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-			setCurrentLocation(latlng, null);
-		}
-
-
-		function geo_error(err) {
-			console.log("getCurrentPosition() failed: " + err.message);
-		}
-
-		var geo_options = {
-			enableHighAccuracy : true,
-			maximumAge : 30000,
-			timeout : 27000
-		};
-
-		// suppresss geolocation if run with ?g=0
-		if (queryParams["g"] != false) {
-			navigator.geolocation.getCurrentPosition(geo_success, geo_error, geo_options);
-		};
-		// End Geolocation
 
 		// KOut+BStrap Integration
 		ko.bindingHandlers.radio = {
