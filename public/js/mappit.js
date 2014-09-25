@@ -43,9 +43,6 @@ $(document).ready(function() {
 		var FALLBACK_LNG = -97.7470;
 		var VOTEATX_SVC = "http://svc.voteatx.us";
 		var BOUNDS = new google.maps.LatLngBounds(new google.maps.LatLng(30.2, -97.9), new google.maps.LatLng(30.5, -97.5));
-		var URL = window.location.toString();
-		console.log("url: " + URL);
-
 		var BLUE = [{
 			featureType : "all",
 			stylers : [{
@@ -57,6 +54,7 @@ $(document).ready(function() {
 			}]
 		}];
 		// End Configuration
+
 		/*
 		 *  View Model Data
 		 */
@@ -76,27 +74,25 @@ $(document).ready(function() {
 		self.currentLocMarker = null;
 		self.votingPlaceMarkers = [];
 
-
-
 		self.psAd = ko.observable("");
 		self.psName = ko.observable("nearby polling stations");
 		self.psLatlng = null;
 
 		self.preID = ko.observable('<i class="fa fa-arrow-circle-down"></i>');
                 self.preIsValid = ko.pureComputed(function() { return self.preID() > 0; });
-		self.preOverlay = null;
 		self.preCheck = ko.observable(false);
 		this.preCheck.subscribe(function(newValue) {
 			this.toggleOverlay("precinct", newValue);
 		}, this);
+		self.preOverlay = null;
 
 		self.coID = ko.observable("<i class='fa fa-arrow-down'></i>");
                 self.coIsValid = ko.pureComputed(function() { return self.coID() > 0; });
-		self.coOverlay = null;
 		self.coCheck = ko.observable(false);
 		this.coCheck.subscribe(function(newValue) {
 			this.toggleOverlay("city_council", newValue);
 		}, this);
+		self.coOverlay = null;
 
 		self.alertText = ko.observable("Welcome to VoteATX!");
 
@@ -129,8 +125,9 @@ $(document).ready(function() {
 
 
 		/*
-		*  Google Maps Methods
-		*/
+		 *  Google Maps Methods
+		 */
+
 		// Initialize function. Muy Importante.
 		function initialize() {
 			var mapOptions = {
@@ -282,7 +279,7 @@ $(document).ready(function() {
                         }
                 };
 
-		google.maps.Map.prototype.clearOverlays = function() {
+		google.maps.Map.prototype.clearMarkers = function() {
                         for (var i = 0; i < self.votingPlaceMarkers.length; i++) {
                                 self.votingPlaceMarkers[i].setMap(null);
                         }
@@ -306,15 +303,28 @@ $(document).ready(function() {
 		function setCurrentLocation(latLng, address) {
                         if (DEBUG)
                                 console.log("setCurrentLocation()", {'latLng' : latLng, 'address' : address});
+
                         self.map.panTo(latLng);
-			self.map.clearOverlays();
+			self.map.clearMarkers();
 			self.spinner(true);
 
+                        // reset voting precinct info
                         self.preID('?');
-                        self.coID('?');
                         self.preCheck(false);
-                        self.coCheck(false);
+                        if (self.preOverlay) {
+                                self.preOverlay.setMap(null);
+                        }
+                        self.preOverlay = null;
 
+                        // reset council district info
+                        self.coID('?');
+                        self.coCheck(false);
+                        if (self.coOverlay) {
+                                self.coOverlay.setMap(null);
+                        }
+                        self.coOverlay = null;
+
+                        // place the marker on the map at this position
                         if (self.currentLocMarker == null) {
                                 self.currentLocMarker = new google.maps.Marker({
                                         position : latLng,
@@ -349,17 +359,21 @@ $(document).ready(function() {
                                 }
 				self.alert(true);
 
+                                // Save off the district information.
                                 if (response.districts) {
                                         if (response.districts.precinct) {
                                                 self.preID(response.districts.precinct.id);
+                                                // TODO - save region, if present
                                         }
                                         if (response.districts.city_council) {
                                                 self.coID(response.districts.city_council.id);
+                                                // TODO - save region, if present
                                         }
                                 }
 
 				var regex = new RegExp("\\n", "g");
 
+                                // Place the voting place markers.
 				$.each(response.places, function(index, val) {
 					var mLatLng = new google.maps.LatLng(val.location.latitude, val.location.longitude);
 					var iconPath = "mapicons/icon_vote";
@@ -392,6 +406,7 @@ $(document).ready(function() {
 					});
 
 					var loc = response.places[index].location;
+
 					// Bind the Info Window to the Marker
 					google.maps.event.addListener(marker, 'click', function() {
 						$.each(self.votingPlaceMarkers, function(index, val) {
