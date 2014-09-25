@@ -37,17 +37,12 @@ $(document).ready(function() {
 		/*
 		 *  Configuration
 		 */
-		var DEBUG = false;
+		var DEBUG = true; // FIXME
 		var MAP_ID = 'map_canvas';
 		var FALLBACK_LAT = 30.2649;
 		var FALLBACK_LNG = -97.7470;
-		var SVC = "http://svc.voteatx.us/";
-		var SVC1 = "search?latitude=";
-		var SVC2 = "&longitude=";
+		var VOTEATX_SVC = "http://svc.voteatx.us";
 		var BOUNDS = new google.maps.LatLngBounds(new google.maps.LatLng(30.2, -97.9), new google.maps.LatLng(30.5, -97.5));
-		var URL = window.location.toString();
-		console.log("url: " + URL);
-
 		var BLUE = [{
 			featureType : "all",
 			stylers : [{
@@ -59,6 +54,7 @@ $(document).ready(function() {
 			}]
 		}];
 		// End Configuration
+
 		/*
 		 *  View Model Data
 		 */
@@ -71,31 +67,32 @@ $(document).ready(function() {
 		self.alert = ko.observable(false);
 		self.about = ko.observable(false);
 		self.showBoxes = ko.pureComputed(function() {
-			return (self.homeLoc() != "");
+			return (self.currentLocAddress() != "");
 		}, this);
 
-		self.homeLoc = ko.observable("");
-		self.homeMarker = null;
-		self.homeMarkers = [];
-		self.geoMarker = null;
-		self.geoMarkers = [];
+		self.currentLocAddress = ko.observable("");
+		self.currentLocMarker = null;
+		self.votingPlaceMarkers = [];
 
-		self.cdID = ko.observable("<i class='fa fa-arrow-down'></i>");
-		self.preID = ko.observable('<i class="fa fa-arrow-circle-down"></i>');
 		self.psAd = ko.observable("");
 		self.psName = ko.observable("nearby polling stations");
 		self.psLatlng = null;
 
-		self.preOverlay = null;
+		self.preID = ko.observable('<i class="fa fa-arrow-circle-down"></i>');
+                self.preIsValid = ko.pureComputed(function() { return self.preID() > 0; });
 		self.preCheck = ko.observable(false);
 		this.preCheck.subscribe(function(newValue) {
 			this.toggleOverlay("precinct", newValue);
 		}, this);
-		self.coOverlay = null;
+		self.preOverlay = null;
+
+		self.coID = ko.observable("<i class='fa fa-arrow-down'></i>");
+                self.coIsValid = ko.pureComputed(function() { return self.coID() > 0; });
 		self.coCheck = ko.observable(false);
 		this.coCheck.subscribe(function(newValue) {
 			this.toggleOverlay("city_council", newValue);
 		}, this);
+		self.coOverlay = null;
 
 		self.alertText = ko.observable("Welcome to VoteATX!");
 
@@ -104,9 +101,33 @@ $(document).ready(function() {
 		var directionsService = new google.maps.DirectionsService();
 
 		// End View Model Data
+
 		/*
-		*  Google Maps Methods
-		*/
+		 *  Geolocation
+		 */
+		function geo_success(position) {
+			var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+			setCurrentLocation(latLng, null);
+		}
+
+
+		function geo_error(err) {
+			console.log("getCurrentPosition() failed: " + err.message);
+		}
+
+		var geo_options = {
+			enableHighAccuracy : true,
+			maximumAge : 30000,
+			timeout : 27000
+		};
+
+		// End Geolocation
+
+
+		/*
+		 *  Google Maps Methods
+		 */
+
 		// Initialize function. Muy Importante.
 		function initialize() {
 			var mapOptions = {
@@ -124,9 +145,10 @@ $(document).ready(function() {
 			};
 
 			self.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-			directionsDisplay = new google.maps.DirectionsRenderer();
-			directionsDisplay.setMap(self.map);
-			directionsDisplay.setPanel(document.getElementById('directions-panel'));
+
+                        google.maps.event.addListener(self.map, "click", function(event) {
+                                setCurrentLocation(event.latLng, null);
+                        });
 
 			geocoder = new google.maps.Geocoder();
 			initControls();
@@ -148,202 +170,49 @@ $(document).ready(function() {
 			self.map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(logoDiv);
 			atxDiv.index = 1;
 			self.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(atxDiv);
+
+                        // suppresss geolocation if run with ?g=0
+                        if (queryParams["g"] != false) {
+                                navigator.geolocation.getCurrentPosition(geo_success, geo_error, geo_options);
+                        };
+
 		};
+
 		// Listener for initialize
 		google.maps.event.addDomListener(window, 'load', initialize);
 
-		mappViewModel.prototype.toggleOverlay = function(type, bool) {
-			var region;
-			if (self.homeLoc() == "") {
-				self.alertText("You must enter an address before overlays can be displayed!");
-				self.alert(true);
-				self.preCheck(false);
-				self.coCheck(false);
-				return;
-			}
-			if (!bool) {
-				if (type === "precinct")
-					self.preOverlay.setMap(null);
-				else
-					self.coOverlay.setMap(null);
+                /*
+                 * Region overlay
+                 */
 
-				return;
-			} else {
-				if (type === "precinct")
-					region = drawRegion(type, self.preID());
-				else
-					region = drawRegion(type, self.cdID());
-				if (DEBUG)
-					console.log(region);
-			}
-		};
+                function displayRegionOverlay(type) {
 
-		google.maps.Map.prototype.clearOverlays = function(type) {
-			switch(type) {
-			case "HOME":
-				for (var i = 0; i < self.homeMarkers.length; i++) {
-					self.homeMarkers[i].setMap(null);
-				}
-				self.homeMarkers = [];
-				break;
-			default:
-				for (var i = 0; i < self.geoMarkers.length; i++) {
-					self.geoMarkers[i].setMap(null);
-				}
-				self.geoMarkers = [];
-			}
-		};
-		// End Google Maps Methods
+                        if (type === "precinct")
+                                id = self.preID();
+                        else
+                                id = self.coID();
 
-		/*
-		*  Server Request and Map Updating
-		*/
-		// Overloaded - phoneHome(latlng literal) or phoneHome(double lat, double lng)
-		function phoneHome(latlng, type) {
-			self.map.clearOverlays(type);
-			self.spinner(true);
+                        if (! id || id === "?") {
+                                console.log("Current location not within a region type = " + type);
+                                return false;
+                        }
 
-			if (type === "HOME") {
-				self.preID('?');
-				self.cdID('?');
-				self.preCheck(false);
-				self.coCheck(false);
-			}
-
-			var lat = latlng.lat();
-			var lng = latlng.lng();
-
-			var url = SVC + SVC1 + lat + SVC2 + lng;
-
-			// pass "time" query arg to webservice for test/debug
-			if (queryParams["time"] != "") {
-				url = url + "&time=" + queryParams["time"];
-			}
+			var url = VOTEATX_SVC + "/districts/" + type + "/" + id;
 
 			// Service response here
 			function jsonpCallback(response) {
-				if (DEBUG)
-					console.log(response);
-
-				self.alertText(response.message.content);
-				switch(response.message.severity) {
-				case "WARNING":
-					$("#alerts").addClass("alert-warning").removeClass("alert-info").removeClass("alert-danger");
-					break;
-				case "ERROR":
-					$("#alerts").addClass("alert-danger").removeClass("alert-info").removeClass("alert-warning");
-					break;
-				default:
-					$("#alerts").addClass("alert-info").removeClass("alert-warning").removeClass("alert-danger");
-				}
-
-				// Let user know their address is outside of the bounds.
-				// Need response from server indicating the error. This is a hack!
-				if (response.places.length == 1) {
-					self.alertText("Address is outside of Travis County!");
-					console.log("out of bounds");
-					self.alert(true);
-					self.spinner(false);
-					return;
-				};
-
-				self.alert(true);
-
-				// Only get voter info for Home Address!
-				if (type === "HOME") {
-					self.preID(response.districts.precinct.id);
-					self.cdID(response.districts.city_council.id);
-				}
-
-				var regex = new RegExp("\\n", "g");
-
-				$.each(response.places, function(index, val) {
-					var mLatLng = new google.maps.LatLng(val.location.latitude, val.location.longitude);
-					var iconPath = "mapicons/icon_vote";
-					switch(val.type) {
-					case "EARLY_VOTING_FIXED":
-						iconPath += "_early";
-						break;
-					case "EARLY_VOTING_MOBILE":
-						iconPath += "_mobile";
-						break;
-					}
-
-					if (!val.is_open)
-						iconPath += "_closed";
-
-					iconPath += ".png";
-
-					var icon = new google.maps.MarkerImage(iconPath);
-					var marker = new google.maps.Marker({
-						position : mLatLng,
-						map : self.map,
-						icon : icon,
-						title : val.title,
-						draggable : false,
-					});
-					var contentString = '<div id="content" style="max-height:300px; overflow: auto;">' + '<div id="bodyContent"><p>' + val.info.replace(regex, "<br/>") + '</p></div></div>';
-					marker.infowindow = new google.maps.InfoWindow({
-						maxWidth : 250,
-						content : contentString
-					});
-
-					var loc = response.places[index].location;
-					// Bind the Info Window to the Marker
-					google.maps.event.addListener(marker, 'click', function() {
-						$.each(self.homeMarkers, function(index, val) {
-							self.homeMarkers[index].infowindow.close();
-						});
-						$.each(self.geoMarkers, function(index, val) {
-							self.geoMarkers[index].infowindow.close();
-						});
-						marker.infowindow.open(self.map, marker);
-						self.psName(loc.name);
-						self.psAd(loc.address + ", " + loc.city + ", " + loc.state);
-						self.psLatlng = new google.maps.LatLng(loc.latitude, loc.longitude);
-					});
-
-					// Now populate the arrays
-					if (type === "HOME") {
-						self.homeMarkers.push(marker);
-						self.spinner(false);
-					} else
-						self.geoMarkers.push(marker);
-					self.spinner(false);
-				});
-			}
-
-			// Use JSONP to avoid CORS
-			$.ajax({
-				url : url,
-				dataType : 'jsonp',
-				error : function(xhr, status, error) {
-					alert(error.message);
-				},
-				success : jsonpCallback
-			});
-			return false;
-		};
-
-		function drawRegion(type, id) {
-			var url = SVC + "districts/" + type + "/" + id;
-
-			// Service response here
-			function jsonpCallback(response) {
-				if (DEBUG)
-					console.log(response);
+                                if (DEBUG)
+                                        console.log("jsonpCallback()", {'response' : response});
 				var array = response.region.coordinates[0];
 				var polyCoords = [];
 				var LatLng;
 				$.each(array, function(index, val) {
-
 					if (type === "precinct") {
 						LatLng = new google.maps.LatLng(val[1], val[0]);
 						polyCoords.push(LatLng);
 					} else {
 						var arrayNested = array[0];
 						$.each(arrayNested, function(i, pos) {
-
 							LatLng = new google.maps.LatLng(pos[1], pos[0]);
 							polyCoords.push(LatLng);
 						});
@@ -387,6 +256,204 @@ $(document).ready(function() {
 			return false;
 		};
 
+
+                function removeRegionOverlay(type) {
+                        if (type === "precinct") {
+                                if (self.preOverlay) {
+					self.preOverlay.setMap(null);
+                                }
+                        } else {
+                                if (self.coOverlay) {
+					self.coOverlay.setMap(null);
+                                }
+                        }
+                        return false;
+                };
+
+		mappViewModel.prototype.toggleOverlay = function(type, bool) {
+			var region;
+			if (bool) {
+                                displayRegionOverlay(type);
+                        } else {
+                                removeRegionOverlay(type);
+                        }
+                };
+
+		google.maps.Map.prototype.clearMarkers = function() {
+                        for (var i = 0; i < self.votingPlaceMarkers.length; i++) {
+                                self.votingPlaceMarkers[i].setMap(null);
+                        }
+                        self.votingPlaceMarkers = [];
+                };
+
+		// End Google Maps Methods
+
+                function voteatxQueryURL(latLng) {
+                        var url = VOTEATX_SVC + "/search?latitude=" + latLng.lat() + "&longitude=" + latLng.lng();
+			if (queryParams["time"] != "") {
+				url = url + "&time=" + queryParams["time"];
+			}
+                        return url;
+                };
+
+		/*
+		*  Server Request and Map Updating
+		*/
+
+		function setCurrentLocation(latLng, address) {
+                        if (DEBUG)
+                                console.log("setCurrentLocation()", {'latLng' : latLng, 'address' : address});
+
+                        self.map.panTo(latLng);
+			self.map.clearMarkers();
+			self.spinner(true);
+
+                        // reset voting precinct info
+                        self.preID('?');
+                        self.preCheck(false);
+                        if (self.preOverlay) {
+                                self.preOverlay.setMap(null);
+                        }
+                        self.preOverlay = null;
+
+                        // reset council district info
+                        self.coID('?');
+                        self.coCheck(false);
+                        if (self.coOverlay) {
+                                self.coOverlay.setMap(null);
+                        }
+                        self.coOverlay = null;
+
+                        // place the marker on the map at this position
+                        if (self.currentLocMarker == null) {
+                                self.currentLocMarker = new google.maps.Marker({
+                                        position : latLng,
+                                        map : self.map,
+                                        // XXX - find a nice icon, using default map pin for now
+                                        //icon : "icons/home3.svg",
+                                        title : "You are here. Click map to change position.",
+                                });
+                        } else {
+                                self.currentLocMarker.setPosition(latLng);
+                        }
+
+			// Service response here
+			function jsonpCallback(response) {
+                                if (DEBUG)
+                                        console.log("jsonpCallback()", {'response' : response});
+
+                                self.spinner(false);
+
+                                if (response.message) {
+                                        self.alertText(response.message.content);
+                                        switch(response.message.severity) {
+                                        case "WARNING":
+                                                $("#alerts").addClass("alert-warning").removeClass("alert-info").removeClass("alert-danger");
+                                                break;
+                                        case "ERROR":
+                                                $("#alerts").addClass("alert-danger").removeClass("alert-info").removeClass("alert-warning");
+                                                break;
+                                        default:
+                                                $("#alerts").addClass("alert-info").removeClass("alert-warning").removeClass("alert-danger");
+                                        }
+                                }
+				self.alert(true);
+
+                                // Save off the district information.
+                                if (response.districts) {
+                                        if (response.districts.precinct) {
+                                                self.preID(response.districts.precinct.id);
+                                                // TODO - save region, if present
+                                        }
+                                        if (response.districts.city_council) {
+                                                self.coID(response.districts.city_council.id);
+                                                // TODO - save region, if present
+                                        }
+                                }
+
+				var regex = new RegExp("\\n", "g");
+
+                                // Place the voting place markers.
+				$.each(response.places, function(index, val) {
+					var mLatLng = new google.maps.LatLng(val.location.latitude, val.location.longitude);
+					var iconPath = "mapicons/icon_vote";
+					switch(val.type) {
+					case "EARLY_VOTING_FIXED":
+						iconPath += "_early";
+						break;
+					case "EARLY_VOTING_MOBILE":
+						iconPath += "_mobile";
+						break;
+					}
+
+					if (!val.is_open)
+						iconPath += "_closed";
+
+					iconPath += ".png";
+
+					var icon = new google.maps.MarkerImage(iconPath);
+					var marker = new google.maps.Marker({
+						position : mLatLng,
+						map : self.map,
+						icon : icon,
+						title : val.title,
+						draggable : false,
+					});
+					var contentString = '<div id="content" style="max-height:300px; overflow: auto;">' + '<div id="bodyContent"><p>' + val.info.replace(regex, "<br/>") + '</p></div></div>';
+					marker.infowindow = new google.maps.InfoWindow({
+						maxWidth : 250,
+						content : contentString
+					});
+
+					var loc = response.places[index].location;
+
+					// Bind the Info Window to the Marker
+					google.maps.event.addListener(marker, 'click', function() {
+						$.each(self.votingPlaceMarkers, function(index, val) {
+							self.votingPlaceMarkers[index].infowindow.close();
+						});
+						marker.infowindow.open(self.map, marker);
+						self.psName(loc.name);
+						self.psAd(loc.address + ", " + loc.city + ", " + loc.state);
+						self.psLatlng = new google.maps.LatLng(loc.latitude, loc.longitude);
+					});
+
+					// Now populate the arrays
+                                        self.votingPlaceMarkers.push(marker);
+				});
+			}
+
+                        var url = voteatxQueryURL(latLng);
+
+			// Use JSONP to avoid CORS
+			$.ajax({
+				url : url,
+				dataType : 'jsonp',
+				error : function(xhr, status, error) {
+					alert(error.message);
+				},
+				success : jsonpCallback
+			});
+
+                        // update address text field
+                        if (!address || address == "") {
+
+                                // clear current address display while geocoding runs
+                                self.currentLocAddress(null);
+
+                                geocoder.geocode({'location' : latLng}, function(results, status) {
+                                        if (status === google.maps.GeocoderStatus.OK) {
+                                                self.currentLocAddress(results[0].formatted_address);
+                                        }
+                                });
+
+                        } else {
+                                self.currentLocAddress(address);
+                        }
+
+			return false;
+		};
+
 		/*
 		 *  App Controls
 		 */
@@ -427,91 +494,14 @@ $(document).ready(function() {
 			};
 
 			var autocomplete = new google.maps.places.Autocomplete(input, opts);
+                        //
 			// Listener to respond to AutoComplete
 			google.maps.event.addListener(autocomplete, 'place_changed', function() {
 				var place = autocomplete.getPlace();
-				self.map.panTo(place.geometry.location);
-				phoneHome(place.geometry.location, "HOME");
-				self.homeLoc(place.formatted_address);
-				if (self.homeMarker != null) {
-					self.homeMarker.setPosition(place.geometry.location);
-				} else {
-					var icon = "icons/home3.svg";
-					self.homeMarker = new google.maps.Marker({
-						position : place.geometry.location,
-						map : self.map,
-						icon : icon,
-						title : "You won 2nd place in a beauty contest!",
-						draggable : false,
-					});
-				}
-			});
+				setCurrentLocation(place.geometry.location, place.formatted_address);
+                        });
+
 		};
-
-		/*
-		 *  Geolocation
-		 */
-		function geo_success(position) {
-			var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-			self.map.panTo(latlng);
-			phoneHome(latlng, "GEO");
-			geocoder.geocode({
-				'latLng' : latlng
-			}, function(results, status) {
-				if (status == google.maps.GeocoderStatus.OK) {
-					if (results[1]) {
-						self.geoLoc = results[1].formatted_address;
-						console.log("located");
-						var icon = "icons/yay.svg";
-						var icon = new google.maps.MarkerImage("icons/yay.svg", null, /* size is determined at runtime */
-						null, /* origin is 0,0 */
-						new google.maps.Point(18, 45), /* anchor is bottom center of the scaled image */
-						new google.maps.Size(36, 60));
-						self.geoMarker = new google.maps.Marker({
-							position : latlng,
-							map : self.map,
-							icon : icon,
-							animation : google.maps.Animation.DROP,
-							title : "You can drag you!",
-							draggable : true,
-						});
-						// Listen for drags
-						google.maps.event.addListener(self.geoMarker, "dragend", function(event) {
-
-							var point = self.geoMarker.getPosition();
-							self.map.panTo(point);
-							phoneHome(point, "GEO");
-						});
-						// Listen for clicks
-						google.maps.event.addListener(self.map, "click", function(event) {
-
-							var point = event.latLng;
-							self.map.panTo(point);
-							phoneHome(point, "GEO");
-							self.geoMarker.setPosition(point);
-						});
-					}
-				} else {
-					alert("Geocoder failed due to: " + status);
-				}
-			});
-		}
-
-		function geo_error() {
-			console.log("Sorry, no position available.");
-		}
-
-		var geo_options = {
-			enableHighAccuracy : true,
-			maximumAge : 30000,
-			timeout : 27000
-		};
-
-		// suppresss geolocation if run with ?g=0
-		if (queryParams["g"] != false) {
-			navigator.geolocation.getCurrentPosition(geo_success, geo_error, geo_options);
-		};
-		// End Geolocation
 
 		// KOut+BStrap Integration
 		ko.bindingHandlers.radio = {
