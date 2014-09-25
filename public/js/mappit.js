@@ -253,8 +253,14 @@ $(document).ready(function() {
 
 				self.alert(true);
 
-                                self.preID(response.districts.precinct.id);
-                                self.cdID(response.districts.city_council.id);
+                                if (responses.districts) {
+                                        if (responses.districts.precinct) {
+                                                self.preID(response.districts.precinct.id);
+                                        }
+                                        if (responses.districts.city_council) {
+                                                self.cdID(response.districts.city_council.id);
+                                        }
+                                }
 
 				var regex = new RegExp("\\n", "g");
 
