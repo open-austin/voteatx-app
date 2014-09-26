@@ -246,8 +246,11 @@ $(document).ready(function() {
 					self.coOverlay.setMap(self.map);
 				}
 
+			        self.spinner(false);
+
 			};
 
+			self.spinner(true);
 			$.ajax({
 				url : url,
 				dataType : 'jsonp',
