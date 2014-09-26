@@ -56,6 +56,8 @@ $(document).ready(function() {
 			return (self.currentLocAddress() != "");
 		}, this);
 
+		self.alertText = ko.observable("");
+
 		self.currentLocAddress = ko.observable("");
 		self.currentLocMarker = null;
 		self.votingPlaceMarkers = [];
@@ -79,8 +81,6 @@ $(document).ready(function() {
 			this.toggleOverlay("city_council", newValue);
 		}, this);
 		self.coOverlay = null;
-
-		self.alertText = ko.observable("Welcome to VoteATX!");
 
 		var geocoder;
 		var directionsDisplay;
@@ -166,6 +166,26 @@ $(document).ready(function() {
 
 		// Listener for initialize
 		google.maps.event.addDomListener(window, 'load', initialize);
+
+                /*
+                 * Display alert message.
+                 */
+                function displayAlert(message, severity) {
+                        self.alertText(message);
+                        switch(severity) {
+                        case "ERROR":
+                                $("#alerts").addClass("alert-danger").removeClass("alert-info").removeClass("alert-warning");
+                                break;
+                        case "WARNING":
+                                $("#alerts").addClass("alert-warning").removeClass("alert-info").removeClass("alert-danger");
+                                break;
+                        case "INFO":
+                        default:
+                                $("#alerts").addClass("alert-info").removeClass("alert-warning").removeClass("alert-danger");
+                                break;
+                        }
+                        self.alert(message);
+                };
 
                 /*
                  * Region overlay
@@ -328,22 +348,10 @@ $(document).ready(function() {
                                 if (DEBUG)
                                         console.log("jsonpCallback()", {'response' : response});
 
-                                self.spinner(false);
-
+                                // Display any message resulting from web service lookup.
                                 if (response.message) {
-                                        self.alertText(response.message.content);
-                                        switch(response.message.severity) {
-                                        case "WARNING":
-                                                $("#alerts").addClass("alert-warning").removeClass("alert-info").removeClass("alert-danger");
-                                                break;
-                                        case "ERROR":
-                                                $("#alerts").addClass("alert-danger").removeClass("alert-info").removeClass("alert-warning");
-                                                break;
-                                        default:
-                                                $("#alerts").addClass("alert-info").removeClass("alert-warning").removeClass("alert-danger");
-                                        }
+                                        displayAlert(response.message.content, response.message.severity);
                                 }
-				self.alert(true);
 
                                 // Save off the district information.
                                 if (response.districts) {
@@ -407,6 +415,9 @@ $(document).ready(function() {
 					// Now populate the arrays
                                         self.votingPlaceMarkers.push(marker);
 				});
+
+                                // Voting place lookup complete.
+                                self.spinner(false);
 			}
 
                         var url = voteatxQueryURL(latLng);
