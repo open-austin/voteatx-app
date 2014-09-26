@@ -19,20 +19,6 @@ $(document).ready(function() {
 		queryParams[decode(match[1])] = decode(match[2]);
 	})();
 
-	function RegionOverlayAlert() {
-		if (!document.getElementById('toggleAlert')) {
-			var alertUI = document.createElement('div');
-			var parent = document.getElementById('place-holder');
-			alertUI.innerHTML = 'You must enter an address before overlays can be displayed';
-			alertUI.className = "alert alert-danger";
-			$(alertUI).attr('id', 'toggleAlert');
-			parent.appendChild(alertUI);
-			setTimeout(function() {
-				$(alertUI).remove();
-			}, 3000);
-		}
-	}
-
 	function mappViewModel() {
 		/*
 		 *  Configuration
