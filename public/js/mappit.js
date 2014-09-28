@@ -63,7 +63,7 @@ $(document).ready(function() {
 		self.psName = ko.observable("nearby polling stations");
 		self.psLatlng = null;
 
-		self.preID = ko.observable('<i class="fa fa-arrow-circle-down"></i>');
+		self.preID = ko.observable('<i class="fa fa-lg fa-arrow-down"></i>');
                 self.preIsValid = ko.pureComputed(function() { return self.preID() > 0; });
 		self.preCheck = ko.observable(false);
 		this.preCheck.subscribe(function(newValue) {
@@ -71,7 +71,7 @@ $(document).ready(function() {
 		}, this);
 		self.preOverlay = null;
 
-		self.coID = ko.observable("<i class='fa fa-arrow-down'></i>");
+		self.coID = ko.observable("<i class='fa fa-lg fa-arrow-down'></i>");
                 self.coIsValid = ko.pureComputed(function() { return self.coID() > 0; });
 		self.coCheck = ko.observable(false);
 		this.coCheck.subscribe(function(newValue) {
@@ -137,16 +137,17 @@ $(document).ready(function() {
 			initControls();
 
 			// Initialize custom controls
-			var controlDiv = document.getElementById('responsiveInfo');
+			var infoDiv = document.getElementById('responsiveInfo');
 			var startDiv = document.getElementById('pac-input');
 			var aboutDiv = document.getElementById('aboutIcon');
 			var logoDiv = document.getElementById('oa-logo');
 			var atxDiv = document.getElementById('vatx-logo');
 
 			aboutDiv.index = 1;
+			aboutDiv.style.cursor = 'help';
 			self.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(aboutDiv);
-			controlDiv.index = 1;
-			self.map.controls[google.maps.ControlPosition.TOP_LEFT].push(controlDiv);
+			infoDiv.index = 1;
+			self.map.controls[google.maps.ControlPosition.TOP_LEFT].push(infoDiv);
 			startDiv.index = 1;
 			self.map.controls[google.maps.ControlPosition.LEFT_TOP].push(startDiv);
 			logoDiv.index = 1;
