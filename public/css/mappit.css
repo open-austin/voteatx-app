@@ -24,7 +24,7 @@
 	height: 0;
 	text-indent: -9999px;
 	border-right: 16px solid transparent;
-	border-bottom: 16px solid rgba(159,160,198,.95);
+	border-bottom: 16px solid rgba(55,55,55,.95);
 	border-left: 16px solid transparent;
 	z-index: 7;
 }
