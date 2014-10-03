@@ -97,6 +97,12 @@
 	text-align: left;
 }
 
+button[disabled], html input[disabled]{
+	color: #fff;
+	background: #bbb;
+	border: none;
+}
+
 .btn-input {
 	display: table-cell;
 }

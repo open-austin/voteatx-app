@@ -72,7 +72,7 @@ $(document).ready(function() {
 		this.preCheck.subscribe(function(newValue) {
 			this.toggleOverlay("precinct", newValue);
 		}, this);
-		self.preOverlay = null;
+		self.preOverlay = [];
 
 		self.coID = ko.observable("<i class='fa fa-lg fa-arrow-down'></i>");
 		self.coIsValid = ko.pureComputed(function() {
@@ -82,7 +82,7 @@ $(document).ready(function() {
 		this.coCheck.subscribe(function(newValue) {
 			this.toggleOverlay("city_council", newValue);
 		}, this);
-		self.coOverlay = null;
+		self.coOverlay = [];
 
 		var geocoder;
 		var directionsDisplay;
@@ -221,20 +221,18 @@ $(document).ready(function() {
 			self.spinner(true);
 
 			// reset voting precinct info
-			self.preID('?');
 			self.preCheck(false);
-			if (self.preOverlay) {
-				self.preOverlay.setMap(null);
+			if (self.preOverlay[self.preID()]) {
+				self.preOverlay[self.preID()].setMap(null);
 			}
-			self.preOverlay = null;
+			self.preID('?');
 
 			// reset council district info
-			self.coID('?');
 			self.coCheck(false);
-			if (self.coOverlay) {
-				self.coOverlay.setMap(null);
+			if (self.coOverlay[self.coID()]) {
+				self.coOverlay[self.coID()].setMap(null);
 			}
-			self.coOverlay = null;
+			self.coID('?');
 
 			// place the marker on the map at this position
 			if (self.currentLocMarker == null) {
@@ -265,6 +263,7 @@ $(document).ready(function() {
 				if (response.districts) {
 					if (response.districts.precinct) {
 						self.preID(response.districts.precinct.id);
+						$(".region-id").prop("disabled", false);
 						// TODO - save region, if present
 					}
 					if (response.districts.city_council) {
@@ -359,6 +358,129 @@ $(document).ready(function() {
 			}
 
 			return false;
+		};
+
+		/*
+		 * Region overlay
+		 */
+
+		function displayRegionOverlay(type) {
+
+			if (type === "precinct")
+				id = self.preID();
+			else
+				id = self.coID();
+
+			if (!id || id === "?") {
+				console.log("Current location not within a region type = " + type);
+				return false;
+			}
+
+			var url = VOTEATX_SVC + "/districts/" + type + "/" + id;
+
+			// Service response here
+			function jsonpCallback(response) {
+				if (DEBUG)
+					console.log("jsonpCallback()", {
+						'response' : response
+					});
+				var array = response.region.coordinates[0];
+				var polyCoords = [];
+				var LatLng;
+				$.each(array, function(index, val) {
+					if (type === "precinct") {
+						LatLng = new google.maps.LatLng(val[1], val[0]);
+						polyCoords.push(LatLng);
+					} else {
+						var arrayNested = array[0];
+						$.each(arrayNested, function(i, pos) {
+							LatLng = new google.maps.LatLng(pos[1], pos[0]);
+							polyCoords.push(LatLng);
+						});
+					}
+				});
+				if (DEBUG)
+					console.log(polyCoords);
+
+				if (type === "precinct") {
+					if (!self.preOverlay[id]) {
+						self.preOverlay[id] = new google.maps.Polygon({
+							paths : polyCoords,
+							strokeColor : '#FF0000',
+							strokeOpacity : 0.8,
+							strokeWeight : 2,
+							fillColor : '#FF0000',
+							fillOpacity : 0.15
+						});
+					}
+					self.preOverlay[id].setMap(self.map);
+				} else {
+					self.coOverlay[id] = new google.maps.Polygon({
+						paths : polyCoords,
+						strokeColor : '#333',
+						strokeOpacity : 0.8,
+						strokeWeight : 2,
+						fillColor : '#FFFFFF',
+						fillOpacity : 0.5
+					});
+					self.coOverlay[id].setMap(self.map);
+				}
+
+				self.spinner(false);
+
+			};
+			
+			if (type === "precinct" && self.preOverlay[id]) {
+				self.preOverlay[id].setMap(self.map);
+				if(DEBUG)console.log("from cache");
+				return false;
+			};
+			if (type === "city_council" && self.coOverlay[id]) {
+				self.coOverlay[id].setMap(self.map);
+				if(DEBUG)console.log("from cache");
+				return false;
+			};
+
+			self.spinner(true);
+			$.ajax({
+				url : url,
+				dataType : 'jsonp',
+				error : function(xhr, status, error) {
+					alert(error.message);
+				},
+				success : jsonpCallback
+			});
+			return false;
+		};
+
+		function removeRegionOverlay(type) {
+			if (type === "precinct") {
+				if (self.preOverlay) {
+					self.preOverlay[self.preID()].setMap(null);
+				}
+			} else {
+				if (self.coOverlay) {
+					self.coOverlay[self.coID()].setMap(null);
+				}
+			}
+			return false;
+		};
+
+		mappViewModel.prototype.toggleOverlay = function(type, bool) {
+			var region;
+			if (bool) {
+				displayRegionOverlay(type);
+			} else {
+				removeRegionOverlay(type);
+			}
+		};
+
+		mappViewModel.prototype.togglePreCheck = function() {
+			self.preCheck(!self.preCheck());
+		};
+
+		mappViewModel.prototype.toggleCoCheck = function() {
+			self.coCheck(!self.coCheck());
 		};
 
 		/*
