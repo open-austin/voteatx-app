@@ -96,6 +96,7 @@ $(document).ready(function() {
 		function geo_success(position) {
 			var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 			setCurrentLocation(latLng, null);
+			$("#pac-input").removeClass("prompt");
 		}
 
 		function geo_error(err) {
@@ -132,9 +133,9 @@ $(document).ready(function() {
 
 			self.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
-			google.maps.event.addListener(self.map, "click", function(event) {
-				setCurrentLocation(event.latLng, null);
-			});
+			/*google.maps.event.addListener(self.map, "click", function(event) {
+			 setCurrentLocation(event.latLng, null);
+			 });*/
 
 			geocoder = new google.maps.Geocoder();
 			initControls();
@@ -241,7 +242,11 @@ $(document).ready(function() {
 					map : self.map,
 					// XXX - find a nice icon, using default map pin for now
 					//icon : "icons/home3.svg",
-					title : "You are here. Click map to change position.",
+					title : "You can drag the marker or type a new address.",
+					draggable : true
+				});
+				google.maps.event.addListener(self.currentLocMarker, 'dragend', function(event) {
+					setCurrentLocation(event.latLng,null);
 				});
 			} else {
 				self.currentLocMarker.setPosition(latLng);
@@ -429,15 +434,17 @@ $(document).ready(function() {
 				self.spinner(false);
 
 			};
-			
+
 			if (type === "precinct" && self.preOverlay[id]) {
 				self.preOverlay[id].setMap(self.map);
-				if(DEBUG)console.log("from cache");
+				if (DEBUG)
+					console.log("from cache");
 				return false;
 			};
 			if (type === "city_council" && self.coOverlay[id]) {
 				self.coOverlay[id].setMap(self.map);
-				if(DEBUG)console.log("from cache");
+				if (DEBUG)
+					console.log("from cache");
 				return false;
 			};
 
@@ -526,6 +533,7 @@ $(document).ready(function() {
 			//
 			// Listener to respond to AutoComplete
 			google.maps.event.addListener(autocomplete, 'place_changed', function() {
+				$(input).removeClass("prompt");
 				var place = autocomplete.getPlace();
 				setCurrentLocation(place.geometry.location, place.formatted_address);
 			});
