@@ -454,12 +454,12 @@ $(document).ready(function() {
 		};
 
 		function removeRegionOverlay(type) {
-			if (type === "precinct") {
+			if (type === "precinct" && self.preOverlay[self.preID()]) {
 				if (self.preOverlay) {
 					self.preOverlay[self.preID()].setMap(null);
 				}
 			} else {
-				if (self.coOverlay) {
+				if (self.coOverlay && self.coOverlay[self.coID()]) {
 					self.coOverlay[self.coID()].setMap(null);
 				}
 			}
