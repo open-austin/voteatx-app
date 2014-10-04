@@ -22,13 +22,22 @@ $(document).ready(function() {
 	function mappViewModel() {
 		/*
 		 *  Configuration
+		 * 
+		 * Queries: D (DEBUG), SVC (VOTEATX_SVC url), g (Geolocation), clk (click to update), time (test alt times)
+		 * 
 		 */
-		var DEBUG = true;
+		var DEBUG = false;
+		if (queryParams["D"]) {
+			DEBUG = true;
+		}
 		// FIXME
 		var MAP_ID = 'map_canvas';
 		var FALLBACK_LAT = 30.2649;
 		var FALLBACK_LNG = -97.7470;
 		var VOTEATX_SVC = "http://svc.voteatx.us";
+		if (queryParams["SVC"]) {
+			VOTEATX_SVC = queryParams["SVC"];
+		}
 		var BOUNDS = new google.maps.LatLngBounds(new google.maps.LatLng(30.2, -97.9), new google.maps.LatLng(30.5, -97.5));
 		var BLUE = [{
 			featureType : "all",
@@ -63,6 +72,8 @@ $(document).ready(function() {
 		self.psAd = ko.observable("");
 		self.psName = ko.observable("nearby polling stations");
 		self.psLatlng = null;
+
+		self.showBoxes = ko.observable(false);
 
 		self.preID = ko.observable('<i class="fa fa-lg fa-arrow-down"></i>');
 		self.preIsValid = ko.pureComputed(function() {
@@ -133,9 +144,11 @@ $(document).ready(function() {
 
 			self.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
-			/*google.maps.event.addListener(self.map, "click", function(event) {
-			 setCurrentLocation(event.latLng, null);
-			 });*/
+			if (queryParams["clk"] != false) {
+				google.maps.event.addListener(self.map, "click", function(event) {
+					setCurrentLocation(event.latLng, null);
+				});
+			}
 
 			geocoder = new google.maps.Geocoder();
 			initControls();
@@ -220,6 +233,7 @@ $(document).ready(function() {
 			self.map.panTo(latLng);
 			self.map.clearMarkers();
 			self.spinner(true);
+			self.showBoxes(true);
 
 			// reset voting precinct info
 			self.preCheck(false);
@@ -246,7 +260,7 @@ $(document).ready(function() {
 					draggable : true
 				});
 				google.maps.event.addListener(self.currentLocMarker, 'dragend', function(event) {
-					setCurrentLocation(event.latLng,null);
+					setCurrentLocation(event.latLng, null);
 				});
 			} else {
 				self.currentLocMarker.setPosition(latLng);
@@ -482,14 +496,6 @@ $(document).ready(function() {
 			}
 		};
 
-		mappViewModel.prototype.togglePreCheck = function() {
-			self.preCheck(!self.preCheck());
-		};
-
-		mappViewModel.prototype.toggleCoCheck = function() {
-			self.coCheck(!self.coCheck());
-		};
-
 		/*
 		 *  App Controls
 		 */
@@ -540,5 +546,26 @@ $(document).ready(function() {
 
 		};
 	};
+
+	ko.bindingHandlers.checkbox = {
+		init : function(element, valueAccessor, allBindings, data, context) {
+			var $element, observable;
+			observable = valueAccessor();
+			if (!ko.isWriteableObservable(observable)) {
+				throw "You must pass an observable or writeable computed";
+			}
+			$element = $(element);
+			$element.on("click", function() {
+				observable(!observable());
+			});
+			ko.computed({
+				disposeWhenNodeIsRemoved : element,
+				read : function() {
+					$element.toggleClass("active", observable());
+				}
+			});
+		}
+	};
+
 	ko.applyBindings(new mappViewModel());
 });

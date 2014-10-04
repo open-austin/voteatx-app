@@ -28,10 +28,12 @@
 			</button><p data-bind="text: alertText"></p>
 		</div>
 
-		<div id="responsiveInfo" style="margin: 10px; display: inline-block;">
-			<div class="mapCtrl">
-				Precinct <button class="badge region-id" disabled data-bind="html: preID, click: togglePreCheck"></button><span>&#160;&#160;&#160;</span>
-				City Council <button class="badge region-id" disabled data-bind="html: coID, click: toggleCoCheck"></button>
+		<div id="responsiveInfo" style="margin: 10px; display: inline-block; width: 280px;">
+			<div class="mapCtrl" style="display: inline-block; width: 240px;">
+				<input type="checkbox" style="position: absolute; left:3px;" data-bind="checkbox: preCheck, visible: showBoxes"/>
+				<span style="position: absolute; left: 18px;">Precinct</span> <span style="position: absolute; left: 70px;" class="badge region-id" data-bind="html: preID"></span><span>&#160;&#160;&#160;</span>
+				<input type="checkbox" style="position: absolute; left: 110px;" data-bind="checkbox: coCheck, visible: showBoxes"/>
+				<span style="position: absolute; left: 125px;">City Council</span> <span class="badge region-id" style="position: absolute; left: 195px;" data-bind="html: coID"></span>
 			</div>
 			<div style="background-color: #fff; display: inline-block; vertical-align: middle;" class="timer" data-bind="visible: spinner">
 				Loading...
@@ -93,7 +95,7 @@
 				</tr>
 				<tr>
 					<td> If Geolocation is enabled, a marker representing you will be displayed. You can explore the map by clicking on the map. </td>
-					<td> <!-- insert google maps marker here --></td>
+					<td><!-- insert google maps marker here --></td>
 				</tr>
 			</table>
 
