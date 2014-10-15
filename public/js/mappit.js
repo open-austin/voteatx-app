@@ -255,7 +255,7 @@ $(document).ready(function() {
 					position : latLng,
 					map : self.map,
 					// XXX - find a nice icon, using default map pin for now
-					//icon : "icons/home3.svg",
+					//icon : "g/home3.svg",
 					title : "You can drag the marker or type a new address.",
 					draggable : true
 				});
@@ -296,7 +296,7 @@ $(document).ready(function() {
 				// Place the voting place markers.
 				$.each(response.places, function(index, val) {
 					var mLatLng = new google.maps.LatLng(val.location.latitude, val.location.longitude);
-					var iconPath = "mapicons/icon_vote";
+					var iconPath = "g/icon_vote";
 					switch(val.type) {
 					case "EARLY_VOTING_FIXED":
 						iconPath += "_early";
@@ -309,9 +309,13 @@ $(document).ready(function() {
 					if (!val.is_open)
 						iconPath += "_closed";
 
-					iconPath += ".png";
+					iconPath += ".svg";
 
-					var icon = new google.maps.MarkerImage(iconPath);
+                                        var icon = {
+                                                url : iconPath,
+                                                scaledSize: new google.maps.Size(96, 48),
+                                                anchor: new google.maps.Point(48, 24),
+                                        };
 					var marker = new google.maps.Marker({
 						position : mLatLng,
 						map : self.map,
