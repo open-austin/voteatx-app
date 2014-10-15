@@ -291,13 +291,13 @@ $(document).ready(function() {
 					}
 				}
 
-				var regex = new RegExp("\\n", "g");
+				var regexNewline = new RegExp("\\n", "g");
 
 				// Place the voting place markers.
-				$.each(response.places, function(index, val) {
-					var mLatLng = new google.maps.LatLng(val.location.latitude, val.location.longitude);
+				$.each(response.places, function(index, place) {
+					var mLatLng = new google.maps.LatLng(place.location.latitude, place.location.longitude);
 					var iconPath = "g/icon_vote";
-					switch(val.type) {
+					switch(place.type) {
 					case "EARLY_VOTING_FIXED":
 						iconPath += "_early";
 						break;
@@ -306,24 +306,26 @@ $(document).ready(function() {
 						break;
 					}
 
-					if (!val.is_open)
+					if (!place.is_open)
 						iconPath += "_closed";
 
-					iconPath += ".svg";
+					iconPath += ".png";
 
-                                        var icon = {
-                                                url : iconPath,
-                                                scaledSize: new google.maps.Size(96, 48),
-                                                anchor: new google.maps.Point(48, 24),
-                                        };
 					var marker = new google.maps.Marker({
 						position : mLatLng,
 						map : self.map,
-						icon : icon,
-						title : val.title,
+						icon : {
+                                                        url : iconPath,
+                                                        size: new google.maps.Size(72, 72),
+                                                        scaledSize: new google.maps.Size(60, 60),
+                                                        anchor: new google.maps.Point(30, 30),
+                                                },
+						title : place.title,
 						draggable : false,
 					});
-					var contentString = '<div id="content" style="max-height:300px; overflow: auto;"><div id="bodyContent"><p>' + val.info.replace(regex, "<br/>") + '</p></div></div>';
+
+					var contentString = '<div id="content" style="max-height:300px; overflow: auto;"><div id="bodyContent"><p>' + place.info.replace(regexNewline, "<br/>") + '</p></div></div>';
+
 					marker.infowindow = new google.maps.InfoWindow({
 						maxWidth : 250,
 						content : contentString
