@@ -513,7 +513,7 @@ $(document).ready(function() {
 
 		mappViewModel.prototype.showAbout = function() {
                         if (! self.haveAboutContent) {
-                                $.get("about.html?20141028v012", function(data) {
+                                $.get("about.html", function(data) {
                                         var doc = $.parseHTML(data);
                                         /*
                                          * Need to wrap "doc" with an outer element, because
