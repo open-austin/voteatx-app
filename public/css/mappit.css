@@ -8,12 +8,22 @@
 	padding: 10px;
 	border-radius: 4px;
 	background-color: rgba(55,55,55,.95);
-	color: #66AFE9;
+	//color: #66AFE9;
+	color: #EEEEFF;
 	font-family: Verdana, sans-serif;
 	overflow: auto;
 }
-.about-popup a:link {
-	color: #FFD1E9;
+
+.about-popup a {
+        color: #76B0F2;
+}
+
+.about-popup button.close {
+        color: #76B0F2;
+	background: #606060;
+        opacity: 0.9;
+        padding: 3px 5px;
+        border-radius: 5px;
 }
 
 .triangle {

@@ -73,6 +73,8 @@ $(document).ready(function() {
 		self.psName = ko.observable("nearby polling stations");
 		self.psLatlng = null;
 
+		self.haveAboutContent = false;
+
 		self.showBoxes = ko.observable(false);
 
 		self.preID = ko.observable('<i class="fa fa-lg fa-arrow-down"></i>');
@@ -510,18 +512,23 @@ $(document).ready(function() {
 		};
 
 		mappViewModel.prototype.showAbout = function() {
+                        if (! self.haveAboutContent) {
+                                $.get("about.html?20141028v012", function(data) {
+                                        var doc = $.parseHTML(data);
+                                        /*
+                                         * Need to wrap "doc" with an outer element, because
+                                         * .find() searches descendents.
+                                         */
+                                        var aboutContent = $("<html></html>").append(doc).find("#about-content");
+                                        $("#about-content").html(aboutContent);
+                                        self.haveAboutContent = true;
+                                });
+                        }
 			self.about(true);
 		};
 
-		mappViewModel.prototype.hideAbout = function() {
+		mappViewModel.prototype.dismissAbout = function() {
 			self.about(false);
-		};
-
-		mappViewModel.prototype.toggleAbout = function() {
-			if (self.about() === false)
-				self.about(true);
-			else
-				self.about(false);
 		};
 
 		function initControls() {

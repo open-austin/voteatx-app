@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>VoteATX.US</title>
+		<title>Vote ATX</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<meta name="description" content="Web-based mobile application to find Travis County, TX voting places nearest to you. Free and non-commercial. Powered by open government data." />
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -42,9 +42,8 @@
 
 		<input id="pac-input" class="controls prompt" type="text" placeholder="Start Here: enter your home address" data-bind="value: currentLocAddress, hasFocus: currentLocAddress.focused">
 
-		<div id="aboutIcon" style="margin: 6px 40px 6px 0px; color: #FFFFFF; text-shadow: 1px 1px #777;" data-bind="click: toggleAbout">
+		<div id="aboutIcon" style="margin: 6px 40px 6px 0px; color: #FFFFFF; text-shadow: 1px 1px #777;" data-bind="click: showAbout">
 			<i class="fa fa-question-circle fa-3x"></i>
-			<div class="triangle" data-bind="visible: about"></div>
 		</div>
 
 		<div id="oa-logo" style="margin: 8px;">
@@ -53,161 +52,14 @@
 		<div id="vatx-logo" style="margin: 8px;">
 			<a href="./" target="_blank"><img src="g/vote_atx_logo.svg" style="height: 50px; width: 50px;" /></a>
 		</div>
-
-		<div id="about" class="about-popup" data-bind="visible: about, event: { mouseover: showAbout, mouseout: hideAbout }">
-			<table>
-				<tr>
-					<td><h4>VoteATX.US</h4></td><td rowspan="3"><img src="g/vote_atx_logo.png" style="height: 100px; width: 100px;" /></td>
-				</tr>
-				<tr>
-					<td>
-					<p>
-						Elections in the City of Austin are administered by the Travis
-						County Clerk's Election Division.
-					</p></td>
-				</tr>
-				<tr>
-					<td>
-					<ul>
-						<li>
-							<a href="http://www.traviscountyclerk.org/eclerk/Content.do?code=E.0" target="_blank">Travis County Elections home page</a>
-						</li>
-						<li>
-							<a href="http://www.traviscountyclerk.org/eclerk/Content.do?code=E.4" target="_blank">Voting locations info</a>
-						</li>
-						<li>
-							<a href="http://www.traviscountyclerk.org/eclerk/Content.do?code=E.3" target="_blank">What's on the ballot?</a>
-						</li>
-					</ul></td>
-				</tr>
-			</table>
-			<h4>Instructions</h4>
-			<table class="table table-bordered">
-				<tr>
-					<td> If you are registered to vote in Travis County, enter your address in the field provided to find your voter precinct ID and city council district, as well as nearby polling places. </td><td>
-					<p>
-						<em>Looks like this:</em>
-					</p>
-					<input class="controls" type="text" placeholder="enter your home address">
-					<p>
-						<em>but on the main page!</em>
-					</p></td>
-				</tr>
-				<tr>
-					<td> If Geolocation is enabled, a marker representing you will be displayed. You can explore the map by clicking on the map. </td>
-					<td><!-- insert google maps marker here --></td>
-				</tr>
-			</table>
-
-			<h4>Voting</h4>
-
-			<ul>
-				<li>
-					A <img src="g/icon_vote.svg" style="width: 16px; height: 16px"/> icon shows a polling place that is open right now.
-				</li>
-				<li>
-					A <img src="g/icon_vote_closed.svg" style="width: 16px; height: 16px"/> icon shows a closed polling place.
-				</li>
-				<li>
-					You may click on an icon for more information about that particular polling place, such as hours of operation.
-				</li>
-			</ul>
-
-			<table class="table table-bordered">
-				<tr>
-					<td class="icon"><img src="g/icon_vote.svg" style="width: 32px; height: 32px"/></td>
-					<td>
-					<ul>
-						<li>
-							The election day polling place for your address.
-						</li>
-
-						<li>
-							This is the place you go to vote on election day.
-						</li>
-
-						<li>
-							<b>Note</b> that, for some elections, the State of Texas allows "Election Day Vote Centers."
-							For these elections, you can vote at any polling place and not just the one in your
-							assigned neighborhood precinct.
-						</li>
-					</ul></td>
-				</tr>
-				<tr>
-					<td class="icon"><img src="g/icon_vote_early.svg" style="width: 32px; height: 32px"/></td>
-					<td>
-					<ul>
-						<li>
-							The early voting center that is closest to the "you are here" location.
-						</li>
-						<li>
-							If you are registered to vote in Travis County, then you can vote at any of the
-							early voting centers during the early voting period.
-						</li>
-					</ul></td>
-				</tr>
-				<tr>
-					<td class="icon"><img src="g/icon_vote_mobile.svg" style="width: 32px; height: 32px"/></td>
-					<td>
-					<ul>
-						<li>
-							The mobile early voting centers are open only at certain times during the early voting
-							period. If you are registered to vote in Travis County, then you can vote at any mobile
-							early voting center that is open.
-						</li>
-						<li>
-							The map will display <em>only</em> mobile centers that are convenient to
-							your address. You won't see any mobile center if you are in a location
-							where a fixed early voting center is the best choice.
-						</li>
-					</ul></td>
-				</tr>
-			</table>
-
-			<h4>Voter ID Required</h4>
-
-			<p>
-				New Texas voter id requirements are now in effect. You will need to bring a
-				picture id with you when you want to vote. For more information,
-				visit the <a href="http://www.keepcalmvoteon.com/" target="_blank">Keep Calm and
-				Vote On</a> website.
-			</p>
-
-			<h4>Powered by Open Source and Open Government</h4>
-
-			<a href="http://www.open-austin.org/" target="_blank"><img src="http://www.open-austin.org/wp-content/uploads/2013/04/copy-Open_Austin_Banner_400x80.png" alt="Open Austin logo"
-			style="float: right; height: 46px; width: 230px; margin-top: 10px; margin-left: 10px; margin-bottom: 10px" /></a>
-
-			<p>
-				Sponsored by <a href="http://www.open-austin.org/" target="_blank">Open Austin</a>. Made in America by civically minded volunteers.
-			</p>
-
-			<p>
-				This application is possible thanks to the open government data provided by
-				the <a href="http://www.co.travis.tx.us/county_clerk/default.asp" target="_blank">Travis County Clerk</a>
-				(polling places) and the <a href="http://www.co.travis.tx.us/tax_assessor/" target="_blank">Travis County
-				Tax-Assessor Collector</a> (voting districts);
-			</p>
-			<p>
-				And, the OpenSource libraries <a href="http://getbootstrap.com" target="_blank">Bootstrap</a> and <a href="http://knockoutjs.com" target="_blank">Knockout.js</a>.
-			</p>
-
-			<ul>
-				<li>
-					The VoteATX webservice was written by Chip Rosenthal
-					(<a href="mailto:chip@unicom.com">chip@unicom.com</a>).
-				</li>
-				<li>
-					It is published as open source. You may download the source code at: <a href="https://github.com/open-austin/voteatx-svc" target="_blank">https://github.com/open-austin/voteatx-svc</a>
-				</li>
-				<li>
-					The VoteATX website was designed by Andrew Vickers (<i class="fa fa-github fa-lg"></i><a href="https://github.com/avickers" target="_blank"> avickers</a>).
-				</li>
-				<li>
-					You can find the mangled code at: <a href="https://github.com/open-austin/voteatx-app" target="_blank">https://github.com/open-austin/voteatx-app</a>
-				</li>
-			</ul>
-		</div>
+		<div id="about" class="about-popup" data-bind="visible: about">
+                        <button type="button" class="close" data-bind="click: dismissAbout">&times;</button>
+                        <div id="about-content">
+                                <div style="text-align: center">
+                                        <div class="timer" style="display: inline-block; background: #ffffff">Loading</div>
+                                </div>
+                        </div>
+                </div>
 	</body>
 	<footer>
 		<script type="text/javascript">
