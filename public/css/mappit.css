@@ -26,6 +26,16 @@
         border-radius: 5px;
 }
 
+.about-popup .logo {
+  height: 160px;
+  width: 160px;
+}
+
+.about-popup .vote-icon {
+  height: 64px;
+  width: 64px;
+}
+
 .triangle {
 	position: absolute;
 	top: 30px;
