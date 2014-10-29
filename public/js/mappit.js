@@ -109,7 +109,6 @@ $(document).ready(function() {
 		function geo_success(position) {
 			var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 			setCurrentLocation(latLng, null);
-			$("#pac-input").removeClass("prompt");
 		}
 
 		function geo_error(err) {
@@ -383,6 +382,10 @@ $(document).ready(function() {
 			} else {
 				self.currentLocAddress(address);
 			}
+
+                        // now that we have an address,
+                        // remove prompt style from address input field
+			$("#pac-input").removeClass("prompt");
 
 			return false;
 		};
