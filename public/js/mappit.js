@@ -77,7 +77,7 @@ $(document).ready(function() {
 
 		self.showBoxes = ko.observable(false);
 
-		self.preID = ko.observable('<i class="fa fa-lg fa-arrow-down"></i>');
+		self.preID = ko.observable("?");
 		self.preIsValid = ko.pureComputed(function() {
 			return self.preID() > 0;
 		});
@@ -87,7 +87,7 @@ $(document).ready(function() {
 		}, this);
 		self.preOverlay = [];
 
-		self.coID = ko.observable("<i class='fa fa-lg fa-arrow-down'></i>");
+		self.coID = ko.observable("?");
 		self.coIsValid = ko.pureComputed(function() {
 			return self.coID() > 0;
 		});

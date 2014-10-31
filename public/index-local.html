@@ -12,6 +12,17 @@
 		<link rel="icon" href="mapicons/favicon.png" type="image/png" />
 		<link rel="icon" href="favicon.ico" type="image/x-icon">
 		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+		<script type="text/javascript">
+                        // Adjust this to Travis County election id.
+                        var electionId = "G14";
+                        // Return "true" to enable sample ballot link feature.
+                        function enableSampleBallot() {
+                            return true;
+                        }
+                        function sampleBallotURL(precinctId) {
+                            return "http://www.traviscountyclerk.org/eclerk/content/images/ballots/" + electionId + "/" + precinctId + "A.pdf";
+                        }
+                </script>
 	</head>
 	<body>
 		<div id="loading_screen">
@@ -31,9 +42,14 @@
 		<div id="responsiveInfo" style="margin: 10px; display: inline-block; width: 280px;">
 			<div class="mapCtrl" style="display: inline-block; width: 240px;">
 				<input type="checkbox" style="position: absolute; left:3px;" data-bind="checked: preCheck, visible: showBoxes"/>
-				<span style="position: absolute; left: 18px;">Precinct</span> <span style="position: absolute; left: 70px;" class="badge region-id" data-bind="html: preID"></span><span>&#160;&#160;&#160;</span>
+				<span style="position: absolute; left: 18px;">Precinct</span> <span style="position: absolute; left: 70px;" class="badge region-id" data-bind="text: preID"></span><span>&#160;&#160;&#160;</span>
 				<input type="checkbox" style="position: absolute; left: 110px;" data-bind="checked: coCheck, visible: showBoxes"/>
-				<span style="position: absolute; left: 125px;">City Council</span> <span class="badge region-id" style="position: absolute; left: 195px;" data-bind="html: coID"></span>
+				<span style="position: absolute; left: 125px;">City Council</span> <span class="badge region-id" style="position: absolute; left: 195px;" data-bind="text: coID"></span>
+                                <br />
+                                <div data-bind="visible: enableSampleBallot()" class="sample-ballot-link" style="text-align: left; padding-left: 3px">
+                                    <span data-bind="visible: preIsValid"><a data-bind="attr: {href: sampleBallotURL(preID())}" target="blank">Get sample ballot for precinct <span data-bind="text: preID"></span></a></span>
+                                    &nbsp; <!-- reserve space for when link not visible -->
+                                </div>
 			</div>
 			<div style="background-color: #fff; display: inline-block; vertical-align: middle;" class="timer" data-bind="visible: spinner">
 				Loading...
@@ -53,7 +69,9 @@
 			<img src="g/vote_atx_logo.svg" style="height: 50px; width: 50px;" />
 		</div>
 		<div id="about" class="about-popup" data-bind="visible: about">
-                        <button type="button" class="close" data-bind="click: dismissAbout">&times;</button>
+                        <button type="button" class="close" data-bind="click: dismissAbout">
+                        <span class="glyphicon glyphicon-remove"></span>
+                        </button>
                         <div id="about-content">
                                 <div style="text-align: center">
                                         <div class="timer" style="display: inline-block; background: #ffffff">Loading</div>
@@ -94,5 +112,5 @@
 			});
 		</script>
 		<script type="text/javascript" src="js/mappit.js"></script>
-	</footer>
+</footer>
 </html>
