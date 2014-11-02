@@ -269,8 +269,8 @@ $(document).ready(function() {
 			// place the marker on the map at this position
 			if (self.currentLocMarker == null) {
 				self.currentLocMarker = new google.maps.Marker({
-                                        map : self.map,
 					position : latLng,
+					map : self.map,
 					title : "You can drag the marker or type a new address.",
 					draggable : true
 				});
@@ -328,8 +328,8 @@ $(document).ready(function() {
 					iconPath += ".png";
 
 					var marker = new google.maps.Marker({
-                                                map : self.map,
 						position : mLatLng,
+						map : self.map,
 						icon : {
                                                         url : iconPath,
                                                         size: new google.maps.Size(72, 72),
