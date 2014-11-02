@@ -12,5 +12,5 @@
 all : index-cdn.html
 
 index-cdn.html : index-local.html 
-	sed -e '/<head>/a <base href="http://s3-us-west-2.amazonaws.com/voteatx-app/index.html" />' $< > $@
+	sed -e '/<head>/a <base href="http://s3-us-west-2.amazonaws.com/voteatx-app/public/index.html" />' $< > $@
 
