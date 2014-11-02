@@ -30,7 +30,6 @@ $(document).ready(function() {
 		if (queryParams["D"]) {
 			DEBUG = true;
 		}
-		// FIXME
 		var MAP_ID = 'map_canvas';
 		var FALLBACK_LAT = 30.2649;
 		var FALLBACK_LNG = -97.7470;
@@ -56,6 +55,7 @@ $(document).ready(function() {
 		 */
 		var self = this;
 
+                self.oms = null;
 		self.map = null;
 
 		// Visibility Bindings
@@ -68,10 +68,7 @@ $(document).ready(function() {
 		self.currentLocAddress = ko.observable("");
 		self.currentLocMarker = null;
 		self.votingPlaceMarkers = [];
-
-		self.psAd = ko.observable("");
-		self.psName = ko.observable("nearby polling stations");
-		self.psLatlng = null;
+                self.currentInfoWindow = null;
 
 		self.haveAboutContent = false;
 
@@ -98,8 +95,6 @@ $(document).ready(function() {
 		self.coOverlay = [];
 
 		var geocoder;
-		var directionsDisplay;
-		var directionsService = new google.maps.DirectionsService();
 
 		// End View Model Data
 
@@ -145,11 +140,32 @@ $(document).ready(function() {
 
 			self.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
+
+                        self.oms = new OverlappingMarkerSpiderfier(self.map, {
+                            markersWontMove: true,
+                            markersWontHide: true,
+                            keepSpiderfied: true,
+                            nearbyDistance: 10
+                        });
+
+                        // Bind click event on map to location change.
 			if (queryParams["clk"] != false) {
 				google.maps.event.addListener(self.map, "click", function(event) {
 					setCurrentLocation(event.latLng, null);
 				});
 			}
+
+                        // Bind click event on markers to open info window.
+                        self.oms.addListener("click", function(marker, event) {
+                                if (self.currentInfoWindow) {
+                                        self.currentInfoWindow.close();
+                                        self.currentInfoWindow = null;
+                                }
+                                if (marker.infowindow) {
+                                        marker.infowindow.open(self.map, marker);
+                                        self.currentInfoWindow = marker.infowindow;
+                                }
+                        });
 
 			geocoder = new google.maps.Geocoder();
 			initControls();
@@ -183,6 +199,15 @@ $(document).ready(function() {
 		// Listener for initialize
 		google.maps.event.addDomListener(window, 'load', initialize);
 
+		google.maps.Map.prototype.clearMarkers = function() {
+			for (var i = 0; i < self.votingPlaceMarkers.length; i++) {
+				self.votingPlaceMarkers[i].setMap(null);
+			}
+			self.votingPlaceMarkers = [];
+		};
+
+		// End Google Maps Methods
+
 		/*
 		 * Display alert message.
 		 */
@@ -202,15 +227,6 @@ $(document).ready(function() {
 			}
 			self.alert(message);
 		};
-
-		google.maps.Map.prototype.clearMarkers = function() {
-			for (var i = 0; i < self.votingPlaceMarkers.length; i++) {
-				self.votingPlaceMarkers[i].setMap(null);
-			}
-			self.votingPlaceMarkers = [];
-		};
-
-		// End Google Maps Methods
 
 		function voteatxQueryURL(latLng) {
 			var url = VOTEATX_SVC + "/search?latitude=" + latLng.lat() + "&longitude=" + latLng.lng();
@@ -253,13 +269,12 @@ $(document).ready(function() {
 			// place the marker on the map at this position
 			if (self.currentLocMarker == null) {
 				self.currentLocMarker = new google.maps.Marker({
+                                        map : self.map,
 					position : latLng,
-					map : self.map,
-					// XXX - find a nice icon, using default map pin for now
-					//icon : "g/home3.svg",
 					title : "You can drag the marker or type a new address.",
 					draggable : true
 				});
+                                self.oms.addMarker(self.currentLocMarker);
 				google.maps.event.addListener(self.currentLocMarker, 'dragend', function(event) {
 					setCurrentLocation(event.latLng, null);
 				});
@@ -313,8 +328,8 @@ $(document).ready(function() {
 					iconPath += ".png";
 
 					var marker = new google.maps.Marker({
+                                                map : self.map,
 						position : mLatLng,
-						map : self.map,
 						icon : {
                                                         url : iconPath,
                                                         size: new google.maps.Size(72, 72),
@@ -324,6 +339,7 @@ $(document).ready(function() {
 						title : place.title,
 						draggable : false,
 					});
+                                        self.oms.addMarker(marker);
 
 					var contentString = '<div id="content" style="max-height:300px; overflow: auto;"><div id="bodyContent"><p>' + place.info.replace(regexNewline, "<br/>") + '</p></div></div>';
 
@@ -333,17 +349,6 @@ $(document).ready(function() {
 					});
 
 					var loc = response.places[index].location;
-
-					// Bind the Info Window to the Marker
-					google.maps.event.addListener(marker, 'click', function() {
-						$.each(self.votingPlaceMarkers, function(index, val) {
-							self.votingPlaceMarkers[index].infowindow.close();
-						});
-						marker.infowindow.open(self.map, marker);
-						self.psName(loc.name);
-						self.psAd(loc.address + ", " + loc.city + ", " + loc.state);
-						self.psLatlng = new google.maps.LatLng(loc.latitude, loc.longitude);
-					});
 
 					// Now populate the arrays
 					self.votingPlaceMarkers.push(marker);

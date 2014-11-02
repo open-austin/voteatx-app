@@ -46,7 +46,7 @@
 				<input type="checkbox" style="position: absolute; left: 110px;" data-bind="checked: coCheck, visible: showBoxes"/>
 				<span style="position: absolute; left: 125px;">City Council</span> <span class="badge region-id" style="position: absolute; left: 195px;" data-bind="text: coID"></span>
                                 <br />
-                                <div data-bind="visible: enableSampleBallot()" class="sample-ballot-link" style="text-align: left; padding-left: 3px">
+                                <div data-bind="visible: enableSampleBallot()" class="sample-ballot-link" style="text-align: left; padding-left: 5px">
                                     <span data-bind="visible: preIsValid"><a data-bind="attr: {href: sampleBallotURL(preID())}" target="blank">Get sample ballot for precinct <span data-bind="text: preID"></span></a></span>
                                     &nbsp; <!-- reserve space for when link not visible -->
                                 </div>
@@ -101,7 +101,7 @@
 		<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.2.0/knockout-min.js'></script>
 		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
 		<script type="text/javascript" src="js/bootstrap.min.js"></script>
-		<!--<script type="text/javascript" src="js/oms.min.js"></script>-->
+		<script type="text/javascript" src="js/oms.min.js"></script>
 		<script>
 			$('#controls').bind("keyup keypress", function(e) {
 				var code = e.keyCode || e.which;
