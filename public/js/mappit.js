@@ -19,6 +19,9 @@ $(document).ready(function() {
 		queryParams[decode(match[1])] = decode(match[2]);
 	})();
 
+        /*
+         * View-model for Knockout.js.
+         */
 	function mappViewModel() {
 		/*
 		 *  Configuration
@@ -512,6 +515,30 @@ $(document).ready(function() {
 			}
 		};
 
+
+                /*
+                 * Sample ballot support
+                 */
+
+                // Adjust to the Travis County election id for current election.
+                self.electionId = "G14";
+
+                // Set "true" to enable sample ballot link feature.
+                self.sampleBallotEnable = true;
+
+                // URL of sample ballot posted by Travis County for current precinct.
+		self.sampleBallotURL = ko.pureComputed(function() {
+                    return "http://www.traviscountyclerk.org/eclerk/content/images/ballots/" + self.electionId + "/" + self.preID() + "A.pdf";
+                });
+
+                // Give warning to avoid download of wrong ballot.
+                self.sampleBallotConfirm = function(self) {
+                        return confirm("You are about to download the sample ballot for precinct " + self.preID() + ". This ballot will be accurate ONLY if precinct " + self.preID() + " is your home precinct."
+                        + "\n\nTo be sure, verify that the location marker is at your home address, and this precinct number matches your voter registration card."
+                        + "\n\nClick OK to proceed with the download, or CANCEL to cancel the download.");
+                }
+
+
 		/*
 		 *  App Controls
 		 */
@@ -567,5 +594,7 @@ $(document).ready(function() {
 
 		};
 	};
-	ko.applyBindings(new mappViewModel());
+
+        var mappvm = new mappViewModel();
+	ko.applyBindings(mappvm);
 });

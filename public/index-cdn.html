@@ -13,17 +13,6 @@
 		<link rel="icon" href="mapicons/favicon.png" type="image/png" />
 		<link rel="icon" href="favicon.ico" type="image/x-icon">
 		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-		<script type="text/javascript">
-                        // Adjust this to Travis County election id.
-                        var electionId = "G14";
-                        // Return "true" to enable sample ballot link feature.
-                        function enableSampleBallot() {
-                            return true;
-                        }
-                        function sampleBallotURL(precinctId) {
-                            return "http://www.traviscountyclerk.org/eclerk/content/images/ballots/" + electionId + "/" + precinctId + "A.pdf";
-                        }
-                </script>
 	</head>
 	<body>
 		<div id="loading_screen">
@@ -47,8 +36,8 @@
 				<input type="checkbox" style="position: absolute; left: 110px;" data-bind="checked: coCheck, visible: showBoxes"/>
 				<span style="position: absolute; left: 125px;">City Council</span> <span class="badge region-id" style="position: absolute; left: 195px;" data-bind="text: coID"></span>
                                 <br />
-                                <div data-bind="visible: enableSampleBallot()" class="sample-ballot-link" style="text-align: left; padding-left: 5px">
-                                    <span data-bind="visible: preIsValid"><a data-bind="attr: {href: sampleBallotURL(preID())}" target="blank">Get sample ballot for precinct <span data-bind="text: preID"></span></a></span>
+                                <div data-bind="visible: sampleBallotEnable" class="sample-ballot-link" style="text-align: left; padding-left: 5px">
+                                    <span data-bind="visible: preIsValid"><a data-bind="{attr: {href: sampleBallotURL}, click: sampleBallotConfirm}" target="blank">Get sample ballot for precinct <span data-bind="text: preID"></span></a></span>
                                     &nbsp; <!-- reserve space for when link not visible -->
                                 </div>
 			</div>
@@ -57,7 +46,7 @@
 			</div>
 		</div>
 
-		<input id="pac-input" class="controls prompt" type="text" placeholder="Start Here: enter your home address" data-bind="value: currentLocAddress, hasFocus: currentLocAddress.focused">
+		<input id="pac-input" class="controls prompt" type="text" placeholder="To start: enter an address or click on the map" data-bind="value: currentLocAddress, hasFocus: currentLocAddress.focused">
 
 		<div id="aboutIcon" style="margin: 6px 6px 6px 0px; color: #FFFFFF; text-shadow: 1px 1px #777;" data-bind="click: showAbout">
 			<i class="fa fa-question-circle fa-3x"></i>
