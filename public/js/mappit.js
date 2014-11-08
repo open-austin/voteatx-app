@@ -213,23 +213,47 @@ $(document).ready(function() {
 
 		/*
 		 * Display alert message.
+                 *
+                 * message.content - Plain text content for the message.
+                 * message.severity - "ERROR", "WARNING", "INFO".
+                 * message.id - An identifier for one-time messages.
 		 */
-		function displayAlert(message, severity) {
-			self.alertText(message);
-			switch(severity) {
+
+                // To track message ids that have been displayed.
+                var displayedMessageId = {};
+
+		function displayAlert(message) {
+
+                        // Display messages with a given identifier only once.
+                        if (message.id) {
+                                if (displayedMessageId[message.id]) {
+                                        return;
+                                }
+                                displayedMessageId[message.id] = true;
+                        }
+
+
+                        $("#alerts").removeClass("alert-danger").removeClass("alert-info").removeClass("alert-warning");
+			switch (message.severity) {
 			case "ERROR":
-				$("#alerts").addClass("alert-danger").removeClass("alert-info").removeClass("alert-warning");
+				$("#alerts").addClass("alert-danger");
 				break;
 			case "WARNING":
-				$("#alerts").addClass("alert-warning").removeClass("alert-info").removeClass("alert-danger");
+				$("#alerts").addClass("alert-warning");
 				break;
 			case "INFO":
 			default:
-				$("#alerts").addClass("alert-info").removeClass("alert-warning").removeClass("alert-danger");
+				$("#alerts").addClass("alert-info");
 				break;
 			}
-			self.alert(message);
+
+			self.alertText(message.content);
+			self.alert(true);
 		};
+
+		/*
+		 *  Server Request and Map Updating
+		 */
 
 		function voteatxQueryURL(latLng) {
 			var url = VOTEATX_SVC + "/search?latitude=" + latLng.lat() + "&longitude=" + latLng.lng();
@@ -238,10 +262,6 @@ $(document).ready(function() {
 			}
 			return url;
 		};
-
-		/*
-		 *  Server Request and Map Updating
-		 */
 
 		function setCurrentLocation(latLng, address) {
 			if (DEBUG)
@@ -294,7 +314,7 @@ $(document).ready(function() {
 
 				// Display any message resulting from web service lookup.
 				if (response.message) {
-					displayAlert(response.message.content, response.message.severity);
+					displayAlert(response.message);
 				}
 
 				// Save off the district information.
