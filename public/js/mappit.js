@@ -257,7 +257,7 @@ $(document).ready(function() {
 
 		function voteatxQueryURL(latLng) {
 			var url = VOTEATX_SVC + "/search?latitude=" + latLng.lat() + "&longitude=" + latLng.lng();
-			if (queryParams["time"] !== "undefined") {
+			if (queryParams["time"]) {
 				url = url + "&time=" + queryParams["time"];
 			}
 			return url;
