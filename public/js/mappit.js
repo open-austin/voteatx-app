@@ -81,6 +81,7 @@ $(document).ready(function() {
 		self.votingPlaceMarkers = [];
                 self.currentInfoWindow = null;
 
+                // true once content for the "about" frame is loaded
 		self.haveAboutContent = false;
 
 		self.showBoxes = ko.observable(false);
