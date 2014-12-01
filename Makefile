@@ -9,8 +9,8 @@
 # This Makefile generates "index-cdn.html" from "index-local.html".
 #
 
-all : index-cdn.html
+all : public/index-cdn.html
 
-index-cdn.html : index-local.html 
+public/index-cdn.html : public/index-local.html 
 	sed -e '/<head>/a <base href="http://s3-us-west-2.amazonaws.com/voteatx-app/public/index.html" />' $< > $@
 

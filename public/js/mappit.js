@@ -66,6 +66,14 @@ $(document).ready(function() {
 		self.alert = ko.observable(false);
 		self.about = ko.observable(false);
 
+                // id will be set from response.params.election_code after query
+                self.electionId = ko.observable(false);
+
+                // true to display link to sample ballot
+                self.showSampleBallotLink = ko.pureComputed(function() {
+                    return self.electionId() !== false && self.preIsValid();
+                });
+
 		self.alertText = ko.observable("");
 
 		self.currentLocAddress = ko.observable("");
@@ -330,6 +338,10 @@ $(document).ready(function() {
 					}
 				}
 
+                                if (response.params.election_code) {
+                                  self.electionId(response.params.election_code);
+                                }
+
 				var regexNewline = new RegExp("\\n", "g");
 
 				// Place the voting place markers.
@@ -540,15 +552,9 @@ $(document).ready(function() {
                  * Sample ballot support
                  */
 
-                // Adjust to the Travis County election id for current election.
-                self.electionId = "G14";
-
-                // Set "true" to enable sample ballot link feature.
-                self.sampleBallotEnable = true;
-
                 // URL of sample ballot posted by Travis County for current precinct.
 		self.sampleBallotURL = ko.pureComputed(function() {
-                    return "http://www.traviscountyclerk.org/eclerk/content/images/ballots/" + self.electionId + "/" + self.preID() + "A.pdf";
+                    return "http://www.traviscountyclerk.org/eclerk/content/images/ballots/" + self.electionId() + "/" + self.preID() + "A.pdf";
                 });
 
                 // Give warning to avoid download of wrong ballot.
