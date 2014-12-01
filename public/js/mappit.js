@@ -337,10 +337,10 @@ $(document).ready(function() {
 					var mLatLng = new google.maps.LatLng(place.location.latitude, place.location.longitude);
 					var iconPath = "g/icon_vote";
 					switch(place.type) {
-					case "EARLY_VOTING_FIXED":
+					case "EARLY_FIXED":
 						iconPath += "_early";
 						break;
-					case "EARLY_VOTING_MOBILE":
+					case "EARLY_MOBILE":
 						iconPath += "_mobile";
 						break;
 					}
