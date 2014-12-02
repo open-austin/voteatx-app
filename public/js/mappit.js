@@ -200,7 +200,6 @@ $(document).ready(function() {
 
 			// Initialize custom controls
 			var infoDiv = document.getElementById('responsiveInfo');
-			var startDiv = document.getElementById('pac-input');
 			var aboutDiv = document.getElementById('aboutIcon');
 			var logoDiv = document.getElementById('oa-logo');
 			var atxDiv = document.getElementById('vatx-logo');
@@ -210,8 +209,6 @@ $(document).ready(function() {
 			self.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(aboutDiv);
 			infoDiv.index = 1;
 			self.map.controls[google.maps.ControlPosition.TOP_LEFT].push(infoDiv);
-			startDiv.index = 1;
-			self.map.controls[google.maps.ControlPosition.LEFT_TOP].push(startDiv);
 			logoDiv.index = 1;
 			self.map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(logoDiv);
 			atxDiv.index = 1;

@@ -60,7 +60,6 @@
 }
 
 .controls {
-	margin-left: 10px;
 	border: 1px solid transparent;
 	border-radius: 4px;
 	box-sizing: border-box;
@@ -77,52 +76,6 @@
 .region-id {
         width: 3em;
         text-align: center;
-}
-
-#pac-input {
-	background-color: rgba(255,255,255);
-	padding: 0 11px 0 13px;
-	width: 360px;
-	font-family: Roboto;
-	font-size: 15px;
-	font-weight: 300;
-	text-overflow: ellipsis;
-}
-
-#pac-input:focus {
-	border-color: #4d90fe;
-	margin-left: 9px;
-	padding-left: 14px; /* Regular padding-left + 1. */
-	width: 361px;
-}
-
-.mapCtrl {
-	width: 260px;
-	font-size: 13px;
-	background-color: rgba(255,255,255, 0.85);
-	border-style: solid;
-	border-color: transparent;
-	border-width: 1px;
-	border-radius: 4px;
-	padding-top: 2px;
-	padding-bottom: 2px;
-	cursor: default;
-	text-align: left;
-        float: left;
-}
-
-.mapCtrl div {
-	margin: 3px 5px;
-}
-
-.mapChk {
-	background-color: white;
-	border-style: solid;
-	border-color: gray;
-	border-width: 1px;
-	border-radius: 4px;
-	cursor: pointer;
-	text-align: left;
 }
 
 button[disabled], html input[disabled]{
@@ -237,7 +190,22 @@ a i {
 }
 
 #responsiveInfo {
-	margin: 10px; display: inline-block; /*width: 280px;*/
+        margin: 10px;
+        display: inline-block;
+}
+
+.mapCtrl {
+	width: 260px;
+	font-size: 13px;
+	background-color: rgba(255,255,255, 0.85);
+	border-style: solid;
+	border-color: transparent;
+	border-width: 1px;
+	border-radius: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	cursor: default;
+	text-align: left;
 }
 
 .mapCtrl input[type="checkbox"] { 
@@ -246,11 +214,29 @@ a i {
 	margin-top:-2px;
 }
 
+.mapCtrl div {
+	margin: 3px 5px;
+}
+
+#pac-input {
+	background-color: #fcfcff;
+	width: 360px;
+	font-family: Roboto;
+	font-size: 15px;
+	font-weight: 300;
+	text-overflow: ellipsis;
+        padding-left: 3px;
+}
+
+#pac-input:focus {
+	border-color: #4d90fe;
+	padding-left: 4px; /* Regular padding-left + 1 */
+	width: 361px; /* Regular width + 1 */
+}
+
 .busySpinner {
-        float: left;
         vertical-align: middle;
 	background-color: #fff;
-        margin: 0 10px;
 }
 
 #aboutIcon {
@@ -268,3 +254,16 @@ a i {
 #vatx-logo img {
 	height: 50px; width: 50px;
 }
+
+.left-block {
+        display: block;
+        float: left;
+        clear: left;
+        margin-top: 7px;
+}
+
+/* override .left-block vertical space */
+div.left-block-first {
+        margin-top: 0;
+}
+
