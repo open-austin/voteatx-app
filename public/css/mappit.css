@@ -97,7 +97,7 @@
 }
 
 .mapCtrl {
-	width: 240px;
+	width: 260px;
 	font-size: 13px;
 	background-color: rgba(255,255,255, 0.85);
 	border-style: solid;
@@ -107,8 +107,12 @@
 	padding-top: 2px;
 	padding-bottom: 2px;
 	cursor: default;
-	text-align: center;
-	display: inline-block;
+	text-align: left;
+        float: left;
+}
+
+.mapCtrl div {
+	margin: 3px 5px;
 }
 
 .mapChk {
@@ -198,6 +202,7 @@ label.btn > input[type='radio'] {
 }
 .panel {
 	margin: 10px;
+	position: absolute;top: 0px;bottom: 0px;left: 0px;right: 0px;
 }
 
 button.btn-default:hover {
@@ -226,3 +231,40 @@ a i {
 				padding-top: 100px;
 				z-index: 9001;
 			}
+			
+#map-canvas {
+	height: 100%;width: 100%;
+}
+
+#responsiveInfo {
+	margin: 10px; display: inline-block; /*width: 280px;*/
+}
+
+.mapCtrl input[type="checkbox"] { 
+	/* checkboxes in the mapCtrl */
+	vertical-align:middle ;
+	margin-top:-2px;
+}
+
+.busySpinner {
+        float: left;
+        vertical-align: middle;
+	background-color: #fff;
+        margin: 0 10px;
+}
+
+#aboutIcon {
+	margin: 6px 6px 6px 0px; color: #FFFFFF; text-shadow: 1px 1px #777;
+}
+
+.logobottom {
+	margin:8px;
+}
+
+#oa-logo img {
+	height: 20px; width: 100px;
+}
+
+#vatx-logo img {
+	height: 50px; width: 50px;
+}

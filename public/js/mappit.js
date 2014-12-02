@@ -106,6 +106,22 @@ $(document).ready(function() {
 		}, this);
 		self.coOverlay = [];
 
+		self.jurisChange = ko.observable("TRAVIS");
+		this.jurisChange.subscribe(function(newValue) {
+			switch ($("#jurisdiction").val()) {
+                        case "TRAVIS":
+                          break;
+                        case "WILLIAMSON":
+                          alert("This application currently has voting locations only for Travis County residents.  For Williamson County voting places visit: http://tinyurl.com/qe7ayjp");
+                          $("#jurisdiction").val("TRAVIS");
+                          break;
+                        default:
+                          alert("This application currently has voting locations only for Travis County residents.");
+                          $("#jurisdiction").val("TRAVIS");
+                          break;
+			}
+		}, this);
+
 		var geocoder;
 
 		// End View Model Data
@@ -624,4 +640,29 @@ $(document).ready(function() {
 
         var mappvm = new mappViewModel();
 	ko.applyBindings(mappvm);
+	
+	
+	
+	// moved from the index
+	(function() {
+		if (window.addEventListener) {
+			window.addEventListener("load", hide_loading_screen, false);
+		} else {
+			window.attachEvent("onload", hide_loading_screen);
+		}
+	})();
+	function display_loading_screen() {
+		document.getElementById("loading_screen").style.display = 'block';
+	}
+	function hide_loading_screen() {
+		document.getElementById("loading_screen").style.display = 'none';
+	}
+				
+	$('#controls').bind("keyup keypress", function(e) {
+		var code = e.keyCode || e.which;
+		if (code == 13) {
+			e.preventDefault();
+			return false;
+		}
+	});
 });

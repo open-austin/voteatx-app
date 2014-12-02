@@ -1,10 +1,20 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 	<head>
 		<title>Vote ATX</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<meta name="description" content="Web-based mobile application to find Travis County, TX voting places nearest to you. Free and non-commercial. Powered by open government data." />
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta property="og:title" content="Vote ATX" />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="http://voteatx.us" />
+		<meta property="og:image" content="g/vote_atx_logobig.png" />
+		<meta property="og:description" content="Web-based mobile application to find Travis County, TX voting places nearest to you. Free and non-commercial. Powered by open government data." />
+		<meta name="twitter:card" content="summary">
+		<meta name="twitter:url" content="http://voteatx.us">
+		<meta name="twitter:title" content="Vote ATX">
+		<meta name="twitter:description" content="Web-based mobile application to find Travis County, TX voting places nearest to you. Free and non-commercial. Powered by open government data.">
+		<meta name="twitter:image" content="g/vote_atx_logobig.png">
 		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
 		<link rel="stylesheet" href="css/timer.css" type="text/css">
@@ -19,8 +29,8 @@
 			<h3>Please Wait...</h3>
 		</div>
 		<div id="place-holder"></div>
-		<div class="panel" style="position: absolute;top: 0px;bottom: 0px;left: 0px;right: 0px;">
-			<div id="map-canvas" style="height: 100%;width: 100%;"></div>
+		<div class="panel">
+			<div id="map-canvas"></div>
 		</div>
 		<div id="alerts" class="alert alert-info alert-popup" role="alert" data-bind="visible: alert">
 			<button type="button" class="close" data-bind="click: dismissAlert">
@@ -28,78 +38,64 @@
 			</button><p data-bind="text: alertText"></p>
 		</div>
 
-		<div id="responsiveInfo" style="margin: 10px; display: inline-block; width: 280px;">
-			<div class="mapCtrl" style="display: inline-block; width: 240px;">
-				<input type="checkbox" style="position: absolute; left:3px;" data-bind="checked: preCheck, visible: showBoxes"/>
-				<span style="position: absolute; left: 18px;">Precinct</span> <span style="position: absolute; left: 70px;" class="badge region-id" data-bind="text: preID"></span><span>&#160;&#160;&#160;</span>
-				<input type="checkbox" style="position: absolute; left: 110px;" data-bind="checked: coCheck, visible: showBoxes"/>
-				<span style="position: absolute; left: 125px;">City Council</span> <span class="badge region-id" style="position: absolute; left: 195px;" data-bind="text: coID"></span>
-                                <br />
-                                <div class="sample-ballot-link" style="text-align: left; padding-left: 5px">
-                                    <span data-bind="visible: showSampleBallotLink"><a data-bind="{attr: {href: sampleBallotURL}, click: sampleBallotConfirm}" target="blank">Get sample ballot for precinct <span data-bind="text: preID"></span></a></span>
-                                    &nbsp; <!-- reserve space for when link not visible -->
-                                </div>
+		<div id="responsiveInfo">
+			<div class="mapCtrl">
+				<div>
+				  I live in
+				  <select id="jurisdiction" data-bind="event: { change: jurisChange }">
+					  <option value="TRAVIS" selected="1">Travis County</option>
+					  <option value="WILLIAMSON">Williamson County</option>
+				  </select>
+				</div>
+
+				<div>
+				  <input type="checkbox" data-bind="checked: preCheck" />
+				  Precinct
+				  <span class="badge region-id" data-bind="text: preID"></span>
+				  &nbsp;&nbsp;
+				  <input type="checkbox" data-bind="checked: coCheck" />
+				  City Council
+				  <span class="badge region-id" data-bind="text: coID"></span>
+				</div>
+
+				<div class="sample-ballot-link">
+					<span data-bind="visible: showSampleBallotLink"><a data-bind="{attr: {href: sampleBallotURL}, click: sampleBallotConfirm}" target="blank">Get sample ballot for precinct <span data-bind="text: preID"></span></a></span>
+					&nbsp; <!-- reserve space for when link not visible -->
+				</div>
 			</div>
-			<div style="background-color: #fff; display: inline-block; vertical-align: middle;" class="timer" data-bind="visible: spinner">
-				Loading...
-			</div>
+			<div class="timer busySpinner" data-bind="visible: spinner"></div>
 		</div>
 
 		<input id="pac-input" class="controls prompt" type="text" placeholder="To start: enter an address or click on the map" data-bind="value: currentLocAddress, hasFocus: currentLocAddress.focused">
 
-		<div id="aboutIcon" style="margin: 6px 6px 6px 0px; color: #FFFFFF; text-shadow: 1px 1px #777;" data-bind="click: showAbout">
+		<div id="aboutIcon" data-bind="click: showAbout">
 			<i class="fa fa-question-circle fa-3x"></i>
 		</div>
 
-		<div id="oa-logo" style="margin: 8px;">
-			<a href="http://www.open-austin.org/" target="_blank"><img src="http://www.open-austin.org/wp-content/uploads/2013/04/copy-Open_Austin_Banner_400x80.png" style="height: 20px; width: 100px;" /></a>
+		<div id="oa-logo" class="logobottom">
+			<a href="http://www.open-austin.org/" target="_blank"><img src="http://www.open-austin.org/wp-content/uploads/2013/04/copy-Open_Austin_Banner_400x80.png" alt="Open-Austin logo" /></a>
 		</div>
-		<div id="vatx-logo" style="margin: 8px;">
-			<img src="g/vote_atx_logo.svg" style="height: 50px; width: 50px;" />
+		<div id="vatx-logo" class="logobottom">
+			<img src="g/vote_atx_logo.svg" alt="Vote ATX logo" />
 		</div>
 		<div id="about" class="about-popup" data-bind="visible: about">
-                        <button type="button" class="close" data-bind="click: dismissAbout">
-                        <span class="glyphicon glyphicon-remove"></span>
-                        </button>
-                        <div id="about-content">
-                                <div style="text-align: center">
-                                        <div class="timer" style="display: inline-block; background: #ffffff">Loading</div>
-                                </div>
-                        </div>
-                </div>
+			<button type="button" class="close" data-bind="click: dismissAbout">
+			<span class="glyphicon glyphicon-remove"></span>
+			</button>
+			<div id="about-content">
+				<div class="text-center">
+					<div class="timer busySpinner">Loading</div>
+				</div>
+			</div>
+		</div>
+		<footer>
+			<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+			<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.2.0/knockout-min.js'></script>
+			<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&amp;sensor=false&amp;libraries=places"></script>
+			<script type="text/javascript" src="js/bootstrap.min.js"></script>
+			<script type="text/javascript" src="js/oms.min.js"></script>
+			<script type="text/javascript" src="js/mappit.js"></script>
+		</footer>
 	</body>
-	<footer>
-		<script type="text/javascript">
-			(function() {
-				if (window.addEventListener) {
-					window.addEventListener("load", hide_loading_screen, false);
-				} else {
-					window.attachEvent("onload", hide_loading_screen);
-				}
-			})();
-
-			function display_loading_screen() {
-				document.getElementById("loading_screen").style.display = 'block';
-			}
-
-			function hide_loading_screen() {
-				document.getElementById("loading_screen").style.display = 'none';
-			}
-		</script>
-		<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
-		<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.2.0/knockout-min.js'></script>
-		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
-		<script type="text/javascript" src="js/bootstrap.min.js"></script>
-		<script type="text/javascript" src="js/oms.min.js"></script>
-		<script>
-			$('#controls').bind("keyup keypress", function(e) {
-				var code = e.keyCode || e.which;
-				if (code == 13) {
-					e.preventDefault();
-					return false;
-				}
-			});
-		</script>
-		<script type="text/javascript" src="js/mappit.js"></script>
-</footer>
+	
 </html>
