@@ -64,13 +64,13 @@
 				</div>
 			</div>
 
+                        <div class="timer busySpinner" data-bind="visible: spinner">&nbsp;</div>
+
 			<div class="left-block">
                                 <input id="pac-input" class="controls prompt" type="text" placeholder="To start: enter address or click on the map" data-bind="value: currentLocAddress, hasFocus: currentLocAddress.focused">
                         </div>
                         
-			<div class="left-block">
-                                <div class="timer busySpinner" data-bind="visible: spinner">&nbsp;</div>
-                        </div>
+
 		</div>
 
 		<div id="aboutIcon" data-bind="click: showAbout">
