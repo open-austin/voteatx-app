@@ -106,8 +106,8 @@ $(document).ready(function() {
 		}, this);
 		self.coOverlay = [];
 
-		self.jurisChange = ko.observable("TRAVIS");
-		this.jurisChange.subscribe(function(newValue) {
+		self.juris = ko.observable("TRAVIS");
+		this.juris.subscribe(function(newValue) {
 			switch ($("#jurisdiction").val()) {
                         case "TRAVIS":
                           break;
@@ -278,7 +278,10 @@ $(document).ready(function() {
 		 */
 
 		function voteatxQueryURL(latLng) {
-			var url = VOTEATX_SVC + "/search?latitude=" + latLng.lat() + "&longitude=" + latLng.lng();
+			var url = VOTEATX_SVC 
+                        + "/search?latitude=" + latLng.lat()
+                        + "&longitude=" + latLng.lng()
+                        + "&juris=" + self.juris();
 			if (queryParams["time"]) {
 				url = url + "&time=" + queryParams["time"];
 			}
