@@ -66,12 +66,10 @@ $(document).ready(function() {
 		self.alert = ko.observable(false);
 		self.about = ko.observable(false);
 
-                // id will be set from response.params.election_code after query
-                self.electionId = ko.observable(false);
+                self.sampleBallotURL = ko.observable(false);
 
-                // true to display link to sample ballot
                 self.showSampleBallotLink = ko.pureComputed(function() {
-                    return self.electionId() !== false && self.preIsValid();
+                    return self.sampleBallotURL() !== false
                 });
 
 		self.alertText = ko.observable("");
@@ -83,8 +81,6 @@ $(document).ready(function() {
 
                 // true once content for the "about" frame is loaded
 		self.haveAboutContent = false;
-
-		self.showBoxes = ko.observable(false);
 
 		self.preID = ko.observable("?");
 		self.preIsValid = ko.pureComputed(function() {
@@ -107,19 +103,11 @@ $(document).ready(function() {
 		self.coOverlay = [];
 
 		self.juris = ko.observable("TRAVIS");
-		this.juris.subscribe(function(newValue) {
-			switch ($("#jurisdiction").val()) {
-                        case "TRAVIS":
-                          break;
-                        case "WILLIAMSON":
-                          alert("This application currently has voting locations only for Travis County residents.  For Williamson County voting places visit: http://tinyurl.com/qe7ayjp");
-                          $("#jurisdiction").val("TRAVIS");
-                          break;
-                        default:
-                          alert("This application currently has voting locations only for Travis County residents.");
-                          $("#jurisdiction").val("TRAVIS");
-                          break;
-			}
+		this.juris.subscribe(function() {
+                        // If there is a marker on the map then recalculate for changed jurisdiction.
+                        if (this.currentLocMarker) {
+                          setCurrentLocation(this.currentLocMarker.getPosition(), this.currentLocAddress());
+                        }
 		}, this);
 
 		var geocoder;
@@ -298,7 +286,6 @@ $(document).ready(function() {
 			self.map.panTo(latLng);
 			self.map.clearMarkers();
 			self.spinner(true);
-			self.showBoxes(true);
 
 			// reset voting precinct info
 			self.preCheck(false);
@@ -355,8 +342,10 @@ $(document).ready(function() {
 					}
 				}
 
-                                if (response.params.election_code) {
-                                  self.electionId(response.params.election_code);
+                                if (response.additional.sample_ballot_url) {
+                                  self.sampleBallotURL(response.additional.sample_ballot_url);
+                                } else {
+                                  self.sampleBallotURL(false);
                                 }
 
 				var regexNewline = new RegExp("\\n", "g");
@@ -463,7 +452,10 @@ $(document).ready(function() {
 				return false;
 			}
 
-			var url = VOTEATX_SVC + "/districts/" + type + "/" + id;
+			var url = VOTEATX_SVC + "/district"
+                          + "/" + type
+                          + "/" + self.juris()
+                          + "/" + id;
 
 			// Service response here
 			function jsonpCallback(response) {
@@ -568,11 +560,6 @@ $(document).ready(function() {
                 /*
                  * Sample ballot support
                  */
-
-                // URL of sample ballot posted by Travis County for current precinct.
-		self.sampleBallotURL = ko.pureComputed(function() {
-                    return "http://www.traviscountyclerk.org/eclerk/content/images/ballots/" + self.electionId() + "/" + self.preID() + "A.pdf";
-                });
 
                 // Give warning to avoid download of wrong ballot.
                 self.sampleBallotConfirm = function(self) {
