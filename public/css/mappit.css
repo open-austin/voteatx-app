@@ -26,6 +26,16 @@
         border-radius: 5px;
 }
 
+.alert-popup button.close {
+        color: #000;
+        opacity: 0.6;
+        padding: 1px 3px;
+        border-radius: 5px;
+        margin-top: -10px;
+        margin-right: -5px;
+        margin-left: 5px;
+}
+
 .about-popup .logo {
   height: 160px;
   width: 160px;
@@ -51,12 +61,12 @@
 
 .alert-popup {
 	position: absolute;
+	top: 35px;
+	left: 0px;
 	margin: 0px 20px;
 	max-width: 400px;
 	box-sizing:border-box;
 	z-index: 5;
-	left: 0px;
-	top: 115px;
 }
 
 .controls {

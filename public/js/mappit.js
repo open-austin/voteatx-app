@@ -61,26 +61,28 @@ $(document).ready(function() {
                 self.oms = null;
 		self.map = null;
 
-		// Visibility Bindings
-		self.spinner = ko.observable(false);
-		self.alert = ko.observable(false);
-		self.about = ko.observable(false);
+		self.spinnerVisibility = ko.observable(false);
 
                 self.sampleBallotURL = ko.observable(false);
 
-                self.showSampleBallotLink = ko.pureComputed(function() {
+                self.sampleBallotLinkVisibility = ko.pureComputed(function() {
                     return self.sampleBallotURL() !== false
                 });
 
-		self.alertText = ko.observable("");
+		self.alertText = ko.observable(false);
+
+		self.alertVisibility = ko.pureComputed(function() {
+                    return (self.alertText() !== false);
+                });
+
+                // true once content for the "about" frame is loaded
+		self.haveAboutContent = false;
+		self.aboutVisibility = ko.observable(false);
 
 		self.currentLocAddress = ko.observable("");
 		self.currentLocMarker = null;
 		self.votingPlaceMarkers = [];
                 self.currentInfoWindow = null;
-
-                // true once content for the "about" frame is loaded
-		self.haveAboutContent = false;
 
 		self.preID = ko.observable("?");
 		self.preIsValid = ko.pureComputed(function() {
@@ -258,7 +260,10 @@ $(document).ready(function() {
 			}
 
 			self.alertText(message.content);
-			self.alert(true);
+		};
+
+		mappViewModel.prototype.dismissAlert = function() {
+			self.alertText(false);
 		};
 
 		/*
@@ -285,7 +290,7 @@ $(document).ready(function() {
 
 			self.map.panTo(latLng);
 			self.map.clearMarkers();
-			self.spinner(true);
+			self.spinnerVisibility(true);
 
 			// reset voting precinct info
 			self.preCheck(false);
@@ -396,7 +401,7 @@ $(document).ready(function() {
 				});
 
 				// Voting place lookup complete.
-				self.spinner(false);
+				self.spinnerVisibility(false);
 			}
 
 			var url = voteatxQueryURL(latLng);
@@ -505,7 +510,7 @@ $(document).ready(function() {
 					self.coOverlay[id].setMap(self.map);
 				}
 
-				self.spinner(false);
+				self.spinnerVisibility(false);
 
 			};
 
@@ -522,7 +527,7 @@ $(document).ready(function() {
 				return false;
 			};
 
-			self.spinner(true);
+			self.spinnerVisibility(true);
 			$.ajax({
 				url : url,
 				dataType : 'jsonp',
@@ -572,9 +577,6 @@ $(document).ready(function() {
 		/*
 		 *  App Controls
 		 */
-		mappViewModel.prototype.dismissAlert = function() {
-			self.alert(false);
-		};
 
 		mappViewModel.prototype.showAbout = function() {
                         if (! self.haveAboutContent) {
@@ -589,11 +591,11 @@ $(document).ready(function() {
                                         self.haveAboutContent = true;
                                 });
                         }
-			self.about(true);
+			self.showAbout(true);
 		};
 
 		mappViewModel.prototype.dismissAbout = function() {
-			self.about(false);
+			self.showAbout(false);
 		};
 
 		function initControls() {

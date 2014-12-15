@@ -32,7 +32,7 @@
 		<div class="panel">
 			<div id="map-canvas"></div>
 		</div>
-		<div id="alerts" class="alert alert-info alert-popup" role="alert" data-bind="visible: alert">
+		<div id="alerts" class="alert alert-info alert-popup" role="alert" data-bind="visible: alertVisibility">
 			<button type="button" class="close" data-bind="click: dismissAlert">
 				<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
 			</button><p data-bind="text: alertText"></p>
@@ -59,12 +59,12 @@
 				</div>
 
 				<div class="sample-ballot-link">
-					<span data-bind="visible: showSampleBallotLink"><a data-bind="{attr: {href: sampleBallotURL}, click: sampleBallotConfirm}" target="blank">Get sample ballot for precinct <span data-bind="text: preID"></span></a></span>
+					<span data-bind="visible: sampleBallotLinkVisibility"><a data-bind="{attr: {href: sampleBallotURL}, click: sampleBallotConfirm}" target="blank">Get sample ballot for precinct <span data-bind="text: preID"></span></a></span>
 					&nbsp; <!-- reserve space for when link not visible -->
 				</div>
 			</div>
 
-                        <div class="timer busySpinner" data-bind="visible: spinner">&nbsp;</div>
+                        <div class="timer busySpinner" data-bind="visible: spinnerVisibility">&nbsp;</div>
 
 			<div class="left-block">
                                 <input id="pac-input" class="controls prompt" type="text" placeholder="To start: enter address or click on the map" data-bind="value: currentLocAddress, hasFocus: currentLocAddress.focused">
@@ -83,7 +83,7 @@
 		<div id="vatx-logo" class="logobottom">
 			<img src="g/vote_atx_logo.svg" alt="Vote ATX logo" />
 		</div>
-		<div id="about" class="about-popup" data-bind="visible: about">
+		<div id="about" class="about-popup" data-bind="visible: aboutVisibility">
 			<button type="button" class="close" data-bind="click: dismissAbout">
 			<span class="glyphicon glyphicon-remove"></span>
 			</button>
