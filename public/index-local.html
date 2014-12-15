@@ -49,11 +49,11 @@
 				</div>
 
 				<div>
-				  <input type="checkbox" data-bind="checked: preCheck" />
+				  <input type="checkbox" data-bind="enable: preIsValid, checked: preCheck" />
 				  Precinct
 				  <span class="badge region-id" data-bind="text: preID"></span>
 				  &nbsp;&nbsp;
-				  <input type="checkbox" data-bind="checked: coCheck" />
+				  <input type="checkbox" data-bind="enable: coIsValid, checked: coCheck" />
 				  City Council
 				  <span class="badge region-id" data-bind="text: coID"></span>
 				</div>
