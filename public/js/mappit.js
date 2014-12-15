@@ -591,11 +591,11 @@ $(document).ready(function() {
                                         self.haveAboutContent = true;
                                 });
                         }
-			self.showAbout(true);
+			self.aboutVisibility(true);
 		};
 
 		mappViewModel.prototype.dismissAbout = function() {
-			self.showAbout(false);
+			self.aboutVisibility(false);
 		};
 
 		function initControls() {
