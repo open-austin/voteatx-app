@@ -36,7 +36,7 @@ $(document).ready(function() {
 		var MAP_ID = 'map_canvas';
 		var FALLBACK_LAT = 30.2649;
 		var FALLBACK_LNG = -97.7470;
-		var VOTEATX_SVC = "http://svc.voteatx.us";
+		var VOTEATX_SVC = "http://svc.voteatx.us:4567";
 		if (queryParams["SVC"]) {
 			VOTEATX_SVC = queryParams["SVC"];
 		}
