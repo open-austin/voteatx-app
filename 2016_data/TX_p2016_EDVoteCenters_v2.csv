@@ -1,0 +1,681 @@
+countyname,name,addr1,addr2,city,state,zip
+Travis,Dailey Middle School,14000 Westall St,,Austin,TX,78725
+Travis,Copperfield Elementary School,12135 Thompkins Dr,,Austin,TX,78753
+Travis,Graham Elementary School,11211 Tom Adams Dr,,Austin,TX,78753
+Travis,Manor ISD Administrative Building,10335 US Highway 290E,,Austin,TX,78737
+Travis,Elgin High School,14000 County Line Rd,,Austin,TX,78621
+Travis,New Sweden Lutheran Church,12809 New Sweden Church Rd,,Manor,TX,78653
+Travis,Parmer Lane Elementary School,1806 W Parmer Lane,,Austin,TX,78727
+Travis,Park Crest Middle School,1500 North Railroad Ave,,Pflugerville,TX,78660
+Travis,National American University,13801 Burnet Rd. #300,,Austin,TX,78727
+Travis,Dessau Elementary School,"1501 Dessau Ridge Ln.",,Austin,TX,78754
+Travis,Wieland Elementary School,900 Tudor House Rd.,,Pflugerville,TX,78660
+Travis,Turner-Roberts Rec. Center,7201 Colony Loop Dr.,,Austin,TX,78724
+Travis,Memorial United Methodist Church,6100 Berkman Drive,,Austin,TX,78723
+Travis,LBJ High School,7309 Lazy Creek Dr.,,Austin,TX,78724
+Travis,YMCA East Community Branch,5315 Ed Bluestein Blvd.,,Austin,TX,78723
+Travis,Murchison Elementary School,2215 Kelly Ln.,,Pflugerville,TX,78660
+Travis,Carver Branch Library,1161 Angelina St.,,Austin,TX,78702
+Travis,Bluebonnet Tr. Elementary School,11316 Farmhaven Rd.,,Austin,TX,78754
+Travis,David Chapel Portable,2211 East MLK Jr. Blvd.,,Austin,TX,78702
+Travis,Sims Elementary School,1203 Springdale Rd,,Austin,TX,78721
+Travis,Pecan Springs Elementary School,3100 Rogge Ln.,,Austin,TX,78723
+Travis,Blanton Elementary School,"5408 Westminster Dr.",,Austin,TX,78723
+Travis,Messiah Lutheran Church,5701 Cameron Rd.,,Austin,TX,78723
+Travis,Pfluger Hall,"203B East Pecan St.",,Austin,TX,78701
+Travis,Blackhawk Amenity Center,3111 Speidel Dr,,Pflugerville,TX,78660
+Travis,Gus Garcia Rec Center,1201 East Rundberg Ln.,,Austin,TX,78753
+Travis,Dobie Middle School,1200 East Rundberg Ln.,,Austin,TX,78753
+Travis,Travis County Airport Office,5501 Airport Blvd.,,Austin,TX,78751
+Travis,Windermere Elem. School,1101 Picadilly Dr.,,Pflugerville,TX,78660
+Travis,County Tax Office (Community Room),15822 Foothill Farms Loop,,Pflugerville,TX,78660
+Travis,Reilly Elementary School,405 Denson Dr.,,Austin,TX,78752
+Travis,Brookhollow Elem. School,1200 North Railroad Ave,,Pflugerville,TX,78660
+Travis,Dottie Jordan Recreation Center,2803 Loyola Ln.,,Austin,TX,78723
+Travis,Maplewood Elementary School,3808 Maplewood Ave.,,Austin,TX,78722
+Travis,Pioneer Crossing Elementary School,11300 Samsung Blvd.,,Austin,TX,78754
+Travis,Bluebonnet Tr. Elementary School,11316 Farmhaven Rd.,,Austin,TX,78754
+Travis,Virginia Brown Recreation Center,7500 Blessing Ave.,,Austin,TX,78752
+Travis,Spring Hill Elementary School,600 S. Heatherwilde Blvd.,,Pflugerville,TX,78660
+Travis,Barrington Elementary School,400 Cooper Dr.,,Austin,TX,78753
+Travis,Winters Building,701 West 51st St.,,Austin,TX,78751
+Travis,Red River Church,4425 Red River St.,,Austin,TX,78751
+Travis,Boulder Ridge Community Room,3300 Killingsworth Ln.,,Pflugerville,TX,78660
+Travis,River Oaks Elementary School,12401 Scofield Farms Dr.,,Austin,TX,78758
+Travis,Hartfield Performing Arts Center,5800 McNeil Dr.,,Austin,TX,78729
+Travis,UT Flawn Academic Center,2400 Inner Campus Dr. (West Mall),,Austin,TX,78712
+Travis,Cook Elementary School,1511 Cripple Creek Dr.,,Austin,TX,78758
+Travis,O. Henry Middle School,2610 West 10th St.,,Austin,TX,78703
+Travis,Walnut Creek Elementary School,401 West Braker Ln.,,Austin,TX,78753
+Travis,Bridge Point Elementary,6401 Cedar St.,,Austin,TX,78746
+Travis,Cat Mountain H.O.A.,6007 Mount Bonnell Rd.,,Austin,TX,78731
+Travis,Bryker Woods Elementary School,3309 Kerbey Ln.,,Austin,TX,78703
+Travis,Wells Branch MUD,3000 Shoreline Dr.,,Austin,TX,78728
+Travis,Northwest Elementary School,14014 Thermal Dr.,,Austin,TX,78728
+Travis,Lanier High School,1201 Payton Gin Rd.,,Austin,TX,78758
+Travis,ACC Northridge Campus,11928 Stonehollow Dr.,,Austin,TX,78758
+Travis,Caldwell Elementary School,1718 Picadilly Dr.,,Round Rock,TX,78664
+Travis,Bridge Point Elementary School,6401 Cedar St.,,Austin,TX,78746
+Travis,Brookdale North Austin,5310 Duval Rd.,,Austin,TX,78727
+Travis,Wells Branch Community Center,2106 Klattenhoff Dr.,,Austin,TX,78728
+Travis,Cat Mountain Homeowners Association,6007 Mount Bonnell Rd.,,Austin,TX,78737
+Travis,Canyon Ridge Middle School,12601 Country Trails Ln.,,Austin,TX,78731
+Travis,River Place Elementary School,6500 Sitio Del Rio Blvd.,,Austin,TX,78730
+Travis,McCallum High School,5600 Sunshine Dr.,,Austin,TX,78756
+Travis,Rosedale School,2117 West 49th St.,,Austin,TX,78756
+Travis,Highland Park Baptist Church,5206 Balcones Dr.,,Austin,TX,78731
+Travis,Murchison Middle School,3700 North Hills Dr.,,Austin,TX,78731
+Travis,Gullett Elementary School,6310 Treadwell Boulevard,,Austin,TX,78757
+Travis,Highland Park Elementary School,4900 Fairview Dr.,,Austin,TX,78731
+Travis,Northwest Baptist Church,6301 Woodrow Ave,,Austin,TX,78757
+Travis,Ben Hur Shrine Center,7811 Rockwood Ln.,,Austin,TX,78757
+Travis,Randalls Steiner Ranch,5145 RM 620 North,,Austin,TX,78732
+Travis,Grandview Hills Elementary School,12024 Vista Parke Dr.,,Austin,TX,78726
+Travis,Hill Elementary School,8601 Tallwood Dr.,,Austin,TX,78759
+Travis,Doss Elementary School,7005 Northledge Dr.,,Austin,TX,78731
+Travis,Burnet Middle School,8401 Hathaway Dr.,,Austin,TX,78757
+Travis,St. Matthew's Episcopal Church,8134 Mesa Dr.,,Austin,TX,78759
+Travis,St. Luke United Methodist Church,1306 West Lynn St.,,Austin,TX,78703
+Travis,North Village Library,2505 Steck Ave.,,Austin,TX,78757
+Travis,Howson Library,2500 Exposition Blvd.,,Austin,TX,78703
+Travis,McBee Elementary School,1001 West Braker Ln.,,Austin,TX,78758
+Travis,Summitt Elementary School,12207 Brigadoon Ln.,,Austin,TX,78727
+Travis,Jaime Padron Elementary School,2011 W. Rundberg Ln.,,Austin,TX,78758
+Travis,Anderson High School,8403 Mesa Dr.,,Austin,TX,78759
+Travis,United Christian Church,3500 West Parmer Lane,,Austin,TX,78727
+Travis,Grant AME Worship Center,1701 Kramer Ln.,,Austin,TX,78758
+Travis,Congregation Beth Israel,3901 Shoal Creek Blvd.,,Austin,TX,78756
+Travis,Baker Center,3908 Ave. B,,Austin,TX,78751
+Travis,University Co-op,2246 Guadalupe St.,,Austin,TX,78705
+Travis,Sunset Valley City Hall,3205 Jones Rd.,,Austin,TX,78745
+Travis,Bailey Middle School,4020 Lost Oasis Hollow,,Austin,TX,78739
+Travis,Oak Hill Primitive Baptist Church,11408 FM 1826,,Austin,TX,78737
+Travis,Kiker Elementary School,5913 LaCrosse Ave.,,Austin,TX,78739
+Travis,Great Hills Baptist Church,10500 Jollyville Rd.,,Austin,TX,78759
+Travis,Lakeway Activity Center,105 Cross Creek,,Austin,TX,78734
+Travis,Rollingwood Municipal Building,403 Nixon Dr.,,Austin,TX,78746
+Travis,Briarcliff P.O.A. Community Center,22801 Briarcliff Dr.,,Spicewood,TX,78669
+Travis,Cowan Elem. School,2817 Kentish Dr.,,Austin,TX,78748
+Travis,Manchaca United Methodist Church,1011 FM 1626 ,,Manchaca,TX,78652
+Travis,ACC Rio Grande,1212 Rio Grande St.,,Austin,TX,78701
+Travis,Travis County Sheriff’s Office,3800 Hudson Bend Rd.,,Austin,TX,78734
+Travis,Senior Activity Center,2874 Shoal Crest Ave.,,Austin,TX,78705
+Travis,Oak Hill Fire Dept. Barton Creek Station #302,4111 Barton Creek Blvd.,,Austin,TX,78735
+Travis,Villages Amenities Center,12006 Gatling Gun Ln.,,Austin,TX,78748
+Travis,Travis County Parks Office,14624 Hamilton Pool Rd.,,Austin,TX,78738
+Travis,Lost Creek MUD Office,1305 Quaker Ridge Dr.,,Austin,TX,78746
+Travis,Austin Ridge Bible Church,9300 Bee Cave Rd.,,Austin,TX,78733
+Travis,Lakeway Activity Center,105 Cross Creek,,Austin,TX,78734
+Travis,Randalls Lakeway,2301 RR 620 South,,Austin,TX,78759
+Travis,Great Hills Baptist Church,10500 Jollyville Rd.,,Austin,TX,78759
+Travis,Bee Cave City Hall,4000 Galleria Pkwy.,,Bee Cave,TX,78738
+Travis,Austin City Hall,301 West 2nd St.,,Austin,TX,78701
+Travis,Laurel Mountain Elementary,10111 DK Ranch Rd.,,Austin,TX,78759
+Travis,Fire Station # 33,9409 Bluegrass Dr.,,Austin,TX,78759
+Travis,Renaissance Retirement Center,11279 Taylor Draper Ln.,,Austin,TX,78759
+Travis,Laura's Library,9411 Bee Cave Rd.,,Austin,TX,78733
+Travis,Kathy Caraway Elementary School,11104 Oak View Dr.,,Austin,TX,78759
+Travis,Zilker Elementary School,1900 Bluebonnet Ln.,,Austin,TX,78704
+Travis,Canyon Creek Elementary School,10210 Ember Glen Drive,,Austin,TX,78726
+Travis,Celebration Church - Anderson Mill,10401 Anderson Mill Rd.,,Austin,TX,78750
+Travis,Canyon Vista Middle School,"8455 Spicewood Springs Rd.",,Austin,TX,78759
+Travis,Hallmark Baptist Church,9023 Old Lampasas Tr.,,Austin,TX,78750
+Travis,Lakewood Homeowner's Association,7317 Lakewood Dr.,,Austin,TX,78750
+Travis,Travis County WCID #18,1502 San Juan Dr.,,Austin,TX,78733
+Travis,Western Hills Church of Christ,6211 Parkwood Dr.,,Austin,TX,78735
+Travis,Barton Hills Elementary School,2108 Barton Hills Dr.,,Austin,TX,78704
+Travis,Cunningham Elem. School,2200 Berkeley Ave.,,Austin,TX,78745
+Travis,Serene Hills Elem. School,3301 Serene Hills Dr.,,Austin,TX,78738
+Travis,Hill Country Middle School,1300 Walsh Tarlton Ln.,,Austin,TX,78746
+Travis,ACC Pinnacle Campus,7748 Highway 290 West,,Austin,TX,78749
+Travis,Cowan Elementary School,2817 Kentish Dr.,,Austin,TX,78748
+Travis,Small Middle School,4801 Monterey Oaks Blvd.,,Austin,TX,78749
+Travis,Covington Middle School,3700 Convict Hill Rd.,,Austin,TX,78749
+Travis,LTISD Educational Development Center,607 RR 620 North,,Lakeway,TX,78734
+Travis,Bowie High School,4103 West Slaughter Ln.,,Austin,TX,78749
+Travis,Oak Hill Fire Dept. Station #301,9211 Circle Dr.,,Austin,TX,78736
+Travis,Will Hampton Branch Public Library,5125 Convict Hill Rd.,,Austin,TX,78749
+Travis,Shepherd of the Hills Presbyterian Church,5226 W. William Cannon Dr.,,Austin,TX,78749
+Travis,Randalls Flagship West Lake Hills,3300 Bee Cave Rd.,,Austin,TX,78746
+Travis,Community Center at Oak Hill,8656 Highway 71 West,,Austin,TX,78735
+Travis,Mills Elementary School,6201 Davis Ln.,,Austin,TX,78749
+Travis,Clayton Elementary School,7525 LaCrosse Ave.,,Austin,TX,78739
+Travis,Christ Episcopal Church,3520 West Whitestone Blvd.,,Cedar Park,TX,78613
+Travis,Round Mountain Community Center,14340 Round Mountain Rd.,,Leander,TX,78641
+Travis,Lago Vista Middle School,8039 Bar-K Ranch Rd.,,Lago Vista,TX,78645
+Travis,Community Center at Jonestown,"18649 FM 1431, Suite 6A",,Jonestown,TX,78645
+Travis,"Lago Vista City Hall",5803 Thunderbird St.,,Lago Vista,TX,78645
+Travis,Deer Creek Elementary,2420 Zeppelin Dr.,,Cedar Park,TX,78613
+Travis,Volente Fire Dept,15406 FM 2769,,Volente,TX,78641
+Travis,Del Valle ISD Administration Building,5301 Ross Rd.,,Del Valle,TX,78617
+Travis,Elroy Community Library,13512 FM 812,,Del Valle,TX,78617
+Travis,Creedmoor Elementary School,5604 FM 1327,,Austin,TX,78747
+Travis,Blazier Elementary School,8601 Vertex Blvd.,,Austin,TX,78747
+Travis,Ojeda Middle School,4900 McKinney Falls Pkwy,,Austin,TX,78744
+Travis,St. Alban's Episcopal Church,11819 IH-35 South,,Austin,TX,78747
+Travis,Community Center at Del Valle,3518 South FM 973,,Del Valle,TX,78617
+Travis,Southwest Church,"8900 Manchaca Rd.",,Austin,TX,78748
+Travis,Galindo Elementary School,3800 South 2nd St.,,Austin,TX,78704
+Travis,"Science & Health Resource Center",305 North Bluff Dr.,,Austin,TX,78745
+Travis,Akins High School,10701 South 1st St.,,Austin,TX,78748
+Travis,Randalls Ben White,2025 West Ben White Blvd.,,Austin,TX,78704
+Travis,Langford Elementary,2206 Blue Meadow Dr.,,Austin,TX,78744
+Travis,Texas Oaks Baptist Church,9910 Bilbrook Place,,Austin,TX,78748
+Travis,Casey Elementary School,9400 Texas Oaks Dr.,,Austin,TX,78748
+Travis,Akins High School,10701 South 1st St.,,Austin,TX,78748
+Travis,Odom Elem.,1010 Turtle Creek Blvd.,,Austin,TX,78745
+Travis,"Parker Lane United Methodist Church",2105 Parker Ln.,,Austin,TX,78741
+Travis,Church on Congress Avenue,1511 South Congress Ave.,,Austin,TX,78704
+Travis,Fulmore Middle School,201 East Mary St.,,Austin,TX,78704
+Travis,Montopolis Recreation Center,1200 Montopolis Dr.,,Austin,TX,78741
+Travis,South Austin Rec. Center,1100 Cumberland Rd.,,Austin,TX,78704
+Travis,St. Elmo Elem. School,600 West St. Elmo Rd.,,Austin,TX,78745
+Travis,Govalle Elementary School,3601 Govalle Ave.,,Austin,TX,78702
+Travis,Sanchez Elementary,73 San Marcos St.,,Austin,TX,78702
+Travis,Dan Ruiz Branch Public Library,1600 Grove Blvd.,,Austin,TX,78741
+Travis,Wheatsville Food Co-op,4001 South Lamar Blvd.,,Austin,TX,78704
+Travis,Baty Elementary School,2101 Faro Dr.,,Austin,TX,78741
+Travis,Travis High School,1211 East Oltorf St.,,Austin,TX,78704
+Travis,Southwest Church of Christ,8900 Manchaca Rd.,,Austin,TX,78748
+Travis,Twin Oaks Branch Library,1800 South 5th St.,,Austin,TX,78704
+Travis,"Cantu/Pan Am Recreation Center",2100 East 3rd St.,,Austin,TX,78702
+Travis,Cityview at the Park Senior Apts.,2000 Woodward St.,,Austin,TX,78741
+Travis,St. John's Lutheran Church,409 West Ben White Blvd.,,Austin,TX,78704
+Travis, Southeast Branch Library,5803 Nuckols Crossing Rd.,,Austin,TX,78744
+Travis,"Odom Elem. School",1010 Turtle Creek Blvd.,,Austin,TX,78745
+Travis,Langford Elementary School,2206 Blue Meadow Dr.,,Austin,TX,78744
+Travis,Bedichek Middle School,6800 Bill Hughes Rd.,,Austin,TX,78745
+Travis,Houston Elementary School,5409 Ponciana Dr.,,Austin,TX,78744
+Travis,Randalls Ben White and Manchaca,2025 West Ben White Blvd.,,Austin,TX,78704
+Travis,ACC South Austin Campus,1820 West Stassney Ln.,,Austin,TX,78745
+Travis,Wheatsville Food Co-op South Lamar,4001 South Lamar Blvd.,,Austin,TX,78704
+Travis,Williams Elementary School,500 Mairo St.,,Austin,TX,78748
+Jefferson,Amelia Elementary School,565 S. Major Dr.,,Beaumont,TX,77707
+Jefferson,Beaumont Municipal Airport,455 Keith Rd.,,Beaumont,TX,77713
+Jefferson,Bevil Oaks Civic Center,7390 Sweetgum Rd.,,Bevil Oaks,TX,77713
+Jefferson,BISD Administration Building,3395 Harrison Ave.,,Beaumont,TX,77706
+Jefferson,Calvary Baptist Church,3650 Dowlen Rd.,,Beaumont,TX,77706
+Jefferson,Dishman Elementary,3475 Champions Dr.,,Beaumont,TX,77707
+Jefferson,O.C. Mike Taylor Career Center,2330 North St.,,Beaumont,TX,77702
+Jefferson,Precinct 1 Service Center,20205 W. Hwy 90,,Beaumont,TX,77713
+Jefferson,Rogers Park Community Center,6540 Gladys Ave.,,Beaumont,TX,77706
+Jefferson,Roy Guess Elementary,8055 Voth Rd.,,Beaumont,TX,77708
+Jefferson,Hebert Library,2025 Merriman St.,,Port Neches,TX,77651
+Jefferson,Central Gardens Fire Station,3707 Central Blvd.,,Nederland,TX,77627
+Jefferson,Groves Elementary,3901 Cleveland Ave.,,Groves,TX,77619
+Jefferson,Nederland City Hall,207 N. 12th Street,,Nederland,TX,77627
+Jefferson,Jerry Ware Airport Terminal,5000 Jerry Ware Dr.,,Beaumont,TX,77705
+Jefferson,JP 4 BLDG,19217 FM 365,,Beaumont,TX,77704
+Jefferson,Marion & Ed Hughes Public Library,2712 Nederland Ave.,,Nederland,TX,77627
+Jefferson,Port Neches City Hall,20005 Merriman,,Port Neches,TX,77651
+Jefferson,West Groves Education Center,5840 W. Jefferson Blvd.,,Groves,TX,77619
+Jefferson,DeQueen Elementary,740 DeQueen Blvd.,,Port Arthur,TX,77640
+Jefferson,El Vista Community Center,615 Ellias St.,,Port Arthur,TX,77640
+Jefferson,Jefferson County Sub-Courthouse,525 Lakeshore Dr.,,Port Arthur,TX,77640
+Jefferson,Memorial 9th Grade Academy,2441 61st St.,,Port Arthur,TX,77642
+Jefferson,O W Collings Retirement Center,4440 Gulfway Dr.,,Port Arthur,TX,77642
+Jefferson,Port Arthur Public Library,4615 9th Ave,,Port Arthur,TX,77642
+Jefferson,Port Arthur Recreation Center,1308 9th Ave,,Port Arthur,TX,77642
+Jefferson,R.L. Gabby Eldridge Center,5262 Gulfway Dr.,,Sabine Pass,TX,77655
+Jefferson,Travis Elementary,1115 Lakeview Ave.,,Port Arthur,TX,77642
+Jefferson,Willie Ryman III Community Center,3248 39th St,,Port Arthur,TX,77642
+Jefferson,Alice Keith Park Recreation Center,4075 Highland Ave.,,Beaumont,TX,77705
+Jefferson,Charlton-Pollard Elementary,825 Jackson St.,,Beaumont,TX,77701
+Jefferson,Dr. Mae Jones-Clark Elementary,3525 Cleveland St.,,Beaumont,TX,77703
+Jefferson,Hamshire Community Building,12393 2nd St.,,Hamshire,TX,77622
+Jefferson,Jefferson County Courthouse,1001 Pearl St.,,Beaumont,TX,77701
+Jefferson,MLK MIddle School,1400 Avenue A,,Beaumont,TX,77701
+Jefferson,John Paul Davis Community Center,3580 E. Lucas Dr.,,Beaumont,TX,77703
+Jefferson,Precinct 4 Service Center,7780 Boyt Rd.,,Beaumont,TX,77713
+Jefferson,Sterling Pruitt Center,2930 Gulf St.,,Beaumont,TX,77703
+Jefferson,Theodore Johns Library,4255 Fannett Rd.,,Beaumont,TX,77705
+Collin,Akin Elementary School,1100 Springwood,,Wylie,TX,75098
+Collin,Aldridge Elementary School,720 Pleasant Valley,,Richardson,TX,75080
+Collin,Allen Municipal Courts Facility,301 Century Pkwy,,Allen,TX,75013
+Collin,Armstrong Middle School,3805 Timberline,,Plano,TX,75074
+Collin,Blue Ridge ISD Administration,318 West School Street,,Blue Ridge,TX,75424
+Collin,Bowman Middle School,2501 Jupiter Road,,Plano,TX,75074
+Collin,Brinker Elementary School,3800 Clark Parkway,,Plano,TX,75093
+Collin,Carpenter Middle School,3905 Rainier Road,,Plano,TX,75023
+Collin,Carpenter Park Recreation Ctr,6701 Coit Road,,Plano,TX,75024
+Collin,Celina ISD Administration Building,205 S. Colorado,,Celina,TX,75009
+Collin,Christ the Servant Lutheran Church,821 S. Greenville ave. ,,Allen,TX,75002
+Collin,Christ United Methodist Church,3101 Coit Road,,Plano,TX,75075
+Collin,Clark High School,523 W. Spring Creek Pkwy,,Plano,TX,75023
+Collin,Clark Middle School,4600 Colby Dr.,,Frisco,TX,75035
+Collin,Collin College - Central Park Campus,2200 W. University Dr,,McKinney,TX,75071
+Collin,Collin College - Higher Education Center,3452 Spur 399,,McKinney,TX,75069
+Collin,Collin College - Preston Ridge Campus,9700 Wade Blvd,,Frisco,TX,75035
+Collin,Collin College - Spring Creek Campus,2800 E. Spring Creek Pkwy,,Plano,TX,75074
+Collin,Collin County Elections Office,"2010 Redbud Blvd, Suite 102",,McKinney,TX,75069
+Collin,Community ISD Technology & Conference Center,615 FM 1138,,Nevada,TX,75173
+Collin,Curtis Middle School,1530 Rivercrest Blvd,,Allen,TX,75002
+Collin,Davis Library,7501-B Independence Pkwy,,Plano,TX,75025
+Collin,Dowell Middle School,301 S. East Ridge Road,,McKinney,TX,75070
+Collin,Dr. Pepper Star Center at Craig Ranch,6993 Stars Ave.,,McKinney,TX,75070
+Collin,Eldorado Country Club,2604 Country Club Drive,,McKinney,TX,75070
+Collin,First Baptist Church - Branch,7011 FM 546,,Princeton,TX,75407
+Collin,First Baptist Church Farmersville Youth Building,201 Farmersville Parkway,,Farmersville,TX,75442
+Collin,Ford Middle School,630 Park Place Drive,,Allen,TX,75002
+Collin,Fowler Middle School,3801 McDermott Road,,Plano,TX,75025
+Collin,Frisco Senior Center,6670 Moore Street,,Frisco,TX,75034
+Collin,Gay Library,6861 W. Eldorado Parkway,,McKinney,TX,75070
+Collin,Haggar Elementary School,17820 Campbell Road,,Dallas,TX,75252
+Collin,Harrington Library,1501 18th Street,,Plano,TX,75074
+Collin,Heritage High School,14040 Eldorado Pkwy,,Frisco,TX,75035
+Collin,Islamic Association of Collin County,6401 Independence Pkwy,,Plano,TX,75023
+Collin,Lavon City Hall,120 School Road,,Lavon,TX,75173
+Collin,Liberty High School,15250 Rolater Road,,Frisco,TX,75035
+Collin,Loveyjoy ISD Administration Building,259 Country Club Rd,,Allen,TX,75002
+Collin,Lowry Crossing City Hall,1405 S Bridgefarmer Road,,Lowry Crossing,TX,75069
+Collin,Lucas Community Center,665 Country Club Rd,,Lucas,TX,75002
+Collin,McKinney Fire Station #7,861 S. Independence Pkwy,,McKinney,TX,75070
+Collin,McKinney Senior Recreation Center,1400 S College,,McKinney,TX,75069
+Collin,Melissa City Hall,3411 Barker Ave,,Melissa,TX,75454
+Collin,Mitchell Elementary School,4223 Briagrove ,,Dallas,TX,75287
+Collin,Murphy Community Center,205 N Murphy Road,,Murphy,TX,75094
+Collin,Old Settlers Recreation Center,1201 E. Louisiana St,,McKinney,TX,75069
+Collin,Parker City Hall,5700 E. Parker Road,,Parker,TX,75002
+Collin,Parr Library,6200 Windhaven Pkwy,,Plano,TX,75093
+Collin,Plano ISD Administration Center,2700 W. 15th Street,,Plano,TX,75075
+Collin,Princeton High School,1000 E. Princeton Drive,,Princeton,TX,75407
+Collin,Prosper ISD Administration Bldg,605 E. 7th Street,,Prosper,TX,75078
+Collin,Renner Frankford Library,6400 Frankford Rd ,,Dallas,TX,75252
+Collin,Royse City ISD Mike McKinney Maintenance Center,1420 FM 1777,,Royse City,TX,75189
+Collin,Shepton High School,5505 Plano Pkwy,,Plano,TX,75093
+Collin,Shiloh Missionary Baptist Church,1310 Avenue I ,,Plano,TX,75074
+Collin,Smith Library,300 Country Club Rd,,Wylie,TX,75098
+Collin,Staley Middle School,6927 Stadium Drive,,Frisco,TX,75033
+Collin,Stonebridge United Methodist Church,1800 S Stonebridge Drive,,McKinney,TX,75070
+Collin,Suncreek United Methodist Church,1517 W. McDermott,,Allen,TX,75013
+Collin,Texas Star Bank,402 W. White St,,Anna,TX,75409
+Collin,Weston Community Center,117 Main Street,,Weston,TX,75097
+Collin,Whitt Elementary School,7520 Woodcreek Way,,Sachse,TX,75048
+Collin,Woodcreek Church,3400 E Renner Road,,Richardson,TX,75082
+Fort Bend,Austin Parkway Elementary School,4400 Austin Pkwy,,Sugarland,TX,77479
+Fort Bend,Beasley City Hall,319 S. 3rd St,,Beasley,TX,77417
+Fort Bend,Beck Jr. Hi. School ,5200 S Fry Rd ,,KATY,TX,77450
+Fort Bend,Beckendorf Jr High School ,8200 South Fry Rd.,,KATY,TX,77494
+Fort Bend,Brazos Bend Home & Ranch,22930 FM 1462 ,,NEEDVILLE ,TX,77461
+Fort Bend,Briarchase Missionary Bapt Church ,16000 Blue Ridge Rd ,,MISSOURI CITY ,TX,77489
+Fort Bend,Brightwater Clubhouse ,2410 Brightwater ,,MISSOURI CITY ,TX,77459
+Fort Bend,Briscoe Junior High School ,4300 FM 723,,RICHMOND,TX,77406
+Fort Bend,Calvary Baptist Church,4111 Airport Ave,,ROSENBERG,TX,77471
+Fort Bend,Chasewood Clubhouse ,7622 Chasewood Dr ,,MISSOURI CITY,TX,77489
+Fort Bend,Cindy's Palace, 1102 FM 2977,,Richmond,TX,77469
+Fort Bend,Clements High School ,4200 Elkins Dr,,Sugarland,TX,77479
+Fort Bend,Commonwealth Clubhouse ,4330 Knightsbridge Blvd,,Sugarland,TX,77479
+Fort Bend,Crockett Middle School,19001 Beechnut,,Richmond,TX,77469
+Fort Bend,Deseo at Grand Mission,19002 Mission Park Dr,,Richmond,TX,77407
+Fort Bend,Dickinson Elementary School ,7110 Greatwood Pkwy,,Sugarland,TX,77479
+Fort Bend,Elkins High School ,7007 Knights Court,,Missouri City,TX,77459
+Fort Bend,"FBC Fairgrounds Building ""D""",4310 Highway 36 S,,ROSENBERG,TX,77471
+Fort Bend,FBC Library - Cinco Ranch,2620 Commercial Center Dr,,KATY,TX,77494
+Fort Bend,FBC Library - Sienna,8411 Sienna Springs Blvd,,Missouri City,TX,77459
+Fort Bend,FBC Library - Sugar Land Branch,5500 Eldridge,,Sugarland,TX,77478
+Fort Bend,FBC Library - University Branch,14010 University Blvd,,Sugarland,TX,77479
+Fort Bend,MUD 23 Admin. Building,1570 Rabb Road,,Fresno,TX,77545
+Fort Bend,FBC Rosenberg Annex Building,4520 Reading Rd,,ROSENBERG,TX,77471
+Fort Bend,Fellowship Church of Fort Bend,1110 Bamore Rd,,ROSENBERG,TX,77471
+Fort Bend,Fifth Street Community Center,3110 Fifth Street,,Stafford,TX,77477
+Fort Bend,First Colony Conference Center,3232 Austin Parkway,,Sugarland,TX,77479
+Fort Bend,Four Corners Community Center,15700 Old Richmond Rd,,Sugarland,TX,77479
+Fort Bend,Gallery Furniture,7227 W. Grand Pkwy S,,Richmond,TX,77407
+Fort Bend,Garcia Middle School,18550 Old Richmond Rd,,Sugarland,TX,77478
+Fort Bend,George Bush High School,6707 FM 1464,,Richmond,TX,77469
+Fort Bend,George Memorial Library,1001 Golfview Dr,,Richmond,TX,77469
+Fort Bend,Great Oaks Baptist Church,7101 FM 2759 Rd RICHMOND 77469,,Richmond,TX,77469
+Fort Bend,Hightower High School,3333 Hurricane Lane,,Missouri City,TX,77459
+Fort Bend,Hunters Glen Elementary School,8295 Independence Blvd,,Missouri City,TX,77459
+Fort Bend,Imperial Park Recreation Center,234 Matlage Way,,Sugarland,TX,77478
+Fort Bend,Irene Stern Community Center,6920 Katy-Fulshear Road,,Fulshear,TX,77441
+Fort Bend,James Bowie Middle School,700 Plantation Dr,,Richmond,TX,77406
+Fort Bend,Joy Lutheran Church,717 FM 359,,Richmond,TX,77406
+Fort Bend,Kempner High School,14777 Voss Rd,,Sugarland,TX,77498
+Fort Bend,Kendleton Church of God,619 FM 2919,,Kendleton,TX,77451
+Fort Bend,Knights of Columbus (Needville),13631 Hwy 36,,NEEDVILLE ,TX,77461
+Fort Bend,Knights of Columbus (Sugar Land),702 Burney Rd,,Sugarland,TX,77478
+Fort Bend,Lake Olympia Marina Clubhouse,180 Island Blvd,,Missouri City,TX,77479
+Fort Bend,Lantern Lane Elementary School,3323 Mission Valley Dr,,Missouri City,TX,77459
+Fort Bend,Lexington Creek Elementary School,2335 Dulles Ave,,Missouri City,TX,77459
+Fort Bend,Lost Creek Community Center,3703 Lost Creek Blvd,,Sugarland,TX,77478
+Fort Bend,McMeans Junior High School,21000 Westheimer Parkway,,KATY,TX,77450
+Fort Bend,Meadows Place City Hall,One Troyan Dr,,Meadows Place,TX,77477
+Fort Bend,Merrell Center,6301 S Stadium Ln,,KATY,TX,77492
+Fort Bend,Mission Bend Elementary School,16200 Beechnut St,,Houston,TX,77483
+Fort Bend,Missouri City Baptist Church,16816 Quail Park Dr,,Missouri City,TX,77459
+Fort Bend,Missouri City Old Municipal Court,1522 Texas Parkway,,Missouri City,TX,77489
+Fort Bend,Missouri City Parks & Recreation,2701 Cypress Point Dr,,Missouri City,TX,77459
+Lubbock,Abernathy City Hall,811 Avenue D,,Lubbock,TX,79401
+Lubbock,Bacon Heights Baptist Church,5110 54th St,,Lubbock,TX,79414
+Lubbock,Broadview Baptist Church,1302 N Frankford Ave,,Lubbock,TX,79416
+Lubbock,Byron Martin ATC,3201 Avenue Q,,Lubbock,TX,79411
+Lubbock,Calvary Baptist Church,5301 82nd St,,Lubbock,TX,79424
+Lubbock,Casey Administration Building,501 7th St,,Wolfforth,TX,79382
+Lubbock,Catholic Diocese of Lubbock,4620 4th St,,Lubbock,TX,79416
+Lubbock,Cavazos Middle School,210 N University Ave,,Lubbock,TX,79415
+Lubbock,Celebration Christian Center,8001 Upland Ave,,Lubbock,TX,79424
+Lubbock,Church on the Rock,10503 Slide Rd,,Lubbock,TX,79424
+Lubbock,Elks Lodge No. 1348,3409 Milwaukee Ave,,Lubbock,TX,79407
+Lubbock,First Assembly of God Church,3801 98th St,,Lubbock,TX,79423
+Lubbock,Green Lawn Church of Christ,5701 19th St,,Lubbock,TX,79407
+Lubbock,Harwell Elementary School,4104 Ave D,,Lubbock,TX,79404
+Lubbock,Hodges Community Center,4011 University Ave,,Lubbock,TX,79413
+Lubbock,Idalou Clubhouse,202 W 7th St,,Idalou,TX,79329
+Lubbock,Lone Star State Bank,6220 Milwaukee Ave,,Lubbock,TX,79424
+Lubbock,Lubbock-Cooper Performing Arts Center ,16302 Texas 493 Loop,,Lubbock,TX,79423
+Lubbock,Lubbock-Cooper North Elementary School,3202 108th St,,Lubbock,TX,79423
+Lubbock,Mae Simmons Community Center,2004 Oak Ave,,Lubbock,TX,79404
+Lubbock,Mattress Firm,6707 Slide Rd,,Lubbock,TX,79424
+Lubbock,New Deal Community Clubhouse,309 S Monroe Ave,,New Deal,TX,79350
+Lubbock,Parsons Elementary,2811 58th St,,Lubbock,TX,79413
+Lubbock,Patterson Library,1836 Parkway Dr,,Lubbock,TX,79403
+Lubbock,"Plains Capital Bank, Governor’s Room",5010 University Ave,,Lubbock,TX,79413
+Lubbock,Ramirez Charter School,702 Avenue T,,Lubbock,TX,79401
+Lubbock,Roberts Elementary School,7901 Avenue P,,Lubbock,TX,79423
+Lubbock,Roosevelt Clubhouse,1400 CR 3300,,Lubbock,TX,79403
+Lubbock,Roscoe Wilson Elementary School,2807 25th St,,Lubbock,TX,79410
+Lubbock,Shallowater Community Center,902 Avenue H,,Shallowater,TX,79363
+Lubbock,Slaton ISD Administration Office,140 E Panhandle,,Slaton,TX,79364
+Lubbock,South Plains Church of Christ,6802 Elkhart Ave,,Lubbock,TX,79424
+Lubbock,St Joseph Catholic Church,102 N Avenue P,,Lubbock,TX,79401
+Lubbock,"Sunset Church of Christ, The Well",3651 34th St,,Lubbock,TX,79410
+Lubbock,Sutherlands,3701 50th St,,Lubbock,TX,79413
+Lubbock,Terra Vista Middle School,1111 Upland Ave,,Lubbock,TX,79416
+Lubbock,Texas Tech University Library,18th and Boston,,Lubbock,TX,79409
+Lubbock,Wright Elementary School,1302 Adrian St,,Lubbock,TX,79403
+Brazos,Arena Hall,2906 Tabor Rd Tabor Road & N. Earl Rudder Freeway,,Bryan,TX,77803
+Brazos,Beacon Baptist Church,2001 East Villa Maria Road,,Bryan,TX,77802
+Brazos,Brazos County Administration Building,200 South Texas Avenue,,Bryan,TX,77803
+Brazos,Church of Nazarene,212 E. William J Bryan Pkwy,,Bryan,TX,77803
+Brazos,College Heights Assembly of God,4100 Old College Rd,,Bryan,TX,77801
+Brazos,College Station City Hall,1101 Texas Avenue,,College Station,TX,77840
+Brazos,College Station ISD Admin. Building,1812 Welsh,,College Station,TX,77840
+Brazos,Fellowship Freewill Baptist Church,1228 W. Villa Maria,,Bryan,TX,77801
+Brazos,First Baptist Church - Bryan,3100 Cambridge Drive,,Bryan,TX,77802
+Brazos,Galilee Baptist Church,804 N. Logan,,Bryan,TX,77803
+Brazos,Living Hope Baptist Church,4170 State Highway 6 South,,College Station,TX,77845
+Brazos,Millican Community Center,22284 Pierce Street,,Millican,TX,77868
+Brazos,Momentum Church,1216 Beck St.,,Bryan,TX,77803
+Brazos,Siegert Center - Smetana,1830 Smetana Road,,Bryan,TX,77807
+Brazos,The Brazos Center,3232 Briarcrest Dr.,,Bryan,TX,77802
+Brazos,Wellborn Community Center,4119 W. Greens Prairie Road,,College Station,TX,77845
+Brazos,Zion Church of Kurten,977 N. FM 2038,,Kurten,TX,77808
+Tom Green,Angelo Bible Church,3506 Sherwood Way,,San Angelo,TX,76901
+Tom Green,Belmore Baptist church,1214 South Bell,,San Angelo,TX,76903
+Tom Green,Calvary Baptist Church,2401 Armstrong St.,,San Angelo,TX,76903
+Tom Green,Christoval Community Ctr.,20022 Main,,Christoval,TX,76935
+Tom Green,Community Medical Center,3501 Knickerbocker Rd.,,San Angelo,TX,76904
+Tom Green,Concho Valley Transit District (bus depot),510 North Chadborne,,San Angelo,TX,76903
+Tom Green,SAF (First Assembly of God Church),1442 Edmund Blvd.,,San Angelo,TX,76901
+Tom Green,Grape Creek ISD Admin Bldg,8207 US Hwy 87 N.,,San Angelo,TX,76901
+Tom Green,Keating Paint and Body ,5050 North Chadbourne,,San Angelo,TX,76903
+Tom Green,Paulann Baptist Church,2531 Smith Blvd.,,San Angelo,TX,76905
+Tom Green,Plaza del Sol apartments,4305 Oak Grove Blvd.,,San Angelo,TX,76904
+Tom Green,S A Housing Authority (Public Housing),420 East 28th St.,,San Angelo,TX,76903
+Tom Green,St. Ambrose Catholic Church,8602 Loop 570 Wall,,Wall,TX,76957
+Tom Green,St. Paul Presbyterian Church,11 North Park Ave.,,San Angelo,TX,76901
+Tom Green,Segunda Iglesia Buatista Church,530 W. Ave. T,,San Angelo,TX,76903
+Tom Green,TXDOT,4502 Knickerbocker Rd. Bldg. E,,San Angelo,TX,76904
+Tom Green,Veribest Baptist Church,50 FM 2334,,Veribest,TX,76886
+Tom Green,Wesley Trinity United Methodist Ch.,301 West 18th,,San Angelo,TX,76903
+Tom Green,West Texas Rehab Conference Ctr.,1925 University Ave.,,San Angelo,TX,76904
+Tom Green,Southgate Church of Christ,528 Country Club Rd.,,San Angelo,TX,76904
+McClennan,Axtell School Ath. Meeting Room,312 W. Seley,,Axtell,TX,76624
+McClennan,Bellmead Civic Center,3900 Parrish St.,,Waco,TX,76705
+McClennan,Brazos Meadows Baptist Church,625 S. Hewitt Drive,,Hewitt,TX,76643
+McClennan,Bruceville-Eddy Isd Special Events Center,1 Eagle Drive,,Eddy,TX,76524
+McClennan,Calvary Baptist Church,1001 N. 18th A St.,,Waco,TX,76707
+McClennan,Central Christian Church,4901 Lake Shore Drive,,Waco,TX,76710
+McClennan,Cesar Chavez Middle School,700 S. 15th Street,,Waco,TX,76706
+McClennan,Chalk Bluff Baptist Church,5993 Gholson Road,,Waco,TX,76705
+McClennan,China Spring Intermediate School,4001 Flat Rock Rd.,,Waco,TX,76708
+McClennan,Crawford High School,200 Pirate Drive,,Crawford,TX,76638
+McClennan,Fellowship Bible Church,5200 Speegleville Rd.,,McGregor,TX,76657
+McClennan,First Assembly Of God Church,6701 Bosque Blvd.,,Waco,TX,76710
+McClennan,G.W. Carver Middle School,1601 J. J. Flewellen Road,,Waco,TX,76704
+McClennan,Hewitt First Baptist Church,301 S. 1st Street,,Hewitt,TX,76643
+McClennan,H.W. Isbill Junior High,305 W. Van Buren St.,,McGregor,TX,76657
+McClennan,Lacy Lakeview Civic Center,505 E. Craven Ave.,,Waco,TX,76705
+McClennan,Lorena City Hall,107-A S. Frontage Road,,Lorena,TX,76655
+McClennan,Mart Community Center,804 E. Bowie Ave.,,Mart,TX,76664
+McClennan,Mcc Conference Center,4601 N. 19th Street,,Waco,TX,76708
+McClennan,Mhmr Center For Dev. Services,3420 W. Waco Drive,,Waco,TX,76710
+McClennan,Moody First United Methodist Church,500 6th St.,,Moody,TX,76657
+McClennan,Riesel Isd Administration Building,600 Frederick Street,,Riesel,TX,76682
+McClennan,Robinson Community Center,106 W. Lyndale,,Robinson,TX,76706
+McClennan,South Waco Library,2737 S. 18th Street,,Waco,TX,76706
+McClennan,Speegleville Baptist Church,469 Speegle Road,,Waco,TX,76712
+McClennan,Tennyson Middle School,6100 Tennyson Drive,,Waco,TX,76710
+McClennan,University High School,3201 S. New Road,,Waco,TX,76706
+McClennan,Waco Convention Center,100 Washington Ave.,,Waco,TX,76701
+McClennan,Waco High School (Performing Arts Center),2020 N. 42nd St.,,Waco,TX,76710
+McClennan,Waco Multi-Purpose Community Center,1020 Elm Street,,Waco,TX,76704
+McClennan,West Community Center,200 Tokio Road,,West,TX,76691
+McClennan,Woodway First Baptist Church,13000 Woodway Drive,,Woodway,TX,76712
+Randall,The Cowboy Church,8827 S.Washington,,Amarillo,TX,79118
+Randall,Comanche Trail Church of Christ,2700 E. 34th,,Amarillo,TX,79103
+Randall,Randall County Justice Center,2309 Russell Long Blvd,,Canyon,TX,79015
+Randall,Southwest Church of Christ,4515  Cornell,,Amarillo,TX,79109
+Randall,Redeemer Christian Church,3701 S. Soncy,,Amarillo,TX,79121
+Randall,Region 16 Education Center,5800 Bell Street,,Amarillo,TX,79109
+Randall,Randall County Fire Department # 2,9451 FM 2186,,Amarillo,TX,79119
+Randall,Arden Road Baptist,6701 Arden Road,,Amarillo,TX,79109
+Randall,Central Baptist Church,1601SW 58th,,Amarillo,TX,79110
+Randall,Paramount Baptist Church,4100 Kristee,,Amarillo,TX,79109
+Randall,Oasis Southwest Baptist,8201 Canyon Drive,,Amarillo,TX,79110
+Randall,Randall County Annex,4111S. Georgia,,Amarillo,TX,79110
+Randall,The Summit 2008,12th Avenue,,Canyon,TX,79015
+Randall,Coulter Road Baptist Church,4108 S. Coulter,,Amarillo,TX,79109
+Taylor,Abilene City Hall,555 Walnut Street,,Abilene,TX,79601
+Taylor,Buffalo Gap City Hall,709 Litel Street,,Buffalo Gap,TX,79508
+Taylor,Church of Christ – So. 11th & Willis,3333 South 11th Street,,Abilene,TX,79605
+Taylor,Elm Valley Community Church,142 CR 675,,Tuscola,TX,79562
+Taylor,First Baptist Church – Tuscola,632 Kent Street,,Tuscola,TX,79562
+Taylor,Hillcrest Church of Christ,650 E. Ambler Avenue,,Abilene,TX,79601
+Taylor,Kmart,565 South 1st Street,,Abilene,TX,79605
+Taylor,Lawn Baptist Church,518 Avenue D,,Lawn,TX,79530
+Taylor,Lytle South Baptist Church,1125 E. Industrial Blvd,,Abilene,TX,79602
+Taylor,Merkel Middle School Gym (South 3rd & Ash Street),302 Ash St,,Merkel,TX,79536
+Taylor,New Beginnings United Pentecostal Church River of Life Church,5535 Buffalo Gap Rd,,Abilene,TX,79606
+Taylor,River of Life Church,539 US-83,,Abilene,TX,79606
+Taylor,Sears Park Recreation Center,2250 Ambler Ave,,Abilene,TX,79603
+Taylor,Southern Hills Church of Christ,3666 Buffalo Gap Rd.,,Abilene,TX,79605
+Taylor,Taylor County Plaza,400 Oak Street,,Abilene,TX,79602
+Taylor,Thomas Elementary School,1240 Lakeside Drive,,Abilene,TX,79605
+Taylor,Trinity Baptist Church,3100 State Street,,Abilene,TX,79603
+Taylor,View Baptist Church,250 Boynton Road,,Abilene,TX,79606
+Taylor,Westminster Presbyterian Church,4515 South 14th Street,,Abilene,TX,79605
+Taylor,Zion Lutheran Church,2801 Antilley Road,,Abilene,TX,79606
+Midland,Annex Courtroom,2110 North A,,Midland,TX,79705
+Midland,Centennial Library,2503 W. Loop 250 N.,,Midland,TX,79705
+Midland,Cogdell Learning Center,211 W. Florida,,Midland,TX,79701
+Midland,Cotton Flat Baptist Church,6409 S. Highway 349,,Midland,TX,79706
+Midland,Downtown Library,301 W. Missouri,,Midland,TX,79701
+Midland,Fairmont Park Church Of Christ,3813 N. Midland Dr.,,Midland,TX.,79707
+Midland,Fellowship Community Church,5206 N. Midland Dr.,,Midland,TX,79707
+Midland,Golf Course Church Of Christ,3500 W. Golf Course,,Midland,TX,79703
+Midland,Greater Ideal Life Center,301 S. Tyler,,Midland,TX,79701
+Midland,Greenwood Baptist Church,10908 Fm 307,,Midland,TX,79706
+Midland,Manor Park,5212 Sinclair,,Midland,TX,79707
+Midland,"MLK, Jr Community Center",2300 Butternut,,Midland,TX,79705
+Midland,Odessa Country Club,#1 Fairway,,Odessa,TX,79765
+Midland,Palmer Drug (PDAP),1208 W. Wall,,Midland,TX,79701
+Midland,St. Paul'S Methodist Church,4501 Thomason,,Midland,TX,79703
+Midland,Stonegate Fellowship,6000 W. Wadley,,Midland,TX,79707
+Grayson,Bells City Hall,203 S. Broadway,,Bells,TX,75414
+Grayson,Collinsville Community Building,117 N. Main,,Collinsville,TX,76233
+Grayson,Grayson College-Denison,6101 Grayson Dr.,,Denison,TX,75020
+Grayson,Grayson County Sub-Courthouse,101 W. Woodard,,Denison,TX,75021
+Grayson,Parkside Baptist Church,301 N. Lillis Lane,,Denison,TX,75020
+Grayson,Southside Baptist Church,3500 S. Park,,Denison,TX,75020
+Grayson,Faith Baptist Church,31647 Hwy. 377 N.,,Gordonville,TX,76245
+Grayson,First Baptist Church,99 Gentle Creek Lane,,Gunter,TX,75058
+Grayson,Howe Community Center,700 W. Hanning,,Howe,TX,75459
+Grayson,Pottsboro ISD Administration Bldg,105 Cardinal Lane,,Pottsboro,TX,75076
+Grayson,Sadler Community Building,105 N. Main,,Sadler,TX,76264
+Grayson,East Sherman Baptist Church,910 E. King,,Sherman,TX,75090
+Grayson,Election Administration Building,115 W. Houston,,Sherman,TX,75090
+Grayson,Faith Church,1800 N. FM 1417,,Sherman,TX,75092
+Grayson,Luella First Baptist Church,3162 Hwy. 11,,Sherman,TX,75090
+Grayson,Municipal Building,405 N. Rusk,,Sherman,TX,75090
+Grayson,Texoma Council of Governments,1117 Gallagher Dr.,,Sherman,TX,75090
+Grayson,United Way of Grayson County,713 E. Brockett,,Sherman,TX,75090
+Grayson,Tioga Fire Dept. Meeting Room,601 E. Main St.,,Tioga,TX,76271
+Grayson,First National Bank-Tom Bean,109 S. Britton,,Tom Bean,TX,75489
+Grayson,Grayson College-Van Alstyne,1455 W. Van Alstyne Pkwy.,,Van Alstyne,TX,75495
+Grayson,Whitesboro City Hall,111 W. Main,,Whitesboro,TX,76273
+Grayson,Whitewright City Hall,206 W. Grand,,Whitewright,TX,75491
+Ector,Crossroads Fellowship Iglesia Crossroads,6901Texas 191 Frontage Rd.,,Odessa,TX,79762
+Ector,Ector County Coliseum El Coliseo de Ector,4201 Andrews Hwy.,,Odessa,TX,79762
+Ector,First Baptist Church Primera Iglesia Bautista,709 N. Lee St.,,Odessa,TX,79761
+Ector,First Church of the Nazarene Primera Iglesia de Nazareno,2223 Lyndale Dr.,,Odessa,TX,79762
+Ector,Gardendale Community Bldg. Edificio Comunitario de Gardendale,4226 E. Larkspur,,Gardendale,TX,79758
+Ector,Getsemani Church Iglesia Getsemani,822 E. Glenn St.,,Odessa,TX,79766
+Ector,Goldsmith Community Center Edificio Comunitario de Goldsmith,301 Phillips Plant Rd.,,Goldsmith,TX,79741
+Ector,Holy Redeemer Catholic Church Iglesia Cat61ica Holy Redeemer,2633 Conover Ave.,,Odessa,TX,79763
+Ector,Lincoln TowerCasa de Retiro Lincoln Tower,311 W. 4th St.,,Odessa,TX,79761
+Ector,Lowe's Family Center Centro Familiar Lowe's,7528 W. University Blvd.,,Odessa,TX,79764
+Ector,Lutheran Church of the Risen Lord Iglesia Luterana del Senor Resucitado,1603 N. Grandview Ave.,,Odessa,TX,79761
+Ector,MCH Primary Care Centro Medico MCH,3001JBS Parkway,,Odessa,TX,79762
+Ector,MCH Primary Care Centro Medico MCH,6030 W University Blvd.,,Odessa,TX,79764
+Ector,Murry Fly Elementary Escuela Primaria Murry Fly,11688 W. Westview Dr.,,Odessa,TX,79764
+Ector,Northside Senior Center Centro de Ancianos Northside,1225 N. Adams Ave.,,Odessa,TX,79761
+Ector,Odessa Christian Faith Center180 Youth Bldg. Iglesia Odessa Christian Faith Center (Edificio 180),8828 Andrews Hwy.,,Odessa,TX,79762
+Ector,Odessa College Sports CenterCentro de Deportes Del Colegio de Odessa,201 W. University Blvd.,,Odessa,TX,79764
+Ector,Saint Luke's United Methodist Church Iglesia Metodista Saint Luke's,1601 E. 42nd St.,,Odessa,TX,79762
+Ector,Salinas Community Bldg. Edificio Comunitario Salinas,600 W. Clements St.,,Odessa,TX,79761
+Ector,Sherwood Community Bldg.Edificio Comunitario Sherwood,4819 N. Everglade Ave.,,Odessa,TX,79762
+Ector,St. Elizabeth Catholic Church Iglesia Cat61ica St. Elizabeth,7601 N.Grandview Ave .,,Odessa,TX,79765
+Ector,VFW Bingo Hall Bingo del VFW,208 E. 63rd St.,,Odessa,TX,79762
+Ector,Westlake HardwareTienda Ferreterfa Westlake,4652 E. University Blvd.,,Odessa,TX,79761
+Ector,Woodson Community Bldg. Edificio Comunitario Woodson,1010 E. Murphy St.,,Odessa,TX,79761
+Coryell,Copperas Cove Civic Center,1206 W Ave B,,Copperas Cove,TX,76522
+Coryell,Holy Family Catholic Church,1201 Veterans Ave,,Copperas Cove,TX,76522
+Coryell,Eastside Baptist Church,1202 ML King Jr BLVD,,Copperas Cove,TX,76522
+Coryell,Copperas Cove Annex,201 S. 2nd St,,Copperas Cove,TX,76522
+Coryell,Gatesville Annex,801 E Leon St,,Gatesville,TX,76528
+Coryell,Gatesville Civic Center,303 Veterans Memorial,,Gatesville,TX,76528
+Coryell,Evant City Hall,598 E Hwy 84,,Evant,TX,76525
+Coryell,Flat Community Center,159 CR 334,,Flat,TX,76544
+Coryell,Oglesby Community Center,118 Main St,,Oglesby,TX,76561
+Aransas,Rockport G.I. Forum,1911 Hardee Street,,Rockport,TX,78382
+Aransas,Agrilife Extension Building,892 Airport Road,,Rockport,TX,78382
+Aransas,Rockport VFW Hall,411 E. Market Street,,Rockport,TX,78382
+Aransas,Lamar Fire Station,302 Bois D’Arc,,Rockport,TX,78382
+Borden,BORDEN COUNTY COURTHOUSE,117 E Wassom,,Gail,TX,79738
+Borden,COUNTY CLERK’S OFFICE,117 E Wassom,,Gail,TX,79738
+Williamson,Bethany United Methodist Church ,10010 Anderson Mill Rd Austin,,Austin,TX,78750
+Williamson,Gateway Church ,7104 McNeil Austin,,Austin,TX,78717
+Williamson,Kelly Reeves Athletic Complex ,10211 W Parmer Lane Austin,,Austin,TX,78626
+Williamson,La Quinta Inn & Suites ­ ,AUS 10701 Lakeline Mall Dr Austin,,Austin,TX,78750
+Williamson,Cedar Park City Hall ,"450 Cypress Creek Rd, Bldg 3 Cedar Park",,Cedar Park,TX,78628
+Williamson,Cedar Park Library*                               ,550 Discovery Blvd Cedar Park,,Cedar Park,TX,78628
+Williamson,Cedar Park Recreation Center ,"1435 Main St, Town Center Cedar Park",,Cedar Park,TX,78729
+Williamson,Highland Estates IRL ,1500 N Lakeline Blvd Cedar Park,,Cedar Park,TX,78628
+Williamson,Vista Ridge HS ,200 S Vista Ridge Blvd Cedar Park,,Cedar Park,TX,78729
+Williamson,Coupland School ,620 S Commerce St Coupland,,Coupland,TX,78626
+Williamson,Andice Comm. Center ,6600 FM 970 Andice Florence,,Florence,TX,78633
+Williamson,Florence City Hall ,106 S Patterson Ave Florence,,Florence,TX,78615
+Williamson,County Central Maintenance Facility ,3151 SE Inner Loop Georgetown,,Georgetown,TX,78633
+Williamson,Cowan Creek Amenity Center*          ,1433 Cool Spring Way Georgetown,,Georgetown,TX,78634
+Williamson,Estrella Oaks Rehab & Care ,4011 Williams Dr Georgetown,,Georgetown,TX,76537
+Williamson,First Baptist Church ­ Georgetown ,1333 W University Ave Georgetown,,Georgetown,TX,78641
+Williamson,Georgetown Airport ­ Terminal Bldg ,500 Terminal Dr Georgetown,,Georgetown,TX,76527
+Williamson,GISD Administration Bldg* ,603 Lakeway Dr Georgetown,,Georgetown,TX,78626
+Williamson,Main Street Baptist Church ,111 West 10th St ­ Ministry Center Georgetown,,Georgetown,TX,78628
+Williamson,San Gabriel Presbyterian Church ,5404 Williams Dr Georgetown,,Georgetown,TX,78641
+Williamson,Sun City Social Center ,2 Texas Dr Georgetown,,Georgetown,TX,78641
+Williamson,Williamson County Inner Loop Annex* ,301 S E Inner Loop Georgetown,,Georgetown,TX,76527
+Williamson,SPJST Hall ,114 W Davilla St Granger,,Granger,TX,78717
+Williamson,Hutto ISD Admin. Building* ,200 College St Hutto,,Hutto,TX,76511
+Williamson,Jarrell Memorial Park Comm. Cntr ,1651 CR 305 Jarrell,,Jarrell,TX,78634
+Williamson,Leander Church of Christ ,300 Crystal Falls Parkway Leander,,Leander,TX,78641
+Williamson,Leander High School ,3301 S Bagdad Rd Leander,,Leander,TX,78664
+Williamson,Pat Bryson Municipal Hall*                 ,201 N Brushy St Leander,,Leander,TX,78664
+Williamson,Baca Senior Center*,"301 W Bagdad Ave, Bldg 2 ROUND ROCK",,Round Rock,TX,78665
+Williamson,Bluebonnet  Trail Comm. Services ,1009 N Georgetown Ave Round Rock,,Round Rock,TX,78641
+Williamson,Brushy Creek Comm. Center*         ,16318 Great Oaks Dr Round Rock,,Round Rock,TX,78681
+Williamson,Cedar Ridge High School ,2801 Gattis School Rd Round Rock,,Round Rock,TX,78681
+Williamson,Dell Diamond Heritage Center ,3400 E PALM VALLEY BLVD Round Rock,,Round Rock,TX,78664
+Williamson,Fern Bluff MUD Comm. Center ,7320 Wyoming Springs Dr ROUND ROCK,,Round Rock,TX,78664
+Williamson,JB & Hallie Jester  Annex*                  ,1801 E Old Settlers Blvd Round Rock,,Round Rock,TX,78664
+Williamson,Round Rock High School ,300 N Lake Creek Dr Round Rock,,Round Rock,TX,78664
+Williamson,Round Rock Presbyterian Church ,4010 Sam Bass Rd Round Rock,,Round Rock,TX,78681
+Williamson,Round Rock Randalls* ,2051 Gattis School Road Round Rock,,Round Rock,TX,78681
+Williamson,San Gabriel Rehab & Care ,4100 College Park Dr Round Rock,,Round Rock,TX,78664
+Williamson,Sleep Inn & Suites ,1980 South IH 35 (Ex 251 McNeil Rd) Round Rock,,Round Rock,TX,78681
+Williamson,Teravista Comm. Center ,4211 Teravista Club Dr Round Rock,,Round Rock,TX,76574
+Williamson,The Fellowship Church of Round Rock ,3379 Gattis School Rd Round Rock,,Round Rock,TX,76578
+Williamson,Williamson County Annex,"211 Commerce Blvd., Bldg B Round Rock",,Round Rock,TX,75704
+Williamson,Main Street Events Center ,3101 North Main Taylor,,Taylor,TX,78664
+Williamson,Taylor City Hall*                                     , 400 PORTER ST Taylor,,Taylor,TX,75706
+Williamson,Taylor Public Library ,801 Vance St Taylor,,Taylor,TX,75702
+Williamson,First Baptist Church of Weir ,315 FM 1105 Weir,,Weir,TX,75701
+Smith,Bell Elementary,1409 Hankerson St,,Tyler,TX,75704
+Smith,New Harmony Baptist Church,10251 FM 724,,Tyler,TX,75708
+Smith,Rose Heights Church of God,2120 Old Omen Rd,,Tyler,TX,75703
+Smith,Old Tyler Airport,150 Airport Dr,,Tyler,TX,75701
+Smith,St Louis Baptist Church,4000 Frankston Hwy,,Tyler,TX,75771
+Smith,Red Springs Fire Department,16759 FM 14,,Tyler,TX,75703
+Smith,Boulter Middle School,2926 Garden Valley Rd,,Tyler,TX,75702
+Smith,Chapel Hill High School,13172 Hwy 64 E,,Tyler,TX,75791
+Smith,Glass Recreation Center,501 W 32nd St,,Tyler,TX,75705
+Smith,Jackson Elementary School,16406 FM 2767,,Tyler,TX,75701
+Smith,Heritage Building,1900 W BELLWOOD RD,,Tyler,TX,75702
+Smith,Arp 1stBaptist Church,304 S Front,,Arp,TX,75791
+Smith,Jones/Broshears Elementary,3450 Chandler Hwy,,Tyler,TX,75702
+Smith,Bullard 1stMethodist Church,204 Rather St,,Bullard,TX,75703
+Smith,TJ Austin Elementary School,1105 W Franklin St,,Tyler,TX,75792
+Smith,Flint Baptist Church,11131 FM 2968 W,,Flint,TX,77808
+Smith,Bethel Bible Church,17121 Hwy 69 S,,Tyler,TX,75789
+Smith,Broadway Church of Christ,100 Cumberland Rd,,Tyler,TX,79766
+Smith,Lindale Public Library,200 E Hubbard St,,Lindale,TX,75791
+Smith,Noonday Community Center,16662 CR 196,,Tyler,TX,76020
+Smith,Cameron Jarvis Library,102 S Georgia St,,Troup,TX,75704
+Smith,Owens Elementary School,11780 CR 168,,Tyler,TX,76020
+Smith,1st Church of the Nazarene,3700 OLD BULLARD RD,,Tyler,TX,77845
+Smith,Mt. Carmel Baptist Church,10519 FM 344 E,,Whitehouse,TX,77845
+Smith,Whitehouse Municipal Court,311 E Main St,,Whitehouse,TX,76082
+Smith,Shiloh Pines Mobile Home Community,2525 Shiloh Road,,Tyler,TX,76082
+Smith,Starrville Church of the Living God,18396 Hwy 271,,Winona,TX,78665
+Smith,Dover Baptist Church,21166 FM 1995,,Tyler,TX,76085
+Smith,Victor Kay Gymnasium,605 Wildcat Dr,,Winona,TX,76020
+Brazos,Christ United Methodist Church,4201 State Hwy 6 South,,College Station,TX,76082
+Ector,Pleasant Farms Community Bldg. Edificio Comunitario Pleasant Farms,4455 West Apple St.,,Odessa,TX,76574
+Parker,RENO CITY HALL,195 W. RENO RD.,,RENO,TX,75701
+Parker,SILVER CREEK METHODIST CHURCH,2200 CHURCH RD. OFF 730,,AZLE,TX,76082
+Parker,CROSSTIMBERS ELEMENTARY SCHOOL,831 JACKSON TRAIL,,AZLE,TX,76086
+Parker,FIRST BAPTIST SPRINGTOWN,500 N. MAIN,,SPRINGTOWN,TX,76082
+Parker,OUTREACH OF LOVE CHURCH,3591 E. HWY 199,,SPRINGTOWN,TX,76088
+Parker,PARKER COUNTY NE ANNEX,1020 E. HWY.199,,SPRINGTOWN,TX,76086
+Parker,FRIENDSHIP BAPTIST CHURCH,801 FRIENDSHIP RD.,,WEATHERFORD,TX,76086
+Parker,AGNES BAPTIST CHURCH,350 AGNES NORTH,,SPRINGTOWN,TX,76086
+Parker,HARBERGER HILL COMMUNITY CTR RM B 701,NARROW ST.,,WEATHERFORD,TX,75701
+Parker,TRINITY LUTHERAN CHURCH,1500 BALL ST.,,WEATHERFORD,TX,76086
+Parker,POOLVILLE METHODIST CHURCH,230 NORTH CHURCH,,POOLVILLE,TX,76086
+Parker,WHITT FIRE DEPT,4312 N FM RD 52,,WHITT,TX,75707
+Parker,CALVARY BAPTIST CHURCH,1900 N. MAIN ST,,WEATHERFORD,TX,76087
+Parker,SHADY GROVE BAPTIST CHURCH,2470 W. LAMBERT RD.,,WEATHERFORD,TX,76087
+Parker,VICTORY BAPTIST CHURCH,1311 EAST BANKHEAD DR.,,WEATHERFORD,TX,76087
+Parker,PHOENIX MASONIC LODGE,1009 PALO PINTO ST,,WEATHERFORD,TX,76087
+Parker,SANTA FE DRIVE BAPTIST CHURCH,1502 SANTA FE DRIVE,,WEATHERFORD,TX,76088
+Parker,MILLSAP COMMUNITY CTR,104 FANNIN ST,,MILLSAP,TX,75702
+Parker,HARMONY BAPTIST CHURC,242 HARMONY ROAD,,WEATHERFORD,TX,75757
+Parker,PARKER COUNTY ESD # 6,4970 TIN TOP RD.,,WEATHERFORD,TX,76087
+Parker,BROCK BAPTIST CHURCH,2111 FM 1189,,BROCK,TX,75703
+Parker,FIRST BAPTIST CHURCH OF DENNIS,7600 FM 1189,,DENNIS,TX,76008
+Parker,SPRING CREEK BAPTIST CHURC,100 SPRING CREEK RD.,,WEATHERFORD,TX,77845
+Parker,GREENWOOD FIRE DEPARTMENT,1418 GREENWOOD CUT-OFF ROAD,,WEATHERFORD,TX,76086
+Parker,HUDSON OAKS CITY HALL,210 LAKESHORE DR,,WEATHERFORD,TX,76008
+Parker,WILLOW PARK MUNICIPAL BLDG,516 RANCH HOUSE RD,,WILLOW PARK,TX,76008
+Parker,CHURCH OF GOD CAMPGROUND,2240 FT WORTH HWY.,,WEATHERFORD,TX,76008
+Parker,ALEDO COMMUNITY CENTER,104 ROBINSON CT.,,ALEDO,TX,76020
+Parker,ALEDO ISD ADMIN. BUILDING,1008 BAILEY RANCH ROAD,,ALEDO,TX,75703
+Parker,NEW FAITH BAPTIST,3303 WEST FM 5,,ANNETTA,TX,77803
+Parker,PARKER COUNTY PRECINCT BARN #4,1320 AIRPORT ROAD,,ALEDO,TX,75792
+Parker,LAKESHORE DRIVE BAPTIST CHURCH,200 S. LAKESHORE DR.,,HUDSON OAKS,TX,77840
+Parker,AZLE MASONIC LODGE,257 W. MAIN,,AZLE,TX,76087
+Brazos,Lincoln Center,1000 Eleanor,,College Station,TX,76087
+Brazos,Memorial Student Center,Texas A&M Campus,,College Station,TX,77845
+Brazos,Parkway Baptist Church,,,College Station,TX,75771
