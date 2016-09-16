@@ -4,6 +4,7 @@ node_js:
 before_install:
 - openssl aes-256-cbc -K $encrypted_7f3fd3b3a83d_key -iv $encrypted_7f3fd3b3a83d_iv
   -in voteatx.pem.enc -out voteatx.pem -d
+- chmod 600 voteatx.pem
 script:
 - echo "normally you'd run 'npm test' or something"
 after_success:
