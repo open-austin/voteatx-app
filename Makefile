@@ -29,6 +29,7 @@ DAEMON_START_CMD='NODE_ENV=production /home/ubuntu/.nvm/versions/node/v6.5.0/bin
 	--workingDir=/var/www/voteatx-app/public \
 	--uid "voteatx-app"'
 DAEMON_STOP_CMD='/home/ubuntu/.nvm/versions/node/v6.5.0/bin/forever stop voteatx-app'
+SSH_OPTIONS=-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i voteatx.pem
 
 # sed out the VOTEATX_SVC url in favor of the prod url.
 # the prod url is http://54.191.204.32:1337
@@ -38,13 +39,13 @@ prod_svc_url :
 	sed -ri ${SVC_URL_SED_REGEX} frozen/mappit.js
 
 push : prod_svc_url
-	scp -r -i voteatx.pem public/* ${PROD_SSH_DOMAIN}:/var/www/voteatx-app/public/
+	scp -r ${SSH_OPTIONS} public/* ${PROD_SSH_DOMAIN}:/var/www/voteatx-app/public/
 
 start :
-	ssh -i voteatx.pem ${PROD_SSH_DOMAIN} sudo ${DAEMON_START_CMD} /usr/local/bin/http-server -p 80
+	ssh ${SSH_OPTIONS} ${PROD_SSH_DOMAIN} sudo ${DAEMON_START_CMD} /usr/local/bin/http-server -p 80
 
 stop :
-	ssh -i voteatx.pem ${PROD_SSH_DOMAIN} sudo ${DAEMON_STOP_CMD} || echo "ignoring a failure to stop. continuing tasks"
+	ssh ${SSH_OPTIONS} ${PROD_SSH_DOMAIN} sudo ${DAEMON_STOP_CMD} || echo "ignoring a failure to stop. continuing tasks"
 
 restart : stop start
 
