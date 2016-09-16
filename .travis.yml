@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+- 6.5.0
+before_install:
+- openssl aes-256-cbc -K $encrypted_7f3fd3b3a83d_key -iv $encrypted_7f3fd3b3a83d_iv
+  -in voteatx.pem.enc -out voteatx.pem -d
+script:
+- echo "normally you'd run 'npm test' or something"
+after_success:
+- test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && make deploy
