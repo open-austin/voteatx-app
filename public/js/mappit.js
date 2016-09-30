@@ -25,9 +25,9 @@ $(document).ready(function() {
 	function mappViewModel() {
 		/*
 		 *  Configuration
-		 * 
+		 *
 		 * Queries: D (DEBUG), SVC (VOTEATX_SVC url), g (Geolocation), clk (click to update), time (test alt times)
-		 * 
+		 *
 		 */
 		var DEBUG = false;
 		if (queryParams["D"]) {
@@ -293,7 +293,7 @@ $(document).ready(function() {
 			self.spinnerVisibility(true);
 
 			// reset voting precinct info
-			self.preCheck(false);
+			// self.preCheck(false);
 			if (self.preOverlay[self.preID()]) {
 				self.preOverlay[self.preID()].setMap(null);
 			}
@@ -339,10 +339,12 @@ $(document).ready(function() {
 					if (response.districts.precinct) {
 						self.preID(response.districts.precinct.id);
 						$(".region-id").prop("disabled", false);
+						if (self.preCheck()) displayRegionOverlay('precinct');
 						// TODO - save region, if present
 					}
 					if (response.districts.city_council) {
 						self.coID(response.districts.city_council.id);
+						// if (self.coCheck()) displayRegionOverlay();
 						// TODO - save region, if present
 					}
 				}
